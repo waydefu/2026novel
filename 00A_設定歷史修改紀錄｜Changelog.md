@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-09-02-002
+
+## DATE：2026-09-02 00:06 +08:00
+
+## TYPE：GOVERNANCE
+
+## SCOPE：GitHub ruleset `main-governance-ci`（id 22027890）、`governance/main-ruleset.json`
+
+## BEFORE：`main` 無保護，可直接 push、繞過 PR 與 Governance CI。
+
+## AFTER：`main` 以 active ruleset 上鎖：必須 PR、必須 `gate-proven`、禁止 force push、禁止刪除。Admin（RepositoryRole 5）可 always bypass，已寫進 `governance/main-ruleset.json` 與 README，不是隱藏後門。
+
+## REASON：CI 全綠後補上 GitHub 門鎖，完成第一條真閉環。
+
+## AUTHORITY：作者指示 CI 全綠後設 main ruleset。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：GitHub API `branches/main.protected=true`；rulesets 含 `main-governance-ci`。
+
 ## CHG-2026-09-02-001
 
 ## DATE：2026-09-02 00:00 +08:00
