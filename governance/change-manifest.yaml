@@ -1,0 +1,7 @@
+schema: governance-change-manifest/v1
+revision_level: R0
+target: ops-runtime
+canon_change: false
+governance_sync: false
+backup_ref: null
+notes: "SSS Gate-Proven Baseline tooling only. No live prose rewrite, no Canon change."
