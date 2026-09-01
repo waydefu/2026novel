@@ -1,0 +1,58 @@
+name: Governance CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gate-proven:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Determine git base
+        id: base
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "ref=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "ref=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Run Gate-Proven suite
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          EVIDENCE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVIDENCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVIDENCE_TESTED_SHA: ${{ github.sha }}
+          EVIDENCE_TESTED_REF_TYPE: ${{ github.event_name == 'pull_request' && 'pull_request_merge_candidate' || 'push_head' }}
+        run: |
+          if [ -n "${{ steps.base.outputs.ref }}" ]; then
+            python evals/ci_suite.py --git-base "${{ steps.base.outputs.ref }}"
+          else
+            python evals/ci_suite.py
+          fi
+      - name: Upload commit-bound evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-evidence-head-${{ github.event.pull_request.head.sha || github.sha }}
+          path: governance/evidence/*.json
+          if-no-files-found: warn
+
+  pattern-risk-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pattern-risk candidates (informational)
+        run: python tools/scan_pattern_risk.py

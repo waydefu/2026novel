@@ -4,3 +4,9 @@ Desktop.ini
 ~$*
 *.tmp
 *.bak
+__pycache__/
+*.pyc
+governance/evidence/*.json
+governance/capsules/*.json
+governance/capsules/*.md
+!governance/capsules/README.md

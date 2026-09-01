@@ -50,6 +50,86 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-09-02-002
+
+## DATE：2026-09-02 00:06 +08:00
+
+## TYPE：GOVERNANCE
+
+## SCOPE：GitHub ruleset `main-governance-ci`（id 22027890）、`governance/main-ruleset.json`
+
+## BEFORE：`main` 無保護，可直接 push、繞過 PR 與 Governance CI。
+
+## AFTER：`main` 以 active ruleset 上鎖：必須 PR、必須 `gate-proven`、禁止 force push、禁止刪除。Admin（RepositoryRole 5）可 always bypass，已寫進 `governance/main-ruleset.json` 與 README，不是隱藏後門。
+
+## REASON：CI 全綠後補上 GitHub 門鎖，完成第一條真閉環。
+
+## AUTHORITY：作者指示 CI 全綠後設 main ruleset。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：GitHub API `branches/main.protected=true`；rulesets 含 `main-governance-ci`。
+
+## CHG-2026-09-02-001
+
+## DATE：2026-09-02 00:00 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/check_revision_gate.py` path parser、`write_evidence.py` 三 SHA、evals 0.2.1、Governance CI artifact 命名
+
+## BEFORE：`posix()` 用 `lstrip("./")` 把 `.github`／`.grok`／`.gitignore` 剝成 `github`／`grok`／`gitignore`；`git diff --name-only` 預設 quote 非 ASCII 路徑，Revision Gate 在 GitHub Actions 假陽性失敗。Evidence 只存 `github.sha`，PR 上被當成 merge candidate 而與 head SHA 對不上。
+
+## AFTER：path 只去掉開頭 `./`、保留 dotfile；git 用 `core.quotePath=false` 與 `-z`，並能 unescape C-quote。Evidence 改為 `base_sha`／`head_sha`／`tested_sha`／`tested_ref_type`。R0 規則未放寬。evals 增加 `.github`／`.grok`／中文檔名 integration cases。
+
+## REASON：修 GitHub 實戰抓到的 path transport bug，不改閘門寬度。
+
+## AUTHORITY：作者指示只修 path parser、三 SHA evidence、CI 全綠後 main ruleset。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`posix(".github/...")` 仍以 `.github` 開頭；quoted `00A_…Changelog.md` 能分類為 ops；`evals/run_evals.py` 通過。
+
+## CHG-2026-09-01-005
+
+## DATE：2026-09-01 23:30 +08:00
+
+## TYPE：GOVERNANCE / FORMAT
+
+## SCOPE：tools／evals／CI、governance/change-manifest、`.grok/skills/` 五條流程（不新增 skill）、00 16.10、99_備份 Compiler 誘餌檔
+
+## BEFORE：Governance Runtime v0.1：五個 skill 與 6 個 scanner evals；hard-gate 可能誤傷 00A／11／備份；R0–R4 沒有機械 enforcement；Capsule 不可追溯；沒有 backup lure、drift、commit-bound evidence 或 recovery drill。
+
+## AFTER：Gate-Proven Baseline。hard-gate 改為 path-aware（只 enforce 現行正文）；R-level 讀 change-manifest；`compile_context.py` 產出 provenance 且拒絕 `99_備份`；evals 擴成含 negative controls 的迴歸；CI 寫 SHA-bound evidence artifact；fixture recovery drill 證明 backup→mutate FAIL→restore PASS。`99_備份/00_非現行｜Compiler誘餌｜請勿施工.md` 只作負向控制，無 Canon 權威。
+
+## REASON：把現有五條路跑硬，形成可證明的閉環，而不是再加 skill。
+
+## AUTHORITY：作者指示補齊 negative controls、R-level gate、provenance、commit-bound evidence、recovery drill；先不 commit、不加 skill。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/run_evals.py` 案例數 ≥20 且全過；Compiler 輸出不含 `LURE_TOKEN_SHADOW_PRINCESS_NOT_CANON`。
+
+## CHG-2026-09-01-004
+
+## DATE：2026-09-01 22:57 +08:00
+
+## TYPE：GOVERNANCE / FORMAT
+
+## SCOPE：`.grok/skills/`、`tools/`、`evals/`、`.github/workflows/governance-ci.yml`、00 根規則導航 16.10、README
+
+## BEFORE：Governance 2.0 已把規則、Canon 與狀態留在 00／01–06／09／11，但施工步驟仍靠代理每次重讀長文，沒有專案內 skill、機械掃描或 CI。
+
+## AFTER：權威來源不變。新增操作層：`.grok/skills/` 只編碼 Capsule／DRAFT／QA／11 同步／備份步驟；`tools/` 掃 HARD GATE 與 PATTERN RISK 候選；`evals/` 迴歸掃描器本身；CI 對現行正文跑 hard-gate，PATTERN RISK 只報告。00 增補 [OPS] 導航與 16.10，明確 skills／工具不具 Canon 權威。
+
+## REASON：把操作流程工具化，同時避免把治理表或 Fail Code 複製進 skill 造成第二套權威。
+
+## AUTHORITY：作者指示「現有 Governance → 保持 authority → .grok/skills/ → 把操作流程工具化 → tools / evals / CI」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：skills 內容指向現行檔而不複製規則表；`python evals/run_evals.py` 通過；現行正文 hard-gate 通過。
+
 ## CHG-2026-09-01-003
 
 ## DATE：2026-09-01 02:16 +08:00

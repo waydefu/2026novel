@@ -114,6 +114,10 @@ https://docs.google.com/document/d/1v4NPt-6F0MyNf8XHdyQo0GL9zr_Aq38lUApf1yMJWD0/
 
 ## 現行內容分流：00／00A 留在專案根目錄作治理入口；現行正文、設定總表與章綱放入 10_現行創作資料；低權威原型與外部參考放入 90_參考資料；備份只放 99_備份。
 
+## [OPS] `.grok/skills/`、`tools/`、`evals/`、CI
+
+用途：把施工與驗收流程工具化。Skills 只編碼操作步驟（讀取範圍、DRAFT／QA 切換、備份、11 同步）；Canon、根規則與狀態仍以本文件、01–06、現行 09 與 11 為準。工具命中是候選，不是自動 Fail；Skills 與較高權威衝突時服從較高權威。
+
 ## 任務路由
 
 - 寫／改單一角色：00 → MASTER-SETTINGS「00｜AI讀取索引」→ 該角色分頁。
@@ -561,6 +565,8 @@ HARD GATE 明顯成立必須修正；PATTERN RISK 只有形成模式、造成角
 ## 16.8 專案備份統一集中於根目錄下的「99_備份」資料夾。正文重大修改前快照放入「01_正文備份」；00、01–08 等設定／規則文件的修改前快照放入「02_設定與規則備份」；專案結構、治理入口或 Changelog 的整理前快照放入「03_治理紀錄備份」。備份檔一律視為歷史快照，不具現行 Canon／治理權威；除非作者要求回退、比較或復原，不得以備份作為施工來源。
 
 ## 16.9 備份採里程碑保留制，不再永久保留每一次微調快照。若較舊備份只涵蓋一次局部微調，且其回退價值已被較新的完整備份或明確的重大節點備份取代，可在留下至少一個可回退節點後刪除；永久刪除備份時必須在 00A Changelog 記錄刪除項目與保留項目。
+
+## 16.10 `.grok/skills/`、`tools/`、`evals/` 與 CI 是操作層，不具 Canon 權威，不得把完整規則表、State Diff 或 Acceptance Tests 複製進 skill。操作層失效或過期時，仍以本文件與 01–06／11 施工。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]`、以及 evals 的 expected-failure fixtures 不適用同一把尺。變更須提交 `governance/change-manifest.yaml`（revision_level／target／canon_change／governance_sync）。Context Capsule 必須能追溯來源，且不得載入 `99_備份`。
 
 ## CHANGELOG
 
