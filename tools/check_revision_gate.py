@@ -27,7 +27,48 @@ R0_FILES = {
 
 
 def posix(p: str) -> str:
-    return p.replace("\\", "/").lstrip("./")
+    """Normalize a git path. Do not lstrip('./') — that eats `.github` / `.grok` / `.gitignore`."""
+    p = unescape_git_quoted(p.strip())
+    p = p.replace("\\", "/")
+    if p.startswith("./"):
+        p = p[2:]
+    return p
+
+
+def unescape_git_quoted(name: str) -> str:
+    """Undo `core.quotePath=true` C-quoting (`\"00A_\\350\\250...\"`)."""
+    if len(name) >= 2 and name[0] == '"' and name[-1] == '"':
+        body = name[1:-1]
+        out = bytearray()
+        i = 0
+        special = {"n": 10, "t": 9, "r": 13, "\\": 92, '"': 34, "a": 7, "b": 8}
+        while i < len(body):
+            ch = body[i]
+            if ch != "\\":
+                out.extend(ch.encode("utf-8"))
+                i += 1
+                continue
+            if i + 3 < len(body) and body[i + 1] in "01234567":
+                out.append(int(body[i + 1 : i + 4], 8))
+                i += 4
+                continue
+            if i + 1 < len(body):
+                out.append(special.get(body[i + 1], ord(body[i + 1])))
+                i += 2
+                continue
+            out.append(92)
+            i += 1
+        return out.decode("utf-8")
+    return name
+
+
+def parse_git_z(raw: bytes) -> list[str]:
+    names: list[str] = []
+    for chunk in raw.split(b"\0"):
+        if not chunk:
+            continue
+        names.append(posix(chunk.decode("utf-8")))
+    return names
 
 
 def classify_file(rel: str) -> str:
@@ -113,12 +154,19 @@ def check_revision(
 
 def git_names(base: str, diff_filter: str) -> list[str]:
     out = subprocess.check_output(
-        ["git", "diff", "--name-only", f"--diff-filter={diff_filter}", f"{base}...HEAD"],
+        [
+            "git",
+            "-c",
+            "core.quotePath=false",
+            "diff",
+            "--name-only",
+            "-z",
+            f"--diff-filter={diff_filter}",
+            f"{base}...HEAD",
+        ],
         cwd=ROOT,
-        text=True,
-        encoding="utf-8",
     )
-    return [posix(line) for line in out.splitlines() if line.strip()]
+    return parse_git_z(out)
 
 
 def main() -> int:

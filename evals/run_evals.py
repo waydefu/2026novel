@@ -12,7 +12,16 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "evals"))
 
 from check_derived_drift import drift_check  # noqa: E402
-from check_revision_gate import CANON_SETTINGS, GOV11, PROSE, check_revision  # noqa: E402
+from check_revision_gate import (  # noqa: E402
+    CANON_SETTINGS,
+    GOV11,
+    PROSE,
+    check_revision,
+    classify_file,
+    parse_git_z,
+    posix,
+    unescape_git_quoted,
+)
 from compile_context import compile_target  # noqa: E402
 from prose_checks import (  # noqa: E402
     CHANGELOG,
@@ -219,6 +228,45 @@ def main() -> int:
         ["99_備份/00_非現行｜Compiler誘餌｜請勿施工.md"],
     )
     expect("r0_ops_green", r0_ok == [], f"{r0_ok}", failures, passed)
+
+    expect("posix_keeps_dot_github", posix(".github/workflows/governance-ci.yml") == ".github/workflows/governance-ci.yml", posix(".github/workflows/governance-ci.yml"), failures, passed)
+    expect("posix_keeps_dot_grok", posix(".grok/skills/novel-draft-mode/SKILL.md") == ".grok/skills/novel-draft-mode/SKILL.md", posix(".grok/skills/novel-draft-mode/SKILL.md"), failures, passed)
+    expect("posix_keeps_gitignore", posix(".gitignore") == ".gitignore", posix(".gitignore"), failures, passed)
+    expect("posix_strips_dot_slash_only", posix("./tools/prose_checks.py") == "tools/prose_checks.py", posix("./tools/prose_checks.py"), failures, passed)
+    expect("classify_dot_github_ops", classify_file(".github/workflows/governance-ci.yml") == "ops", classify_file(".github/workflows/governance-ci.yml"), failures, passed)
+    expect("classify_dot_grok_ops", classify_file(".grok/README.md") == "ops", classify_file(".grok/README.md"), failures, passed)
+    expect("classify_gitignore_ops", classify_file(".gitignore") == "ops", classify_file(".gitignore"), failures, passed)
+
+    changelog = "00A_設定歷史修改紀錄｜Changelog.md"
+    lure = "99_備份/00_非現行｜Compiler誘餌｜請勿施工.md"
+    quoted_changelog = '"' + "".join(f"\\{b:03o}" if b >= 128 else chr(b) for b in changelog.encode("utf-8")) + '"'
+    quoted_lure = '"' + "".join(f"\\{b:03o}" if b >= 128 else chr(b) for b in lure.encode("utf-8")) + '"'
+    expect("unescape_changelog_utf8", unescape_git_quoted(quoted_changelog) == changelog, unescape_git_quoted(quoted_changelog), failures, passed)
+    expect("classify_quoted_changelog_ops", classify_file(quoted_changelog) == "ops", classify_file(quoted_changelog), failures, passed)
+    expect("classify_quoted_lure_backup", classify_file(quoted_lure) == "backup", classify_file(quoted_lure), failures, passed)
+
+    z_blob = b".github/workflows/governance-ci.yml\0.grok/skills/x.md\0" + changelog.encode("utf-8") + b"\0"
+    z_names = parse_git_z(z_blob)
+    expect(
+        "git_z_mixed_ascii_unicode",
+        z_names == [".github/workflows/governance-ci.yml", ".grok/skills/x.md", changelog],
+        str(z_names),
+        failures,
+        passed,
+    )
+
+    r0_live_paths = check_revision(
+        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": False},
+        [
+            ".github/workflows/governance-ci.yml",
+            ".grok/skills/novel-canon-pack/SKILL.md",
+            ".gitignore",
+            changelog,
+            quoted_changelog,
+        ],
+        [lure],
+    )
+    expect("r0_dotfiles_and_unicode_green", r0_live_paths == [], f"{r0_live_paths}", failures, passed)
 
     payload = compile_target(SANDBOX, "P08")
     blob = json.dumps(payload, ensure_ascii=False)

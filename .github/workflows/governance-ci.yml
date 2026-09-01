@@ -28,6 +28,11 @@ jobs:
       - name: Run Gate-Proven suite
         env:
           GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          EVIDENCE_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVIDENCE_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          EVIDENCE_TESTED_SHA: ${{ github.sha }}
+          EVIDENCE_TESTED_REF_TYPE: ${{ github.event_name == 'pull_request' && 'pull_request_merge_candidate' || 'push_head' }}
         run: |
           if [ -n "${{ steps.base.outputs.ref }}" ]; then
             python evals/ci_suite.py --git-base "${{ steps.base.outputs.ref }}"
@@ -38,8 +43,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: governance-evidence-${{ github.sha }}
-          path: governance/evidence/${{ github.sha }}.json
+          name: governance-evidence-head-${{ github.event.pull_request.head.sha || github.sha }}
+          path: governance/evidence/*.json
           if-no-files-found: warn
 
   pattern-risk-report:

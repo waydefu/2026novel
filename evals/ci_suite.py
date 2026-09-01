@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""CI entry: run gates, then write SHA-bound evidence. Fail-closed."""
+"""CI entry: run gates, then write base/head/tested evidence. Fail-closed."""
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -32,24 +33,24 @@ def main() -> int:
     }
 
     if run([PY, str(ROOT / "tools" / "scan_hard_gate.py")]) != 0:
-        _evidence(results)
+        _evidence(results, git_base)
         return 1
     results["hard_gate"] = "PASS"
 
     if run([PY, str(ROOT / "evals" / "run_evals.py")]) != 0:
-        _evidence(results)
+        _evidence(results, git_base)
         return 1
     results["regression"] = "PASS"
     results["negative_control"] = "PASS"
     results["recovery"] = "PASS"
 
     if run([PY, str(ROOT / "tools" / "compile_context.py"), "--target", "P08", "--check-only"]) != 0:
-        _evidence(results)
+        _evidence(results, git_base)
         return 1
     results["compiler"] = "PASS"
 
     if run([PY, str(ROOT / "tools" / "check_derived_drift.py")]) != 0:
-        _evidence(results)
+        _evidence(results, git_base)
         return 1
     results["drift"] = "PASS"
 
@@ -66,10 +67,9 @@ def main() -> int:
         )
         results["revision_gate"] = "PASS" if code == 0 else "FAIL"
         if code != 0:
-            _evidence(results)
+            _evidence(results, git_base)
             return 1
     else:
-        # still validate the committed manifest against an empty file list (schema / R0 self-check)
         code = run(
             [
                 PY,
@@ -80,38 +80,39 @@ def main() -> int:
         )
         results["revision_gate"] = "PASS" if code == 0 else "FAIL"
         if code != 0:
-            _evidence(results)
+            _evidence(results, git_base)
             return 1
 
-    _evidence(results)
+    _evidence(results, git_base)
     return 0
 
 
-def _evidence(results: dict[str, str]) -> None:
-    sha = __import__("os").environ.get("GITHUB_SHA") or "local"
-    out = ROOT / "governance" / "evidence" / f"{sha}.json"
-    run(
-        [
-            PY,
-            str(ROOT / "tools" / "write_evidence.py"),
-            "--hard-gate",
-            results["hard_gate"],
-            "--regression",
-            results["regression"],
-            "--negative-control",
-            results["negative_control"],
-            "--revision-gate",
-            results["revision_gate"],
-            "--compiler",
-            results["compiler"],
-            "--drift",
-            results["drift"],
-            "--recovery",
-            results["recovery"],
-            "--out",
-            str(out),
-        ]
-    )
+def _evidence(results: dict[str, str], git_base: str) -> None:
+    tested = os.environ.get("EVIDENCE_TESTED_SHA") or os.environ.get("GITHUB_SHA") or "local"
+    out = ROOT / "governance" / "evidence" / f"{tested}.json"
+    cmd = [
+        PY,
+        str(ROOT / "tools" / "write_evidence.py"),
+        "--hard-gate",
+        results["hard_gate"],
+        "--regression",
+        results["regression"],
+        "--negative-control",
+        results["negative_control"],
+        "--revision-gate",
+        results["revision_gate"],
+        "--compiler",
+        results["compiler"],
+        "--drift",
+        results["drift"],
+        "--recovery",
+        results["recovery"],
+        "--out",
+        str(out),
+    ]
+    if git_base:
+        cmd.extend(["--base-sha", git_base])
+    run(cmd)
 
 
 if __name__ == "__main__":

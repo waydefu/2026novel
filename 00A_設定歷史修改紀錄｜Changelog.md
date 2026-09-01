@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-09-02-001
+
+## DATE：2026-09-02 00:00 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/check_revision_gate.py` path parser、`write_evidence.py` 三 SHA、evals 0.2.1、Governance CI artifact 命名
+
+## BEFORE：`posix()` 用 `lstrip("./")` 把 `.github`／`.grok`／`.gitignore` 剝成 `github`／`grok`／`gitignore`；`git diff --name-only` 預設 quote 非 ASCII 路徑，Revision Gate 在 GitHub Actions 假陽性失敗。Evidence 只存 `github.sha`，PR 上被當成 merge candidate 而與 head SHA 對不上。
+
+## AFTER：path 只去掉開頭 `./`、保留 dotfile；git 用 `core.quotePath=false` 與 `-z`，並能 unescape C-quote。Evidence 改為 `base_sha`／`head_sha`／`tested_sha`／`tested_ref_type`。R0 規則未放寬。evals 增加 `.github`／`.grok`／中文檔名 integration cases。
+
+## REASON：修 GitHub 實戰抓到的 path transport bug，不改閘門寬度。
+
+## AUTHORITY：作者指示只修 path parser、三 SHA evidence、CI 全綠後 main ruleset。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`posix(".github/...")` 仍以 `.github` 開頭；quoted `00A_…Changelog.md` 能分類為 ops；`evals/run_evals.py` 通過。
+
 ## CHG-2026-09-01-005
 
 ## DATE：2026-09-01 23:30 +08:00
