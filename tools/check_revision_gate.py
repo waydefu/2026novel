@@ -17,7 +17,7 @@ PROSE = "10_現行創作資料/小說正文第三版.md"
 OUTLINE = "10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md"
 GOV11 = "10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
 
-R0_PREFIXES = (".grok/", "tools/", "evals/", ".github/", "governance/")
+R0_PREFIXES = (".grok/", "tools/", "evals/", ".github/", ".cursor/", "governance/")
 R0_FILES = {
     "README.md",
     ".gitignore",
