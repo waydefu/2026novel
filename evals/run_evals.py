@@ -229,6 +229,13 @@ def main() -> int:
     )
     expect("r0_ops_green", r0_ok == [], f"{r0_ok}", failures, passed)
 
+    r0_prose = check_revision(
+        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": False},
+        [PROSE],
+        [],
+    )
+    expect("r0_prose_red", bool(r0_prose), "R0+live prose must fail", failures, passed)
+
     expect("posix_keeps_dot_github", posix(".github/workflows/governance-ci.yml") == ".github/workflows/governance-ci.yml", posix(".github/workflows/governance-ci.yml"), failures, passed)
     expect("posix_keeps_dot_grok", posix(".grok/skills/novel-draft-mode/SKILL.md") == ".grok/skills/novel-draft-mode/SKILL.md", posix(".grok/skills/novel-draft-mode/SKILL.md"), failures, passed)
     expect("posix_keeps_gitignore", posix(".gitignore") == ".gitignore", posix(".gitignore"), failures, passed)
