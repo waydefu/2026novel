@@ -16,6 +16,7 @@ backup_ref: 99_備份/01_正文備份/小說正文第三版｜第八章前備份
 - 修改 `99_備份` 既有檔 → FAIL
 - 01–06 必須 `revision_level: R4` 且 `canon_change: true`
 - R0 只允許 ops（`.grok/`、`tools/`、`evals/`、`.github/`、`.cursor/`、`governance/`、根 `README.md`／`.gitignore`／`AGENTS.md`／00A）與新增備份快照；改正文／01–06／09／11 一律 FAIL
+- R0 要求 `target: ops-runtime`；R1+ 要求 `target` 非空（正文慣例 `chapter-NN`）
 
 Path 必須保留 `.github` / `.grok` / `.gitignore`，並用 `git -c core.quotePath=false diff --name-only -z` 解析 Unicode 檔名。不要為了迎合壞輸入而放寬 R0。
 
