@@ -1,0 +1,4 @@
+{
+  "name": "2026novel Governance CI",
+  "install": "python3 --version && python3 evals/ci_suite.py"
+}
