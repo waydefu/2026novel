@@ -139,8 +139,6 @@ def check_revision(
                 continue
             if kind == "ops":
                 continue
-            if kind == "prose":
-                continue
             errors.append(f"R-GATE: R0 cannot change {rel} ({kind})")
 
     if level == "R4" and any(k == "canon" for k in kinds.values()) and not canon_change:
