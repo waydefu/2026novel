@@ -176,12 +176,26 @@ def main() -> int:
     )
     expect("r1_edit_canon_red", bool(r1_canon), "R1+01-06 must fail", failures, passed)
 
+    r1_prose = check_revision(
+        {"revision_level": "R1", "canon_change": False, "governance_sync": False},
+        [PROSE],
+        [],
+    )
+    expect("r1_prose_green", r1_prose == [], f"{r1_prose}", failures, passed)
+
     r3_nobak = check_revision(
         {"revision_level": "R3", "canon_change": False, "governance_sync": True},
         [PROSE],
         [],
     )
     expect("r3_without_backup_red", bool(r3_nobak), "R3 without backup_ref must fail", failures, passed)
+
+    r3_prose = check_revision(
+        {"revision_level": "R3", "canon_change": False, "governance_sync": False, "backup_ref": "99_備份/01_正文備份/r3.md"},
+        [PROSE],
+        ["99_備份/01_正文備份/r3.md"],
+    )
+    expect("r3_prose_with_backup_green", r3_prose == [], f"{r3_prose}", failures, passed)
 
     r11_only = check_revision(
         {
@@ -208,6 +222,13 @@ def main() -> int:
         ["99_備份/x.md"],
     )
     expect("r4_canon_without_flag_red", bool(r4_noflag), "R4 canon_change=false must fail", failures, passed)
+
+    r4_canon = check_revision(
+        {"revision_level": "R4", "canon_change": True, "governance_sync": True, "backup_ref": "99_備份/01_正文備份/r4.md"},
+        [CANON_SETTINGS],
+        ["99_備份/01_正文備份/r4.md"],
+    )
+    expect("r4_canon_with_flag_green", r4_canon == [], f"{r4_canon}", failures, passed)
 
     r2_ok = check_revision(
         {
@@ -243,6 +264,7 @@ def main() -> int:
     expect("classify_dot_github_ops", classify_file(".github/workflows/governance-ci.yml") == "ops", classify_file(".github/workflows/governance-ci.yml"), failures, passed)
     expect("classify_dot_grok_ops", classify_file(".grok/README.md") == "ops", classify_file(".grok/README.md"), failures, passed)
     expect("classify_gitignore_ops", classify_file(".gitignore") == "ops", classify_file(".gitignore"), failures, passed)
+    expect("classify_cursor_ops", classify_file(".cursor/environment.json") == "ops", classify_file(".cursor/environment.json"), failures, passed)
 
     changelog = "00A_設定歷史修改紀錄｜Changelog.md"
     lure = "99_備份/00_非現行｜Compiler誘餌｜請勿施工.md"
