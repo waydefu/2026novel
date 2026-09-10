@@ -177,7 +177,7 @@ def main() -> int:
     expect("r1_edit_canon_red", bool(r1_canon), "R1+01-06 must fail", failures, passed)
 
     r1_prose = check_revision(
-        {"revision_level": "R1", "canon_change": False, "governance_sync": False},
+        {"revision_level": "R1", "target": "chapter-08", "canon_change": False, "governance_sync": False},
         [PROSE],
         [],
     )
@@ -191,7 +191,7 @@ def main() -> int:
     expect("r3_without_backup_red", bool(r3_nobak), "R3 without backup_ref must fail", failures, passed)
 
     r3_prose = check_revision(
-        {"revision_level": "R3", "canon_change": False, "governance_sync": False, "backup_ref": "99_備份/01_正文備份/r3.md"},
+        {"revision_level": "R3", "target": "chapter-08", "canon_change": False, "governance_sync": False, "backup_ref": "99_備份/01_正文備份/r3.md"},
         [PROSE],
         ["99_備份/01_正文備份/r3.md"],
     )
@@ -224,7 +224,7 @@ def main() -> int:
     expect("r4_canon_without_flag_red", bool(r4_noflag), "R4 canon_change=false must fail", failures, passed)
 
     r4_canon = check_revision(
-        {"revision_level": "R4", "canon_change": True, "governance_sync": True, "backup_ref": "99_備份/01_正文備份/r4.md"},
+        {"revision_level": "R4", "target": "chapter-08", "canon_change": True, "governance_sync": True, "backup_ref": "99_備份/01_正文備份/r4.md"},
         [CANON_SETTINGS],
         ["99_備份/01_正文備份/r4.md"],
     )
@@ -256,6 +256,20 @@ def main() -> int:
         [],
     )
     expect("r0_prose_red", bool(r0_prose), "R0+live prose must fail", failures, passed)
+
+    r0_target = check_revision(
+        {"revision_level": "R0", "target": "chapter-08", "canon_change": False, "governance_sync": False},
+        ["tools/prose_checks.py"],
+        [],
+    )
+    expect("r0_wrong_target_red", bool(r0_target), "R0 with non-ops target must fail", failures, passed)
+
+    r1_no_target = check_revision(
+        {"revision_level": "R1", "canon_change": False, "governance_sync": False},
+        [PROSE],
+        [],
+    )
+    expect("r1_empty_target_red", bool(r1_no_target), "R1 without target must fail", failures, passed)
 
     expect("posix_keeps_dot_github", posix(".github/workflows/governance-ci.yml") == ".github/workflows/governance-ci.yml", posix(".github/workflows/governance-ci.yml"), failures, passed)
     expect("posix_keeps_dot_grok", posix(".grok/skills/novel-draft-mode/SKILL.md") == ".grok/skills/novel-draft-mode/SKILL.md", posix(".grok/skills/novel-draft-mode/SKILL.md"), failures, passed)

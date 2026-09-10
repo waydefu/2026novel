@@ -97,6 +97,12 @@ def check_revision(
     level = str(manifest.get("revision_level") or "").upper()
     if level not in {"R0", "R1", "R2", "R3", "R4"}:
         return [f"manifest missing/invalid revision_level: {level!r}"]
+    target = str(manifest.get("target") or "").strip()
+    if level == "R0":
+        if target != "ops-runtime":
+            errors.append("R-GATE: R0 requires target: ops-runtime")
+    elif not target:
+        errors.append(f"R-GATE: {level} requires a non-empty target (narrative PRs use chapter-NN)")
     canon_change = bool(manifest.get("canon_change"))
     governance_sync = bool(manifest.get("governance_sync"))
     backup_ref = manifest.get("backup_ref")
