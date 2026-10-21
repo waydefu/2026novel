@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-007
+
+## DATE：2026-10-22 05:40 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch4 行文層）、`governance/quality/`（Ch4 兩輪盲讀比較、路線圖更新）、`governance/provenance/`（Ch4 溯源與修訂前後 artifacts、施工紀錄）、`99_備份/01_正文備份/小說正文第三版｜第四章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-04）
+
+## BEFORE：Ch4 有三處「作者跳出來補註或講道理」（補註式幽默、教科書式對稱否定句、替世界觀補註）、清單式並列開場、兩處機械編號平行句；此外先前盲讀指認的「缺前文錨點」經核對為假陽性（Ch3 已鋪過這些器具）。
+
+## AFTER：Ch4 完成逐章優化 pass 4/7，兩次盲讀，返工 3 次。v1 依先前的盲讀指認修 6 處（逐條回原文核對，1 條假陽性不改）；v2 修正「改寫把機制寫鬆」與「刪補註後少了緩衝」兩個副作用（機制句改回『您讓它通過得多』；認領成果那一拍還原但去掉『確實』）；v3 修 6 處副作用（撞名、機械埋伏筆、計次斷裂、插入沖淡笑點、結尾替讀者收束、時間標記重複）。盲讀第二輪：修訂後 5/4/4/4/4，原稿 3/3/3/3/3。事件、Knowledge、章末狀態不動（`state_change: none`）。
+
+## REASON：作者指示逐章重新優化；本章驗證了「機械掃描與自冷讀都抓不到、只有獨立評閱者能抓到」的兩類問題：補註式解說與插入細節的副作用。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 83 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證。
+
 ## CHG-2026-10-22-006
 
 ## DATE：2026-10-22 05:28 +08:00
