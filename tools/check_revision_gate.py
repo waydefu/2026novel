@@ -22,6 +22,7 @@ R0_FILES = {
     "README.md",
     ".gitignore",
     "AGENTS.md",
+    "CLAUDE.md",
     "00A_設定歷史修改紀錄｜Changelog.md",
 }
 

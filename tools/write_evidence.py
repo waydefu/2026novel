@@ -38,6 +38,11 @@ def main() -> int:
     parser.add_argument("--compiler", default="SKIP")
     parser.add_argument("--drift", default="SKIP")
     parser.add_argument("--recovery", default="SKIP")
+    parser.add_argument("--canon-contract", dest="canon_contract", default="SKIP")
+    parser.add_argument("--rule-budget", dest="rule_budget", default="SKIP")
+    parser.add_argument("--rule-sync", dest="rule_sync", default="SKIP")
+    parser.add_argument("--lexicon-lock", dest="lexicon_lock", default="SKIP")
+    parser.add_argument("--candidates", default="SKIP", help="candidate scans are informational")
     parser.add_argument("--base-sha", default="")
     parser.add_argument("--head-sha", default="")
     parser.add_argument("--tested-sha", default="")
@@ -70,6 +75,11 @@ def main() -> int:
         "compiler": args.compiler,
         "drift": args.drift,
         "recovery": args.recovery,
+        "canon_contract": args.canon_contract,
+        "rule_budget": args.rule_budget,
+        "rule_sync": args.rule_sync,
+        "lexicon_lock": args.lexicon_lock,
+        "candidates": args.candidates,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "bound": (
             f"evidence verifies tested_sha {tested} "

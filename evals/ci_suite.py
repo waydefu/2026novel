@@ -30,12 +30,43 @@ def main() -> int:
         "compiler": "FAIL",
         "drift": "FAIL",
         "recovery": "FAIL",
+        "canon_contract": "FAIL",
+        "rule_budget": "FAIL",
+        "rule_sync": "FAIL",
+        "lexicon_lock": "FAIL",
+        "candidates": "SKIP",
     }
 
     if run([PY, str(ROOT / "tools" / "scan_hard_gate.py")]) != 0:
         _evidence(results, git_base)
         return 1
     results["hard_gate"] = "PASS"
+
+    if run([PY, str(ROOT / "tools" / "canon_contract.py")]) != 0:
+        _evidence(results, git_base)
+        return 1
+    results["canon_contract"] = "PASS"
+
+    if run([PY, str(ROOT / "tools" / "check_rule_budget.py")]) != 0:
+        _evidence(results, git_base)
+        return 1
+    results["rule_budget"] = "PASS"
+
+    if run([PY, str(ROOT / "tools" / "sync_agent_rules.py"), "--check"]) != 0:
+        _evidence(results, git_base)
+        return 1
+    results["rule_sync"] = "PASS"
+
+    if run([PY, str(ROOT / "tools" / "prose_lexicon.py"), "--check-lock"]) != 0:
+        _evidence(results, git_base)
+        return 1
+    results["lexicon_lock"] = "PASS"
+
+    # Candidate scans: informational. They report, they do not judge.
+    for tool in ("scan_pattern_risk.py", "prose_lexicon.py", "prose_rhythm.py"):
+        run([PY, str(ROOT / "tools" / tool)])
+    run([PY, str(ROOT / "tools" / "style_profile.py"), str(ROOT / "10_現行創作資料" / "小說正文第三版.md")])
+    results["candidates"] = "REPORTED"
 
     if run([PY, str(ROOT / "evals" / "run_evals.py")]) != 0:
         _evidence(results, git_base)
@@ -107,6 +138,16 @@ def _evidence(results: dict[str, str], git_base: str) -> None:
         results["drift"],
         "--recovery",
         results["recovery"],
+        "--canon-contract",
+        results["canon_contract"],
+        "--rule-budget",
+        results["rule_budget"],
+        "--rule-sync",
+        results["rule_sync"],
+        "--lexicon-lock",
+        results["lexicon_lock"],
+        "--candidates",
+        results["candidates"],
         "--out",
         str(out),
     ]

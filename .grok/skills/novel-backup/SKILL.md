@@ -1,8 +1,13 @@
 ---
 name: novel-backup
-description: Create milestone backups under 99_備份 before major prose or governance edits. Use before R2+ scene edits, chapter rewrites, governance refactor, or when the user asks to 備份／快照.
-when-to-use: 備份, 快照, 重大修改前, R2, R3, R4
-argument-hint: "[draft|rules|governance] [reason]"
+description: Create milestone backups under 99_備份 before major prose or governance edits. Use before R2+ scene edits, chapter rewrites, governance refactor, or when the user asks 備份／快照／還原. Backups have no canon authority and are never a construction source.
+license: MIT
+compatibility: 需要 git；復原後必須跑 tools/scan_hard_gate.py 與 evals/run_evals.py
+metadata:
+  version: "2.0.0"
+  when_to_use: "備份, 快照, 重大修改前, R2, R3, R4, 還原"
+  argument_hint: "[draft|rules|governance] [reason]"
+allowed-tools: Read Glob Bash Write
 ---
 
 # novel-backup
@@ -11,7 +16,7 @@ argument-hint: "[draft|rules|governance] [reason]"
 
 ## 放哪
 
-規則見 `AGENTS.md` 16.8–16.9：
+規則見 `AGENTS.md` §15：
 
 - 正文 → `99_備份/01_正文備份/`
 - 設定／規則（00、01–08、09 等）→ `99_備份/02_設定與規則備份/`
@@ -21,9 +26,11 @@ argument-hint: "[draft|rules|governance] [reason]"
 
 1. 依 Revision Level 判斷要不要備。R0 通常不必。R1 大範圍整章才備一份。R2 以上或治理重構必備。
 2. 複製現行檔，檔名含原因與日期，例如 `小說正文第三版｜第六章重修前備份｜2026-09-01.md`。
-3. 不要從備份施工。備份只供回退、比較、作者要求的復原。
-4. 復原＝把里程碑檔複製回現行路徑，再跑 `py -3 tools/scan_hard_gate.py` 與 `py -3 evals/run_evals.py`。評測裡的 recovery drill（`evals/recovery/drill.py`）必須保持綠燈；不要在現行 Canon 上練習破壞。
-5. 刪舊備份前必須留下至少一個可回退節點，並在 00A 記錄刪除項與保留項。
+3. 只新增快照，不修改既有快照（`tools/check_revision_gate.py` 會擋）。
+4. 把快照路徑寫進 `governance/change-manifest.yaml` 的 `backup_ref`。
+5. 不要從備份施工。備份只供回退、比較、作者要求的復原。
+6. 復原＝把里程碑檔複製回現行路徑，再跑 `py -3 tools/scan_hard_gate.py`、`py -3 tools/canon_contract.py` 與 `py -3 evals/run_evals.py`。評測裡的 recovery drill（`evals/recovery/drill.py`）必須保持綠燈；不要在現行 Canon 上練習破壞。
+7. 刪舊備份前必須留下至少一個可回退節點，並在 00A 記錄刪除項與保留項。
 
 ## 禁止
 
