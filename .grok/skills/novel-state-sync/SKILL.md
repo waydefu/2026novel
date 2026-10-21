@@ -1,10 +1,15 @@
 ---
 name: novel-state-sync
-description: Sync operational governance file 11 after a chapter is accepted. Updates Knowledge, Reader Knowledge, State Diff, Dependency, and TBD without creating Canon. Use after QA passes, when handing off a chapter, or when the user asks to 同步 11／更新治理／State Diff.
-when-to-use: 同步 11, State Diff, Knowledge Ledger, 章完成, handoff
-argument-hint: "[chapter]"
-paths:
-  - "10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
+description: Sync operational governance file 11 after a chapter is accepted. Updates Knowledge, Reader Knowledge, State Diff, Dependency, and TBD without creating canon. Use after QA passes, when handing off a chapter, or when the user asks 同步 11／更新治理／State Diff. Never raises TBD to canon on its own.
+license: MIT
+compatibility: 需要 Python 3.12+ 執行 tools/check_derived_drift.py
+metadata:
+  version: "2.0.0"
+  when_to_use: "同步 11, State Diff, Knowledge Ledger, 章完成, handoff"
+  argument_hint: "[chapter]"
+  paths:
+    - "10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
+allowed-tools: Read Grep Glob Edit Bash
 ---
 
 # novel-state-sync
@@ -27,7 +32,11 @@ paths:
 5. 不得把計畫提前標成已發生，不得用「合理」把 TBD 升格。
 6. Canon／關係／世界規則若要改，先停手：那是作者改 01–06 或世界設定的事，不是本 skill。
 7. 同步後立刻跑 `py -3 tools/check_derived_drift.py`。11 與正文／09 明顯不一致時停止，標 NEEDS_REVIEW，不得把 11 改成「比較好寫」的版本。
-8. 只有 Canon、治理或版本結構改變才更新 `00A_設定歷史修改紀錄｜Changelog.md`。
+8. 只有 Canon、治理或版本結構改變才更新 `00A_設定歷史修改紀錄｜Changelog.md`；方向性決定另開 `governance/adr/`。
+
+## 與契約的關係
+
+若同步後某條既存事實需要被設定追認或走 retcon，交由 `novel-decision` 與 `novel-canon-contract` 處理，不要在 11 裡默默改寫語意。
 
 ## 衝突
 

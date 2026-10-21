@@ -1,15 +1,20 @@
 ---
 name: novel-qa-mode
-description: Post-draft QA for live novel chapters. Runs hard-gate tools, human-judges pattern risk, syncs nothing unless asked, and finishes with a cold read. Use after writing, when reviewing a chapter, 驗收, 冷讀, Fail Code, or anti-AI checks.
-when-to-use: QA MODE, 驗收, 冷讀, Hard Gate, Pattern Risk, 反 AI
-argument-hint: "[chapter]"
-paths:
-  - "10_現行創作資料/小說正文第三版.md"
+description: Post-draft QA for live novel chapters. Runs hard-gate tools, human-judges pattern risk, judges rhythm and Chinese AI-flavor candidates with corpus-backed evidence tiers, syncs nothing unless asked, and finishes with a cold read. Use after writing, when reviewing a chapter, 驗收, 冷讀, Fail Code, or 反 AI. Machine hits are candidates, never verdicts.
+license: MIT
+compatibility: 需要 Python 3.12+ 執行 tools/ 掃描器（選用）
+metadata:
+  version: "2.0.0"
+  when_to_use: "QA MODE, 驗收, 冷讀, Hard Gate, Pattern Risk, 反 AI, 去 AI 味"
+  argument_hint: "[chapter]"
+  paths:
+    - "10_現行創作資料/小說正文第三版.md"
+allowed-tools: Read Grep Glob Edit Write Bash
 ---
 
 # novel-qa-mode
 
-寫後驗收。工具找候選；人依 `AGENTS.md` §13–§14 判定。
+寫後驗收。工具找候選；人依 `AGENTS.md` 判定。
 
 ## 順序
 
@@ -17,8 +22,12 @@ paths:
 2. 跑機械掃描（候選，不是自動判決）：
 
 ```text
-py -3 tools/scan_hard_gate.py
-py -3 tools/scan_pattern_risk.py
+py -3 tools/scan_hard_gate.py      # 阻擋式
+py -3 tools/canon_contract.py      # 阻擋式
+py -3 tools/scan_pattern_risk.py   # 候選
+py -3 tools/prose_lexicon.py       # 候選（--not-evidence 看不可當依據者）
+py -3 tools/prose_rhythm.py        # 候選：只作冷讀定位
+py -3 tools/style_profile.py       # 量測：非判據項目標「非判據」
 py -3 tools/count_chapter.py --chapter N
 py -3 tools/check_derived_drift.py
 py -3 evals/run_evals.py
@@ -34,7 +43,16 @@ py -3 evals/run_evals.py
 
 - 關鍵字零命中 ≠ 通過人味
 - 工具沒抓到 POV 越界 ≠ 沒有越界
+- 句長均勻度、比喻、設問、排比、被動句**不是** AI 判別指標（見 `governance/ai-flavor-evidence.md`）
 - evals 綠燈 ≠ 場景有生命
+
+## 判讀紀律
+
+每個命中三選一，不得靜默略過：
+
+- 成立 → 改。
+- 不成立 → 保留，並寫下保留理由。
+- 需要作者決定 → 標 NEEDS AUTHOR，交回作者。
 
 ## 交付摘要
 
