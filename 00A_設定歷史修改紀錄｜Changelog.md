@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-009
+
+## DATE：2026-10-22 06:12 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch6 行文層）、`governance/quality/`（Ch6 兩輪盲讀比較、路線圖更新）、`governance/provenance/`（Ch6 溯源與修訂前後 artifacts、施工紀錄）、`99_備份/01_正文備份/小說正文第三版｜第六章優化前備份｜2026-10-22.md`、`evals/run_evals.py`（移除重複案例名）、`governance/change-manifest.yaml`（R1／chapter-06）
+
+## BEFORE：Ch6 是全稿句長標準差最低的一章；主角醒來後第一次離開房間、全書主要場域第一次亮相，整段卻只有身體追蹤，沒有光、門、窗、天；守衛在場的前後矛盾（「靴子還在外面」vs「等到走廊安靜」）；換藥段引線是肩、動作是腿；否定式動作連用四遍；兩處替讀者下判斷。
+
+## AFTER：Ch6 完成逐章優化 pass 6/7。純批評模式盲讀給出 4 條一定要改、10 條可以改與一份保留清單；v2 修 13 處（核心是走廊段補上她的具體觀察：石頭地板、只照到門的燈、關著推不動的門、很高的一扇窗與一小塊白天的天）；v3 依第二輪修 8 處，修掉我 v2 造成的人稱硬錯（第一人稱寫成「她把被角捏了一下」）與守衛位置迴圈，並還原我誤刪的「沒碰我」。盲讀第二輪：修訂後 4/4/5/4/4，修訂前 3/4/4/4/3。返工 3 次。事件、Knowledge、章末狀態不動（`state_change: none`）。
+
+## REASON：作者指示逐章重新優化；本章顯示「場景生命力」可以靠結構補洞（走廊段）從 4 分拉到 5 分，但也顯示刪減要分「贅語」與「 reassurance」，刪錯會讓讀者失去她唯一一次確認「他不會碰我」。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 82 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證。
+
 ## CHG-2026-10-22-008
 
 ## DATE：2026-10-22 06:00 +08:00
