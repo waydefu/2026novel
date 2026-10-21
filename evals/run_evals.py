@@ -22,7 +22,15 @@ from check_revision_gate import (  # noqa: E402
     posix,
     unescape_git_quoted,
 )
+from canon_contract import load_contracts, run_contracts  # noqa: E402
+from check_rule_budget import check as rule_budget_check  # noqa: E402
 from compile_context import compile_target  # noqa: E402
+from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
+from prose_rhythm import analyze  # noqa: E402
+from style_profile import NOT_EVIDENCE  # noqa: E402
+from sync_agent_rules import SOURCE as RULES_SOURCE  # noqa: E402
+from sync_agent_rules import TARGETS as RULE_TARGETS  # noqa: E402
+from sync_agent_rules import parse_source, render  # noqa: E402
 from prose_checks import (  # noqa: E402
     CHANGELOG,
     DRAFT,
@@ -359,6 +367,101 @@ def main() -> int:
 
     ok_rec, rec_detail = run_recovery_drill()
     expect("recovery_drill", ok_rec, rec_detail, failures, passed)
+
+    # --- governance evolution: contracts, lexicon, rhythm, budget, rule sync ---
+    contracts = load_contracts()
+    expect(
+        "contracts_loaded",
+        len(contracts.get("contracts", [])) >= 8,
+        f"only {len(contracts.get('contracts', []))} contracts",
+        failures,
+        passed,
+    )
+    contract_bad = run_contracts(
+        (FIXTURES / "fail_contract_violation.md").read_text(encoding="utf-8"), contracts
+    )
+    expect(
+        "contract_violation_red",
+        len(contract_bad) >= 1,
+        f"violating fixture must break a contract, got {contract_bad}",
+        failures,
+        passed,
+    )
+    if DRAFT.is_file():
+        live_contract = run_contracts(DRAFT.read_text(encoding="utf-8"), contracts)
+        expect("contract_live_green", live_contract == [], str(live_contract), failures, passed)
+
+    lock_file = ROOT / "governance" / "lexicon.lock"
+    expect(
+        "lexicon_lock_matches",
+        lock_file.is_file() and lock_file.read_text(encoding="utf-8").strip() == lexicon_hash(),
+        "lexicon hash drifted from governance/lexicon.lock",
+        failures,
+        passed,
+    )
+    neg_hits = scan_lexicon(FIXTURES / "pattern_ai_flavor.md")
+    neg_groups = {h.group for h in neg_hits}
+    expect(
+        "lexicon_negative_detects",
+        len(neg_groups) >= 3,
+        f"AI-flavor fixture only hit {len(neg_groups)} groups",
+        failures,
+        passed,
+    )
+    pos_hits = scan_lexicon(FIXTURES / "pass_human_prose.md")
+    expect(
+        "lexicon_false_positive_control",
+        len(pos_hits) <= 2,
+        f"clean fixture produced {len(pos_hits)} candidates: {[h.group for h in pos_hits]}",
+        failures,
+        passed,
+    )
+    if DRAFT.is_file():
+        live_lex = scan_lexicon(DRAFT)
+        expect(
+            "lexicon_live_clean",
+            len(live_lex) <= 3,
+            f"live draft produced {len(live_lex)} candidates: {[h.group for h in live_lex]}",
+            failures,
+        passed,
+        )
+
+    flat_metrics, flat_cands = analyze(
+        (FIXTURES / "pattern_flat_rhythm.md").read_text(encoding="utf-8"),
+        {"short_sentence_max_chars": 10, "short_sentence_rate_high": 0.45, "avg_sentence_len_low": 11.0,
+         "sentence_stdev_low": 7.0, "longest_short_run_high": 8, "short_paragraph_rate_high": 0.75,
+         "dialogue_to_narration_ratio_low": 0.5, "dialogue_avg_len_low": 6.0},
+    )
+    expect(
+        "rhythm_flat_detected",
+        len(flat_cands) >= 1,
+        f"flat fixture produced no rhythm candidate: {flat_metrics}",
+        failures,
+        passed,
+    )
+
+    expect(
+        "not_evidence_present",
+        {"metaphor", "rhetorical_question", "sentence_uniformity"} <= set(NOT_EVIDENCE),
+        "corpus-backed non-signals missing",
+        failures,
+        passed,
+    )
+
+    budget_errors = rule_budget_check()
+    expect("rule_budget_green", budget_errors == [], str(budget_errors), failures, passed)
+
+    if RULES_SOURCE.is_file():
+        meta, body = parse_source(RULES_SOURCE.read_text(encoding="utf-8"))
+        stale = []
+        for rel, kind in RULE_TARGETS.items():
+            target = ROOT / rel
+            current = target.read_text(encoding="utf-8") if target.is_file() else ""
+            if current != render(kind, meta, body):
+                stale.append(rel)
+        expect("rule_sync_green", not stale, f"stale: {stale}", failures, passed)
+    else:
+        expect("rule_sync_source_present", False, "governance/agent-rules-source.md missing", failures, passed)
 
     if not DRAFT.is_file():
         failures.append("live_draft_missing")
