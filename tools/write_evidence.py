@@ -42,6 +42,10 @@ def main() -> int:
     parser.add_argument("--rule-budget", dest="rule_budget", default="SKIP")
     parser.add_argument("--rule-sync", dest="rule_sync", default="SKIP")
     parser.add_argument("--lexicon-lock", dest="lexicon_lock", default="SKIP")
+    parser.add_argument("--skills", default="SKIP")
+    parser.add_argument("--skill-mirror", dest="skill_mirror", default="SKIP")
+    parser.add_argument("--core-invariants", dest="core_invariants", default="SKIP")
+    parser.add_argument("--append-only", dest="append_only", default="SKIP")
     parser.add_argument("--candidates", default="SKIP", help="candidate scans are informational")
     parser.add_argument("--base-sha", default="")
     parser.add_argument("--head-sha", default="")
@@ -79,6 +83,10 @@ def main() -> int:
         "rule_budget": args.rule_budget,
         "rule_sync": args.rule_sync,
         "lexicon_lock": args.lexicon_lock,
+        "skills": args.skills,
+        "skill_mirror": args.skill_mirror,
+        "core_invariants": args.core_invariants,
+        "append_only": args.append_only,
         "candidates": args.candidates,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "bound": (
@@ -89,8 +97,15 @@ def main() -> int:
     text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
     if args.out:
         out = Path(args.out)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(text, encoding="utf-8")
+        try:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            out.write_text(text, encoding="utf-8")
+        except OSError as exc:
+            print(f"ERROR\tevidence\tcannot write {out}: {exc}", file=sys.stderr)
+            return 1
+        if not out.is_file():
+            print(f"ERROR\tevidence\tmissing after write: {out}", file=sys.stderr)
+            return 1
         print(f"WROTE\t{out}")
     print(text)
     return 0

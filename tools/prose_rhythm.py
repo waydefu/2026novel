@@ -5,8 +5,8 @@ Why this exists
 ---------------
 `scan_pattern_risk.py` looks at words. It cannot see the single failure mode
 that survives a clean word list: *rhythm flattening* — every sentence short,
-every paragraph one beat, every dialogue line clipped. AGENTS.md §6.3 forbids
-"一句一段＋短句連發" as fake tension, and §13 STYLE-02 grades it as a pattern,
+every paragraph one beat, every dialogue line clipped. AGENTS.md §5（WHITE PROSE ＆ ANTI-AI）forbids
+"一句一段＋短句連發" as fake tension, and §11（FAIL CODES）STYLE-02 grades it as a pattern,
 but no gate can see it.
 
 Calibration
@@ -21,7 +21,7 @@ anchors measured with this same script:
 
 The live draft already sits at the *short* edge. The bands therefore flag the
 "too flat / too clipped" side only, and every hit must be judged by a human
-against AGENTS.md §6.3 / §13 STYLE-02 / §14 cold read.
+against AGENTS.md §5 / §11 STYLE-02 / §13 cold read.
 """
 
 from __future__ import annotations
@@ -209,7 +209,7 @@ def main() -> int:
             met = row["metrics"]
             flag = ",".join(c["code"] for c in row["candidates"]) or "-"
             print(f"CHAPTER\t{row['chapter']}\tavg={met['avg_sentence_len']}\tstdev={met['sentence_stdev']}\tshort={met['short_sentence_rate']:.2f}\t{flag}")
-    print("NOTE\t節奏候選需人工依 AGENTS.md §6.3／§13 STYLE-02／§14 冷讀判定，工具不自動判錯。")
+    print("NOTE\t節奏候選需人工依 AGENTS.md §5／§11 STYLE-02／§13 冷讀判定，工具不自動判錯。")
     return 1 if (args.strict and (cands or any(r["candidates"] for r in chapters))) else 0
 
 

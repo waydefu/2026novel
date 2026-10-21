@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -31,6 +32,7 @@ from style_profile import NOT_EVIDENCE  # noqa: E402
 from sync_agent_rules import SOURCE as RULES_SOURCE  # noqa: E402
 from sync_agent_rules import TARGETS as RULE_TARGETS  # noqa: E402
 from sync_agent_rules import parse_source, render  # noqa: E402
+from validate_skills import collect_skills, validate_skill  # noqa: E402
 from prose_checks import (  # noqa: E402
     CHANGELOG,
     DRAFT,
@@ -199,11 +201,100 @@ def main() -> int:
     expect("r3_without_backup_red", bool(r3_nobak), "R3 without backup_ref must fail", failures, passed)
 
     r3_prose = check_revision(
-        {"revision_level": "R3", "target": "chapter-08", "canon_change": False, "governance_sync": False, "backup_ref": "99_備份/01_正文備份/r3.md"},
-        [PROSE],
+        {
+            "revision_level": "R3",
+            "target": "chapter-08",
+            "canon_change": False,
+            "governance_sync": True,
+            "backup_ref": "99_備份/01_正文備份/r3.md",
+        },
+        [PROSE, GOV11],
         ["99_備份/01_正文備份/r3.md"],
     )
     expect("r3_prose_with_backup_green", r3_prose == [], f"{r3_prose}", failures, passed)
+
+    r3_prose_no_derived = check_revision(
+        {
+            "revision_level": "R3",
+            "target": "chapter-08",
+            "canon_change": False,
+            "governance_sync": False,
+            "backup_ref": "99_備份/01_正文備份/r3.md",
+        },
+        [PROSE],
+        ["99_備份/01_正文備份/r3.md"],
+    )
+    expect(
+        "r3_prose_without_derived_red",
+        bool(r3_prose_no_derived),
+        "R3 changed the draft but did not sync 11 — must fail",
+        failures,
+        passed,
+    )
+
+    r2_state_none = check_revision(
+        {
+            "revision_level": "R2",
+            "target": "chapter-08",
+            "canon_change": False,
+            "governance_sync": False,
+            "state_change": "none",
+            "backup_ref": "99_備份/01_正文備份/r2.md",
+        },
+        [PROSE],
+        ["99_備份/01_正文備份/r2.md"],
+    )
+    expect(
+        "r2_state_change_none_green",
+        r2_state_none == [],
+        f"explicit state_change: none must be allowed — {r2_state_none}",
+        failures,
+        passed,
+    )
+
+    deleted_prose = check_revision(
+        {"revision_level": "R1", "target": "chapter-07", "canon_change": False, "governance_sync": False},
+        [],
+        [],
+        deleted=[PROSE],
+    )
+    expect("deleted_prose_red", bool(deleted_prose), "deleting the live draft must fail", failures, passed)
+
+    deleted_backup = check_revision(
+        {"revision_level": "R1", "target": "chapter-07", "canon_change": False, "governance_sync": False},
+        [],
+        [],
+        deleted=["99_備份/01_正文備份/existing.md"],
+    )
+    expect("deleted_backup_red", bool(deleted_backup), "deleting a backup must fail without backup_prune", failures, passed)
+
+    deleted_backup_pruned = check_revision(
+        {
+            "revision_level": "R1",
+            "target": "chapter-07",
+            "canon_change": False,
+            "governance_sync": False,
+            "backup_prune": True,
+        },
+        [],
+        [],
+        deleted=["99_備份/01_正文備份/existing.md"],
+    )
+    expect(
+        "deleted_backup_prune_green",
+        deleted_backup_pruned == [],
+        f"explicit backup_prune must be allowed — {deleted_backup_pruned}",
+        failures,
+        passed,
+    )
+
+    renamed_backup = check_revision(
+        {"revision_level": "R1", "target": "chapter-07", "canon_change": False, "governance_sync": False},
+        [],
+        [],
+        renamed=["99_備份/01_正文備份/existing.md"],
+    )
+    expect("renamed_backup_red", bool(renamed_backup), "renaming a backup must fail", failures, passed)
 
     r11_only = check_revision(
         {
@@ -280,7 +371,12 @@ def main() -> int:
     expect("r1_empty_target_red", bool(r1_no_target), "R1 without target must fail", failures, passed)
 
     expect("posix_keeps_dot_github", posix(".github/workflows/governance-ci.yml") == ".github/workflows/governance-ci.yml", posix(".github/workflows/governance-ci.yml"), failures, passed)
+    expect("posix_keeps_dot_agents", posix(".agents/skills/novel-draft-mode/SKILL.md") == ".agents/skills/novel-draft-mode/SKILL.md", posix(".agents/skills/novel-draft-mode/SKILL.md"), failures, passed)
     expect("posix_keeps_dot_grok", posix(".grok/skills/novel-draft-mode/SKILL.md") == ".grok/skills/novel-draft-mode/SKILL.md", posix(".grok/skills/novel-draft-mode/SKILL.md"), failures, passed)
+    expect("classify_dot_grok_ops", classify_file(".grok/README.md") == "ops", classify_file(".grok/README.md"), failures, passed)
+    expect("classify_dot_agents_ops", classify_file(".agents/skills/x/SKILL.md") == "ops", classify_file(".agents/skills/x/SKILL.md"), failures, passed)
+    expect("classify_dot_claude_ops", classify_file(".claude/skills/x/SKILL.md") == "ops", classify_file(".claude/skills/x/SKILL.md"), failures, passed)
+    expect("classify_dot_opencode_ops", classify_file(".opencode/skills/x/SKILL.md") == "ops", classify_file(".opencode/skills/x/SKILL.md"), failures, passed)
     expect("posix_keeps_gitignore", posix(".gitignore") == ".gitignore", posix(".gitignore"), failures, passed)
     expect("posix_strips_dot_slash_only", posix("./tools/prose_checks.py") == "tools/prose_checks.py", posix("./tools/prose_checks.py"), failures, passed)
     expect("classify_dot_github_ops", classify_file(".github/workflows/governance-ci.yml") == "ops", classify_file(".github/workflows/governance-ci.yml"), failures, passed)
@@ -296,11 +392,11 @@ def main() -> int:
     expect("classify_quoted_changelog_ops", classify_file(quoted_changelog) == "ops", classify_file(quoted_changelog), failures, passed)
     expect("classify_quoted_lure_backup", classify_file(quoted_lure) == "backup", classify_file(quoted_lure), failures, passed)
 
-    z_blob = b".github/workflows/governance-ci.yml\0.grok/skills/x.md\0" + changelog.encode("utf-8") + b"\0"
+    z_blob = b".github/workflows/governance-ci.yml\0.agents/skills/x.md\0" + changelog.encode("utf-8") + b"\0"
     z_names = parse_git_z(z_blob)
     expect(
         "git_z_mixed_ascii_unicode",
-        z_names == [".github/workflows/governance-ci.yml", ".grok/skills/x.md", changelog],
+        z_names == [".github/workflows/governance-ci.yml", ".agents/skills/x.md", changelog],
         str(z_names),
         failures,
         passed,
@@ -310,7 +406,7 @@ def main() -> int:
         {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": False},
         [
             ".github/workflows/governance-ci.yml",
-            ".grok/skills/novel-canon-pack/SKILL.md",
+            ".agents/skills/novel-canon-pack/SKILL.md",
             ".gitignore",
             changelog,
             quoted_changelog,
@@ -387,6 +483,80 @@ def main() -> int:
         failures,
         passed,
     )
+    bad_scope = {
+        "contracts": [
+            {
+                "id": "CC-BAD-SCOPE",
+                "status": "active",
+                "title": "scope 指向不存在的章節",
+                "scope": {"chapters": ["第九十九章｜不存在"]},
+                "forbid": ["奧斯汀"],
+                "require": [],
+            }
+        ]
+    }
+    scope_hits = run_contracts((FIXTURES / "pass_clean.md").read_text(encoding="utf-8"), bad_scope)
+    expect(
+        "contract_bad_scope_red",
+        any(h.kind == "scope" for h in scope_hits),
+        f"missing chapter in scope must be an error, got {scope_hits}",
+        failures,
+        passed,
+    )
+
+    # --json must emit valid JSON *and* exit non-zero when violations exist.
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "canon_contract.py"), str(FIXTURES / "fail_contract_violation.md"), "--json"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    json_ok = False
+    try:
+        payload = json.loads(proc.stdout)
+        json_ok = isinstance(payload.get("violations"), list) and payload.get("count", 0) > 0
+    except json.JSONDecodeError:
+        json_ok = False
+    expect("contract_json_valid", json_ok, f"--json did not emit valid JSON: out={proc.stdout[:200]!r} err={proc.stderr[:300]!r}", failures, passed)
+    expect("contract_json_exit_nonzero", proc.returncode != 0, f"exit code was {proc.returncode}", failures, passed)
+
+    # Skills must satisfy the Agent Skills spec (name/dir match, allowed keys,
+    # metadata as a string→string map).
+    skills = collect_skills([ROOT / ".agents" / "skills"])
+    expect("skills_present", len(skills) >= 9, f"only {len(skills)} skills", failures, passed)
+    skill_errors: list[str] = []
+    for skill_md in skills:
+        skill_errors += [f"{skill_md.name}: {e}" for e in validate_skill(skill_md)]
+    expect("skills_spec_valid", not skill_errors, str(skill_errors), failures, passed)
+
+    mirror_proc = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "sync_skills.py"), "--check"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    expect("skill_mirror_green", mirror_proc.returncode == 0, mirror_proc.stderr[:300], failures, passed)
+
+    invariant_proc = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "check_core_invariants.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    expect(
+        "core_invariants_green",
+        invariant_proc.returncode == 0,
+        invariant_proc.stderr[:300],
+        failures,
+        passed,
+    )
+
     if DRAFT.is_file():
         live_contract = run_contracts(DRAFT.read_text(encoding="utf-8"), contracts)
         expect("contract_live_green", live_contract == [], str(live_contract), failures, passed)

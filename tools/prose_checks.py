@@ -1,10 +1,25 @@
-"""Shared paths and mechanical checks. Hits are candidates unless marked hard-fail."""
+"""Shared paths and mechanical checks. Hits are candidates unless marked hard-fail.
+
+Governance rules served here (registry: governance/rule-budget.json):
+    HB-026  工具輸出必須是 UTF-8；不得因主控台編碼而崩潰
+"""
 
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
+
+# Every tool prints Traditional Chinese. On Windows the default console codec is
+# cp950, which cannot encode characters such as '・' (U+30FB) — printing then
+# raises UnicodeEncodeError and the tool dies with an empty stdout. Force UTF-8
+# with replacement so a tool never crashes on its own diagnostics.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # pragma: no cover — non-reconfigurable stream
+        pass
 
 ROOT = Path(__file__).resolve().parents[1]
 DRAFT = ROOT / "10_現行創作資料" / "小說正文第三版.md"
