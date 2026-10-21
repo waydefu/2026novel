@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-008
+
+## DATE：2026-10-22 06:00 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch5 行文層）、`governance/quality/`（Ch5 兩輪盲讀比較、路線圖更新）、`governance/provenance/`（Ch5 溯源與修訂前後 artifacts、施工紀錄）、`99_備份/01_正文備份/小說正文第三版｜第五章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-05）
+
+## BEFORE：Ch5 有三處「陳述狀況」（護衛規章插入、isekai 反應的三重標註、10 歲的政策宣言）、逐字重複、A 或 B 式收尾、屋子裡只有遺體與傷口沒有生活痕跡、管家全章像煞車器沒有辨識度。
+
+## AFTER：Ch5 完成逐章優化 pass 5/7。首次盲讀採**純批評模式**（兩稿相同、當成第一次讀），評閱者給出 6 條一定要改、11 條可以改與一份「不用改但值得知道」的保留清單；v2 修 14 處；v3 依第二輪盲讀修 13 處，修掉 v2 自己造成的空殼句、舞台指示與下一段矛盾、刪句後的因果断裂與外掛的身體反應，並把原稿三樣搬回來（管家「少爺」那句同時建立階級與阻力、記名的儀式感、少年初見獸耳的趣味）。返工 3 次。事件、Knowledge、章末狀態不動（`state_change: none`）。
+
+## REASON：作者指示逐章重新優化；本章首次驗證「純批評模式」——自寫者最大的盲點是看不出自己寫過的句子，讓獨立評閱者把同一份稿當第一次讀，比修訂前後比較更能挖出問題。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 83 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證；護衛刻記號與 canon「受到記錄」的相容性已回查。
+
 ## CHG-2026-10-22-007
 
 ## DATE：2026-10-22 05:40 +08:00
