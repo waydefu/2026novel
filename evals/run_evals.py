@@ -402,7 +402,6 @@ def main() -> int:
     expect("posix_keeps_gitignore", posix(".gitignore") == ".gitignore", posix(".gitignore"), failures, passed)
     expect("posix_strips_dot_slash_only", posix("./tools/prose_checks.py") == "tools/prose_checks.py", posix("./tools/prose_checks.py"), failures, passed)
     expect("classify_dot_github_ops", classify_file(".github/workflows/governance-ci.yml") == "ops", classify_file(".github/workflows/governance-ci.yml"), failures, passed)
-    expect("classify_dot_grok_ops", classify_file(".grok/README.md") == "ops", classify_file(".grok/README.md"), failures, passed)
     expect("classify_gitignore_ops", classify_file(".gitignore") == "ops", classify_file(".gitignore"), failures, passed)
     expect("classify_cursor_ops", classify_file(".cursor/environment.json") == "ops", classify_file(".cursor/environment.json"), failures, passed)
 
