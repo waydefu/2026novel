@@ -18,7 +18,7 @@
 
 ## 提交前確認
 
-- [ ] 已閱讀並遵守根目錄 `AGENTS.md`（權威來源；`.grok/skills/` 只負責流程）
+- [ ] 已閱讀並遵守根目錄 `AGENTS.md`（權威來源；`.agents/skills/` 只負責流程）
 - [ ] 已更新 `governance/change-manifest.yaml`，且 R-level 與實際改動檔一致
 - [ ] 已核對 Canon、角色人設與時間線
 - [ ] 已檢查「又／再次／依舊／果然」等詞的前文資訊前提

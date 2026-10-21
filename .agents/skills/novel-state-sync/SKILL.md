@@ -7,8 +7,8 @@ metadata:
   version: "2.0.0"
   when_to_use: "同步 11, State Diff, Knowledge Ledger, 章完成, handoff"
   argument_hint: "[chapter]"
-  paths:
-    - "10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
+  paths: "10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
+  opencode/slash: "true"
 allowed-tools: Read Grep Glob Edit Bash
 ---
 

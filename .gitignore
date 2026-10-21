@@ -10,3 +10,10 @@ governance/evidence/*.json
 governance/capsules/*.json
 governance/capsules/*.md
 !governance/capsules/README.md
+
+# Skill mirrors are generated from .agents/skills by tools/sync_skills.py.
+# Keep at most one mirror per working tree: OpenCode loads every discovery
+# path at once and duplicate skill names collide.
+.claude/skills/
+.opencode/skills/
+.grok/skills/

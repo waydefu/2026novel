@@ -5,7 +5,7 @@
 ## 目錄
 
 - `AGENTS.md`：所有代理與協作者修改小說前必須遵守的現行創作規則（權威來源）。
-- `.grok/skills/`：施工操作層（Draft Capsule、起稿、QA、11 同步、備份）。不創造 Canon。
+- `.agents/skills/`：施工操作層（Draft Capsule、起稿、文風稽核、QA、Canon 契約、11 同步、備份、溯源、決議）。不創造 Canon。其他工具的 skill 路徑由 `tools/sync_skills.py` 產生。
 - `tools/`、`evals/`、`.github/workflows/`：機械掃描、迴歸與 CI；工具命中須人工依 `AGENTS.md` 判定。
 - `10_現行創作資料/`：正文、設定總表、章節大綱與工程治理資料。
 - `90_參考資料/`：角色或創作參考資料。

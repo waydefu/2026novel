@@ -28,7 +28,8 @@ allowed-tools: Read Glob Bash Write
 2. 複製現行檔，檔名含原因與日期，例如 `小說正文第三版｜第六章重修前備份｜2026-09-01.md`。
 3. 只新增快照，不修改既有快照（`tools/check_revision_gate.py` 會擋）。
 4. 把快照路徑寫進 `governance/change-manifest.yaml` 的 `backup_ref`。
-5. 不要從備份施工。備份只供回退、比較、作者要求的復原。
+5. **驗證快照確實等於修改前狀態**：`py -3 tools/write_provenance.py --backup <快照> --base <修改前 commit>` 會用 git blob 雜湊比對並標 MATCH／MISMATCH；MISMATCH 表示快照取錯了版本，不可當備份。
+6. 不要從備份施工。備份只供回退、比較、作者要求的復原。
 6. 復原＝把里程碑檔複製回現行路徑，再跑 `py -3 tools/scan_hard_gate.py`、`py -3 tools/canon_contract.py` 與 `py -3 evals/run_evals.py`。評測裡的 recovery drill（`evals/recovery/drill.py`）必須保持綠燈；不要在現行 Canon 上練習破壞。
 7. 刪舊備份前必須留下至少一個可回退節點，並在 00A 記錄刪除項與保留項。
 

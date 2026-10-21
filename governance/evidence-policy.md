@@ -39,5 +39,5 @@
 ## 紀律
 
 - 備份快照只新增不修改（`tools/check_revision_gate.py` 會擋修改既有快照）。
-- 里程碑制保留，不是每次微調都留快照（見 AGENTS.md §16.9）。
+- 里程碑制保留，不是每次微調都留快照（見 AGENTS.md §15 VERSION GOVERNANCE）。
 - `governance/provenance/` 的紀錄不刪除；它是「曾經怎麼改」的證據，不是現行 Canon。

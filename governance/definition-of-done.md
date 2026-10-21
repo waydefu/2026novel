@@ -7,7 +7,7 @@
 ## R0｜OPS（工具、規則、治理文件）
 
 - [ ] `governance/change-manifest.yaml` 的 `revision_level: R0`、`target: ops-runtime`。
-- [ ] 只改動 ops 範圍（`.grok/`、`tools/`、`evals/`、`.github/`、`.cursor/`、`governance/`、根 `README.md`／`.gitignore`／`AGENTS.md`／`00A`）或新增備份快照。
+- [ ] 只改動 ops 範圍（`.agents/`、`.claude/`、`.opencode/`、`.grok/`、`tools/`、`evals/`、`.github/`、`.cursor/`、`governance/`、根 `README.md`／`.gitignore`／`AGENTS.md`／`00A`）或新增備份快照。
 - [ ] `py -3 evals/ci_suite.py` 全綠。
 - [ ] 新增的閘門有對應的 eval 案例（正樣本必須綠、負樣本必須紅），且 fixture 不進正文範圍。
 - [ ] 若改動了量表或詞庫：`governance/lexicon.lock` 與 `governance/rhythm-thresholds.json` 已同步更新，且更新理由寫進本次紀錄。

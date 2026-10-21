@@ -24,7 +24,7 @@ def main() -> int:
     for hit in hits:
         print(hit.format())
     print(f"CANDIDATES\t{len(hits)}\t{path}")
-    print("NOTE\t這些是候選，須依 AGENTS.md §13 人工判定；零命中不等于通過。")
+    print("NOTE\t這些是候選，須依 AGENTS.md §11（FAIL CODES）人工判定；零命中不等于通過。")
     if args.fail_on_hits and hits:
         return 1
     return 0

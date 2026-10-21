@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
-"""Scan HARD GATE issues. Default: live draft only. Path-aware; backups/changelog/11 are exempt."""
+"""Scan HARD GATE issues. Default: live draft only. Path-aware; backups/changelog/11 are exempt.
+
+Governance rules enforced here (registry: governance/rule-budget.json):
+    HB-001  正文不得出現 TBD 標籤或 TBD 編號
+    HB-002  讀者可見章名不得使用 P-0N 形式
+    HB-003  姓名統一寫作「亞德里安・梵恩」
+"""
 
 from __future__ import annotations
 

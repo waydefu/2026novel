@@ -31,13 +31,15 @@ allowed-tools: Read Grep Glob Edit Write Bash
 2. 跑：
 
 ```text
-py -3 tools/write_provenance.py --chapter "第五章｜不能把她留在這裡" --level R2 --scope "第 6–8 段" --backup "99_備份/01_正文備份/…" --agent-log "PR #12" --notes "…" --unverified "…"
+py -3 tools/write_provenance.py --chapter "第五章｜不能把她留在這裡" --level R2 --scope "第 6–8 段" --backup "99_備份/01_正文備份/…" --base <修改前 commit> --first-output <首版正文路徑> --agent-log <對話紀錄路徑> --notes "…" --kept "…" --unverified "…"
 ```
 
-3. 手動補兩段（工具不會代填）：
+3. 產出的檔名帶 **run id**（時間戳＋雜湊），同一天對同一章重跑不會覆寫舊紀錄；重複寫同一路徑會直接報錯。
+4. 手動補三段（工具不會代填）：
    - **改稿意圖**：為什麼改、依據是什麼。
    - **保留理由**：工具命中但語意成立的地方（逐條列；沒有則寫「無」）。
-4. 補「未驗證項目」：沒有驗證的事要明講，不能假裝通過。
+   - **未驗證項目**：沒有驗證的事要明講，不能假裝通過。
+5. 三件套（跑 AI 前原稿／AI 首版輸出／對話過程）缺任何一件時，該列會標 `UNVERIFIED`；不得事後補填成已完成。
 
 ## 紀律
 

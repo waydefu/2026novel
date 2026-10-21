@@ -7,8 +7,8 @@ metadata:
   version: "2.0.0"
   when_to_use: "寫章, 改正文, 重寫場景, DRAFT MODE, 小說正文第三版"
   argument_hint: "[chapter] [revision-level]"
-  paths:
-    - "10_現行創作資料/小說正文第三版.md"
+  paths: "10_現行創作資料/小說正文第三版.md"
+  opencode/slash: "true"
 allowed-tools: Read Grep Glob Edit Write Bash
 ---
 

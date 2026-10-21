@@ -7,8 +7,8 @@ metadata:
   version: "2.0.0"
   when_to_use: "QA MODE, 驗收, 冷讀, Hard Gate, Pattern Risk, 反 AI, 去 AI 味"
   argument_hint: "[chapter]"
-  paths:
-    - "10_現行創作資料/小說正文第三版.md"
+  paths: "10_現行創作資料/小說正文第三版.md"
+  opencode/slash: "true"
 allowed-tools: Read Grep Glob Edit Write Bash
 ---
 

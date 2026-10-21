@@ -9,6 +9,15 @@ Design notes
   `governance/lexicon.lock`. CI fails when the digest drifts, so the ruler
   cannot be quietly loosened. (defluff-style pinnable lexicon.)
 * Scope: live draft only. Backups / 00A / 11 are exempt, same as hard gate.
+
+Governance rules served here (registry: governance/rule-budget.json):
+    HB-007  前情預設詞需有已建立依據          (machine-assisted)
+    HB-008  概念摘要模板不得形成慣性          (machine-assisted)
+    HB-009  固定微表情不得形成慣性            (machine-assisted)
+    HB-010  模糊感官比喻不得代替具體資訊      (machine-assisted)
+    HB-011  作者不得跳出來替作品辯護          (machine-assisted)
+    HB-012  空泛評價形容須改為可見細節        (machine-assisted)
+    HB-018  詞庫不得私下放寬（--check-lock）   (machine-enforced)
 """
 
 from __future__ import annotations

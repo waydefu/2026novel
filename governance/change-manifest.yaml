@@ -4,4 +4,4 @@ target: ops-runtime
 canon_change: false
 governance_sync: false
 backup_ref: null
-notes: "Governance evolution 2026-10-22: canon contracts, rule-budget gate, agent-rules single source, Chinese AI-flavor lexicon + rhythm diagnostics, ADR/DoD/evidence policy, 4 new skills, AGENTS.md slimmed 573->190 lines. No live prose rewrite, no Canon change."
+notes: "Audit-hardening round 2026-10-22 (2nd pass): fail-closed contract scopes, append-only contracts and rule registry, revision gate covers D/R/C, CI verifies evidence artefacts, skills migrated to .agents/skills + spec validator + mirror generator, core invariants across tool rule files, UTF-8 tool output, provenance run-ids with artefact hashes. No live prose rewrite, no Canon change."

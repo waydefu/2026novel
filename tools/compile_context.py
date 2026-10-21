@@ -55,6 +55,29 @@ def first_lines(text: str, n: int) -> str:
     return "\n".join(lines[:n])
 
 
+def knowledge_ids_for(gov_text: str, target: str) -> list[str]:
+    """Pick the Knowledge Ledger entries that actually talk about the target.
+
+    Entries whose block mentions the target id (e.g. "P08") win; otherwise the
+    last four entries are used. Hardcoding ids per chapter made the compiler
+    silently return an empty KNOWS for any target nobody had listed.
+    """
+    ids = re.findall(r"^K(\d{3})｜", gov_text, flags=re.MULTILINE)
+    if not ids:
+        return []
+    blocks: dict[str, str] = {}
+    for kid in ids:
+        nxt = f"K{int(kid[1:]) + 1:03d}"
+        block = extract_block(gov_text, f"K{kid}｜", [f"{nxt}｜", "# 05｜"])
+        blocks[kid] = block
+    targeted = [kid for kid in ids if target and target in blocks.get(kid, "")]
+    if targeted:
+        first = ids.index(targeted[0])
+        keep = ids[max(0, first - 2) : first] + targeted  # targeted entries plus two entries of context
+        return keep[:6]
+    return ids[-4:]
+
+
 def compile_target(root: Path, target: str) -> dict:
     target_norm = target.strip().upper().replace("CHAPTER-", "P").replace("CH", "P")
     if target_norm in {"8", "P8", "P08"}:
@@ -95,10 +118,17 @@ def compile_target(root: Path, target: str) -> dict:
     plot = extract_block(outline, f"## 09-{target_norm}", ["## 09-P", "# 3｜", "# 4｜"])
     if not plot:
         plot = extract_block(outline, f"## 09-{target_norm}｜", ["## 09-P", "# 3｜"])
-    if plot:
-        sources.append({"id": f"PLOT-{target_norm}", "cite": f"09 / {target_norm}", "path": outline_rel, "anchor": f"09-{target_norm}"})
+    if not plot:
+        # Fail closed: a capsule without the target's outline is a capsule that
+        # looks authoritative but says nothing about the scene being written.
+        raise RuntimeError(
+            f"compiler: no outline block for target {target_norm} in {outline_rel}; "
+            "refusing to emit a capsule without its scene card"
+        )
+    sources.append({"id": f"PLOT-{target_norm}", "cite": f"09 / {target_norm}", "path": outline_rel, "anchor": f"09-{target_norm}"})
 
-    know_ids = ["K012", "K013", "K014"] if target_norm == "P08" else ["K010", "K011", "K012", "K013"]
+    # Knowledge ids are derived from the target, not hardcoded per chapter.
+    know_ids = knowledge_ids_for(gov, target_norm)
     knows = []
     for kid in know_ids:
         nxt = f"K{int(kid[1:]) + 1:03d}"
@@ -107,6 +137,11 @@ def compile_target(root: Path, target: str) -> dict:
             knows.append(first_lines(block, 4))
             title = block.splitlines()[0]
             sources.append({"id": f"KNOW-{kid[1:]}", "cite": f"11 / Knowledge / {kid}", "path": gov_rel, "anchor": title[:40]})
+    if not knows:
+        raise RuntimeError(
+            f"compiler: no Knowledge Ledger entries resolved for target {target_norm}; "
+            "refusing to emit a capsule with empty KNOWS"
+        )
 
     handoff = extract_block(gov, "CURRENT HANDOFF", ["# 01｜"])
     if handoff:
@@ -141,7 +176,15 @@ def compile_target(root: Path, target: str) -> dict:
         "excluded_roots": ["99_備份/", "90_參考資料/", "00A"],
         "sources": sources,
         "capsule": capsule,
+        "capsule_chars": len(render_capsule_body(capsule)),
     }
+
+
+def render_capsule_body(capsule: dict) -> str:
+    parts = []
+    for key in ("POV", "NOW", "WANT", "KNOWS", "HARD BOUNDARIES", "VOICE", "DESTINATION", "FREEDOM"):
+        parts.append(f"## {key}\n\n{str(capsule.get(key, '')).strip()}")
+    return "\n\n".join(parts) + "\n"
 
 
 def render_capsule(payload: dict) -> str:
@@ -178,7 +221,7 @@ def main() -> int:
             json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
         )
     if args.check_only:
-        print(f"OK\tcompiler\t{payload['target']}\tsources={len(payload['sources'])}")
+        print(f"OK\tcompiler\t{payload['target']}\tsources={len(payload['sources'])}\tcapsule_chars={payload['capsule_chars']}")
         for src in payload["sources"]:
             print(f"{src['id']} ← {src['cite']}")
         return 0

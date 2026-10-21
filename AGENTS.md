@@ -22,9 +22,15 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 - 完整施工前清單見 `governance/qa-checklists.md` §1。
 
 ## 0.2 現行文件導航
-權威由高到低：`AGENTS.md`（本檔，跨章硬規則）→ `10_現行創作資料/01-08_…設定總表.md`（角色 Bible、關係矩陣）→ `10_現行創作資料/09_…章節大綱｜第二版.md`（09-P01～P08、第一篇 A1-01～A1-08）→ `10_現行創作資料/11_…Knowledge・State・QA・TBD.md`（衍生狀態，不創造 Canon）→ `10_現行創作資料/小說正文第三版.md`（**唯一施工稿**）。
+權威由高到低（完整路徑，勿用縮寫猜檔名）：
 
-治理層（ADR、DoD、QA 清單、證據政策、去 AI 味證據、規則體量、研究彙整）索引見 `governance/README.md`。禁止當施工來源：`99_備份/`、00A、舊 07／08／09、原型報告、`90_參考資料/`，除非作者明確要求回顧。
+1. `AGENTS.md`（本檔，跨章硬規則）
+2. `10_現行創作資料/01-08_小說設定總表｜角色・關係・劇情資料.md`（角色 Bible、關係矩陣）
+3. `10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（09-P01～P08、第一篇 A1-01～A1-08）
+4. `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（衍生狀態，不創造 Canon）
+5. `10_現行創作資料/小說正文第三版.md`（**唯一施工稿**）[CANONICAL-DRAFT]
+
+治理層（ADR、DoD、QA 清單、證據政策、去 AI 味證據、Skill 路由、品質驗證、規則體量、研究彙整）索引見 `governance/README.md`。禁止當施工來源：`99_備份/`、00A、舊 07／08／09、原型報告、`90_參考資料/`，除非作者明確要求回顧。
 
 # 1｜INSTRUCTION PRIORITY ＆ PLOT RESET
 優先序由高到低：
@@ -37,7 +43,7 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 6. 歷史來源與舊稿（舊正文、舊設定、07／08／09）：只可回顧，不得自動恢復成現行 Canon。
 7. 模型自己的常見寫法。
 
-## PLOT RESET｜2026-08-17
+## PLOT RESET｜2026-08-17　[PLOT-RESET]
 作者已明確宣告舊小說劇情全部作廢。舊正文、07、08、09 中的既有事件、章節順序、反派安排、伏筆鏈、毒殺線、八篇結構與終局方案都只是歷史稿，不得自動沿用。
 
 仍有效的是：作者最新指示、00、01–06、世界底層規則，以及之後重新建立並通過的新主線文件。任何舊劇情元素若要重新出現，必須當成新提案重新審核。
@@ -50,7 +56,7 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 - POV：第三人稱限知為主、第一人稱為輔；全書目標約六比四。
 - SCENE：一個完整場景一個 POV；切換用章節或明確場景分隔。
 - LENGTH：依作者最新指示與現行章綱的章別目標；不得為了舊的通用字數硬砍完整場景。
-- FORMAT：正文用 Google 文件原生分頁（Tabs）管理章節，每章一個分頁。讀者可見章名統一為「第一章｜章名、第二章｜章名……」，不得以 P-01／P-02 作為正文顯示名稱（P 編號只留給大綱、場景卡與施工索引）。保留正文的章名、分段、空行、標點、編碼與換行格式。
+- FORMAT：**施工稿一律是本 repo 的 Markdown**（`10_現行創作資料/小說正文第三版.md`）；Google 文件原生分頁（Tabs）是**發布輸出格式**，由施工稿產生，不得反向回流為權威。讀者可見章名統一為「第一章｜章名、第二章｜章名……」，不得以 P-01／P-02 作為正文顯示名稱（P 編號只留給大綱、場景卡與施工索引）。保留正文的章名、分段、空行、標點、編碼與換行格式。
 - STYLE ORDER：看得懂 ＞ 像真人 ＞ 準確 ＞ 順口 ＞ 有畫面 ＞ 修辭。
 
 章長不足或超出目標時，先檢查場景是否缺事件、選擇、因果或必要反應。只能靠裝飾性景物、重複解釋或空泛內心戲補足的字數，不算完成。
@@ -62,11 +68,12 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 - 主筆只讀 Capsule、必要 Voice 與最近必要正文，不直接載入完整 Acceptance Tests／State Diff／Dependency Graph。
 - Knowledge Ledger、State Diff、Dependency、Acceptance Tests 只供後台核對，不得按欄位順序逐項寫進正文。
 - 「A 是 B 的前提」不代表角色必須在當場說明「因為 A，所以 B」；只需讓因果回頭可成立。
-- TBD 標籤不得進正文。
+- TBD 標籤不得進正文。[TBD-NOT-IN-PROSE]
+- 需要新動機、制度、法律身分、宗教位階、魔法規則，或必須先解 TBD，或高權威互斥 → 停下問作者，不要用「合理」補。[NO-GUESS-GATE]
 - 場景若只把設定講給讀者聽、人物沒有正在生活或處理任何事情，優先重構。場景不必每次都完成明確轉折；日常、恢復、情緒餘波、建立習慣與普通相處，只要對人物或閱讀體驗有實際價值，也可以成立。
 
 # 4｜THIRD-PERSON LIMITED + FIRST-PERSON MULTI-POV
-- 每場戲固定一種人稱與一名焦點角色；場內不得在第一、第三人稱之間游移，也不得跳進另一個人的內心。
+- 每場戲固定一種人稱與一名焦點角色；場內不得在第一、第三人稱之間游移，也不得跳進另一個人的內心。[POV-LIMITED]
 - 第三人稱限知只能呈現焦點角色能感知、記得、推測或取得的資訊。別人的內心只能依動作、語氣與已知背景判斷，而且可以判斷錯。
 - 第三人稱不等於全知，也不等於冷淡。角色的尷尬、期待、吐槽、恐懼、心虛與被觸動仍要落在當下反應和選擇裡。
 - 亞德里安的理性是處理問題的方法，不代表他沒有情緒，也不能被寫成只會計算的無感情機器。
@@ -86,7 +93,7 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 - 比對「症狀／感官 A→B→C → 結論」的清單式流水帳；避免習慣性「場景演出 → 抽象解釋 → 段尾總結」三連。
 - 固定微表情（瞳孔一縮、指尖微蜷、喉結滾動、唇角勾起）、固定段尾餘韻（沉默落下、空氣安靜、誰都沒有再說話）不得形成慣性。
 
-**工具與證據**：`tools/prose_lexicon.py`（候選＋`--not-evidence`）、`tools/prose_rhythm.py`（節奏定位）、`tools/style_profile.py`（量測）。判定門檻與「哪些特徵不成立」見 `governance/ai-flavor-evidence.md`。**比喻、設問、排比、被動句與句長均勻度不是 AI 判別指標，不得作為改寫理由。**
+**工具與證據**：`tools/prose_lexicon.py`（候選＋`--not-evidence`）、`tools/prose_rhythm.py`（節奏定位）、`tools/style_profile.py`（量測）。[MACHINE-IS-CANDIDATE]判定門檻與「哪些特徵不成立」見 `governance/ai-flavor-evidence.md`。**比喻、設問、排比、被動句與句長均勻度不是 AI 判別指標，不得作為改寫理由。**
 
 # 6｜DETAILS ＆ SCENE DENSITY
 - 重要特寫要有被注意的理由；不是每個杯子、氣味、小動作都必須變成伏筆。
@@ -147,6 +154,7 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 - 後台因果可以精密，前台不准露出工程圖。主筆不得把 Knowledge／State／Dependency 的排列順序轉寫成正文結構。
 - 如果所有角色都使用「觀察 → 分析 → 結論」同一認知模板，即使設定正確也視為需要重寫 Voice。
 - 不以「零命中禁詞」證明人味；最後驗收必須問：角色有沒有正在活，而不是正在履約。
+- Skill 的選擇與重疊裁決見 `governance/skill-routing.md`；作品品質的盲讀比較見 `governance/quality-evaluation.md`（不阻擋 CI）。
 
 # 11｜FAIL CODES
 - 判定原則：Canon、POV 越界、Knowledge、資訊前提、術語、明確 OOC、格式屬 **HARD GATE**；STYLE、AI、句型、微表情、碎句、解說感、場景效率與 Voice 同質化屬 **PATTERN RISK**，只有形成模式或實際降低閱讀品質時才判 Fail。
@@ -158,12 +166,12 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 不得為了消滅風險詞把文字淨化成動作報告，也不得用同義詞替換假裝人味化。
 
 # 12｜REVISION LEVELS ＆ COMPLETION
-R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUCTURAL／CANON REVISION（需作者明確決定）。
+R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUCTURAL／CANON REVISION（需作者明確決定）。[REVISION-LEVEL]
 
 未指定層級時，以完成作者要求所需的最低層級施工；途中發現必須升級，停止該部分。每級的完成定義見 `governance/definition-of-done.md`。
 
 - R1 禁止改 01–06、09、11。R2 以上必須附 `backup_ref`（`99_備份/` 內的新增快照）。只改 11 而不改正文＝FAIL。
-- Canon 方向（ADR-0001）：已寫正文的既存事實不得被設定矛盾；正文不得自行升格 Canon；設定只能追認或走明示 retcon。
+- Canon 方向（ADR-0001）：已寫正文的既存事實不得被設定矛盾；正文不得自行升格 Canon；設定只能追認或走明示 retcon。[CANON-AUTHORITY]
 
 # 13｜FINAL QA ＆ COLD READ
 完成一章後依序檢查：STRUCTURE、CLARITY、PROSE、POV、INFORMATION、BODY、DETAIL、DIALOGUE、CHARACTER、ERA、TERMS、CONTINUITY、AI／PATTERN、OVER-COMPLIANCE、LENGTH、FORMAT。逐項清單見 `11` §02 Acceptance Tests A–M。
@@ -182,7 +190,7 @@ R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUC
 - 每累積三次以上重大文風修正，就重新整理本文件：合併重複規則、刪掉失效條文，不准一直往後堆。失效規則要退場，不是註解留著。
 - 方向性決定寫 `governance/adr/`（含 Status 生命週期）；重大 Canon、治理或版本結構變更寫 `00A_設定歷史修改紀錄｜Changelog.md`。純行文、錯字、標點與格式修正不需改 Changelog。
 - 備份採里程碑保留制，只新增不修改；永久刪除備份時必須在 00A 記錄刪除項目與保留項目。
-- `tools/`、`evals/`、`.grok/`、`.github/`、`.cursor/`、`governance/` 是操作層，不具 Canon 權威。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]` 與 evals 的預期失敗樣本不適用同一把尺。
+- `tools/`、`evals/`、`.agents/`、`.github/`、`.cursor/`、`governance/` 是操作層，不具 Canon 權威。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]` 與 evals 的預期失敗樣本不適用同一把尺。
 - 變更須提交 `governance/change-manifest.yaml`（revision_level／target／canon_change／governance_sync／backup_ref）。多工具規則檔由 `governance/agent-rules-source.md` 單一來源產生（`tools/sync_agent_rules.py --check`）。
 - 使用本範本時，本文件是修稿約束來源，不是正文成品。輸出應是修後正文與必要驗證摘要，不得把整份規則複製進小說裡。
 

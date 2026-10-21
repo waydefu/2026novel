@@ -1,6 +1,6 @@
 # ADR｜決議紀錄（Architecture/Author Decision Records）
 
-本資料夾記錄**會改變規則或方向**的決議。純行文、錯字、格式修正不進 ADR（見 AGENTS.md §16.4）。
+本資料夾記錄**會改變規則或方向**的決議。純行文、錯字、格式修正不進 ADR（見 AGENTS.md §15 VERSION GOVERNANCE）。
 
 ## 為什麼要 ADR
 

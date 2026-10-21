@@ -1,0 +1,53 @@
+{
+  "updated": "2026-10-22",
+  "note": "核心不變條件：這幾條在任何工具的規則檔裡都必須存在。跨工具同步只保證『產物彼此一致』，不保證『產物與 AGENTS.md 一致』；本檔補上後者。三處任一缺少該標記即失敗。",
+  "files": [
+    "AGENTS.md",
+    "governance/agent-rules-source.md",
+    ".cursor/rules/novel-project.mdc",
+    ".github/copilot-instructions.md",
+    "CLAUDE.md"
+  ],
+  "invariants": [
+    {
+      "id": "PLOT-RESET",
+      "marker": "[PLOT-RESET]",
+      "statement": "舊小說劇情全部作廢，舊稿只可回顧不可施工"
+    },
+    {
+      "id": "CANONICAL-DRAFT",
+      "marker": "[CANONICAL-DRAFT]",
+      "statement": "唯一施工稿是 10_現行創作資料/小說正文第三版.md"
+    },
+    {
+      "id": "NO-GUESS-GATE",
+      "marker": "[NO-GUESS-GATE]",
+      "statement": "需要新制度、動機、身分或世界規則時停下問作者，不自行補"
+    },
+    {
+      "id": "TBD-NOT-IN-PROSE",
+      "marker": "[TBD-NOT-IN-PROSE]",
+      "statement": "TBD 標籤不得進正文，也不得用「合理」升格"
+    },
+    {
+      "id": "REVISION-LEVEL",
+      "marker": "[REVISION-LEVEL]",
+      "statement": "動正文前先判定 R0–R4 與 change-manifest"
+    },
+    {
+      "id": "POV-LIMITED",
+      "marker": "[POV-LIMITED]",
+      "statement": "一場一種人稱、一名焦點角色，不越界讀心"
+    },
+    {
+      "id": "CANON-AUTHORITY",
+      "marker": "[CANON-AUTHORITY]",
+      "statement": "已寫正文的既存事實不得被矛盾；設定只能追認或走 retcon"
+    },
+    {
+      "id": "MACHINE-IS-CANDIDATE",
+      "marker": "[MACHINE-IS-CANDIDATE]",
+      "statement": "工具命中只是候選，零命中不等於通過"
+    }
+  ]
+}
