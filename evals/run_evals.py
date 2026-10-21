@@ -296,6 +296,28 @@ def main() -> int:
     )
     expect("renamed_backup_red", bool(renamed_backup), "renaming a backup must fail", failures, passed)
 
+    # A byte-identical backup snapshot of a modified live file must NOT be read as
+    # a rename of the live file (git's --find-renames used to pair them).
+    copy_into_backup = check_revision(
+        {
+            "revision_level": "R3",
+            "target": "chapter-08",
+            "canon_change": False,
+            "governance_sync": True,
+            "state_change": "none",
+            "backup_ref": "99_備份/01_正文備份/snapshot.md",
+        },
+        [PROSE],
+        ["99_備份/01_正文備份/snapshot.md"],
+    )
+    expect(
+        "backup_copy_not_rename_green",
+        copy_into_backup == [],
+        f"adding a backup snapshot must not look like renaming the draft — {copy_into_backup}",
+        failures,
+        passed,
+    )
+
     r11_only = check_revision(
         {
             "revision_level": "R2",

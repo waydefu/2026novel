@@ -1,7 +1,7 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R3
+target: chapter-08
 canon_change: false
-governance_sync: false
-backup_ref: null
-notes: "Audit-hardening round 2026-10-22 (2nd pass): fail-closed contract scopes, append-only contracts and rule registry, revision gate covers D/R/C, CI verifies evidence artefacts, skills migrated to .agents/skills + spec validator + mirror generator, core invariants across tool rule files, UTF-8 tool output, provenance run-ids with artefact hashes. No live prose rewrite, no Canon change."
+governance_sync: true
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜第八章新增前備份｜2026-10-22.md
+notes: "P08 arc first scene: Ch8「她先認字」(Adrian POV, 1660 chars). Linoel learns characters from Father Bellow on her own initiative, keeps the Ch7 option papers and can now read some place names; she refuses Adrian's offer to read for her and does not answer what she will do after she finishes. No work contract, no academy identity, no ear/tail event - TBD-006/007 remain OPEN. 11 synced (CUT-OFF, K016, CH08 State Diff, D012/D013); 09 P08 progress note added (arc still PLANNED)."

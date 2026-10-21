@@ -206,8 +206,12 @@ def check_revision(
 def git_changes(base: str) -> list[tuple[str, str]]:
     """All change types between base and HEAD: (status, path).
 
-    Uses --name-status -z so renames and copies are visible. A gate that only
-    looks at M and A can be bypassed by deleting or renaming a file.
+    Rename detection is deliberately OFF. With `--find-renames`, git pairs a
+    modified file with a byte-identical copy added elsewhere — which is exactly
+    what a backup snapshot of the live draft looks like — and reports it as a
+    rename. That produced a false "the live draft was renamed" failure on the
+    first prose PR. Without rename detection, a genuine rename shows up as a
+    delete plus an add, and the delete rules below already catch it.
     """
     out = subprocess.check_output(
         [
@@ -216,8 +220,7 @@ def git_changes(base: str) -> list[tuple[str, str]]:
             "core.quotePath=false",
             "diff",
             "--name-status",
-            "--find-renames",
-            "--find-copies",
+            "--no-renames",
             "-z",
             f"{base}...HEAD",
         ],
@@ -229,14 +232,12 @@ def git_changes(base: str) -> list[tuple[str, str]]:
     while i < len(fields):
         status = fields[i].decode("utf-8")
         letter = status[0]
-        if letter in {"R", "C"}:
-            # R100\0old\0new
-            if i + 2 >= len(fields):
-                break
+        if letter in {"R", "C"} and i + 2 < len(fields):
+            # Only reachable if a future git ignores --no-renames.
             old = fields[i + 1].decode("utf-8")
             new = fields[i + 2].decode("utf-8")
-            changes.append((letter, posix(old)))
-            changes.append((letter, posix(new)))
+            changes.append(("D", posix(old)))
+            changes.append(("A", posix(new)))
             i += 3
             continue
         if i + 1 >= len(fields):
