@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-006
+
+## DATE：2026-10-22 05:28 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch3 行文層）、`governance/quality/`（Ch3 兩輪盲讀比較、路線圖更新）、`governance/provenance/`（Ch3 溯源與修訂前後 artifacts、施工紀錄）、`99_備份/01_正文備份/小說正文第三版｜第三章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-03）
+
+## BEFORE：Ch3 為 6 月初稿；Ch2 留下的「哪一種紀年」線頭全章未收；晚宴處重複解釋（複述查爾曼說過的話＋旁白再解釋）；本章最大的情緒節點（「我以前也常問這種事嗎？」）只換到一句回答就結束。
+
+## AFTER：Ch3 完成逐章優化 pass 3/7，兩次盲讀，返工 3 次（v1 自冷讀、v2 依盲讀#1、v3 依盲讀#2）。v1 回收紀年線頭（不命名任何曆法或制度）；v2 重寫該段對話（動作橋、去掉需前文的回指、讓羅德里克像人而非解說員、限制當場有摩擦）並新增「那如果我問的是關於我自己呢」與場景聲光；v3 依盲讀修 7 處並**還原我自己在盲讀後誤改的句子**。盲讀第二輪：修訂後五項全勝（5/5、5/5、4/5、5/5、5/5），原稿為 4/3/3/4/4。事件、Knowledge、章末狀態不動（`state_change: none`）。
+
+## REASON：作者指示逐章重新優化；Ch2 的兩輪盲讀證明同一章需要兩次評讀才能確認插入段落的成本與品質。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 83 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證；兩輪盲讀與施工紀錄留存。
+
 ## CHG-2026-10-22-005
 
 ## DATE：2026-10-22 05:14 +08:00
