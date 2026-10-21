@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-011
+
+## DATE：2026-10-22 06:40 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`00A_設定歷史修改紀錄｜Changelog.md`（本筆）、`governance/quality/逐章優化總表.md`（由 CHG-2026-10-22-010 對應的 commit `a246f9b` 帶入）
+
+## BEFORE：commit `a246f9b`（逐章優化總表）**由我直接推送到 `main`，繞過了 PR 與 `gate-proven` 檢查**。ruleset 因 Admin `always` bypass 放行了這次 push，因此遠端門禁沒有生效；CI 仍因 push 事件而跑完並綠燈，但「變更必須走 PR」這條規則在該次提交上被破了。
+
+## AFTER：本次以正常 PR 補上紀錄，讓違規出現在稽核軌跡上而不是消失在 git 歷史裡。往後任何要進 `main` 的變更一律走分支＋PR，不直接 push。
+
+## REASON：這是操作錯誤，不是設計變更。逐章優化總表的內容本身無誤（CI 在 main 上綠），錯的是提交路徑。
+
+## AUTHORITY：作者授權「所有內容皆可改」；本筆是對提交路徑的自我更正。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠；`gate-proven` 於 `a246f9b` 的 push 事件上執行成功（但未經 PR 觸發）。
+
 ## CHG-2026-10-22-010
 
 ## DATE：2026-10-22 06:25 +08:00
