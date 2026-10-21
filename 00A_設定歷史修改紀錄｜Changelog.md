@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-005
+
+## DATE：2026-10-22 05:14 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch2 行文層）、`governance/quality/`（Ch2 兩輪盲讀比較、路線圖更新）、`governance/provenance/`（Ch2 溯源與修訂前後 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第二章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-02）
+
+## BEFORE：Ch2 為 6 月初稿；有一組動作在四行內重複列舉、牧師的囑託以旁白摘要代替對白、抽象三連排比、主角對「自己已經死過」沒有身體反應、房間只被清單掃過沒有感官落點。全稿唯一一筆詞庫命中也在本章。
+
+## AFTER：Ch2 完成逐章優化 pass 2/7，做了兩次盲讀，返工 3 次（v1 自冷讀、v2 依盲讀#1、v3 依盲讀#2），共修 16 處。全稿**詞庫命中歸零**；事件、Knowledge、章末狀態皆未動（`state_change: none`）。路線圖新增「詞庫命中怎麼處理」判準：詞庫抓形態不抓功能，清零不是目標。
+
+## REASON：作者指示逐章重新優化；Ch8 與 Ch1 的盲讀已證明機械掃描看不到敘事層的問題，Ch2 沿用同一流程並加做第二輪盲讀驗證。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 83 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證；兩輪盲讀與施工紀錄留存於 `governance/quality/2026-10-22_Ch02_盲讀比較.md` 與 `governance/provenance/`。
+
 ## CHG-2026-10-22-004
 
 ## DATE：2026-10-22 04:56 +08:00
