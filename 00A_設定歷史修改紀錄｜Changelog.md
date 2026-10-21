@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-004
+
+## DATE：2026-10-22 04:56 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch1 行文層）、`governance/quality/`（Ch1 盲讀比較、逐章優化路線圖更新）、`governance/provenance/`（Ch1 溯源與修訂前後 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第一章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-01）
+
+## BEFORE：Ch1 仍為 6 月初稿。有三處敘事層「理由說明」（回家後八成還是會一直想／上次有人交錯檔案／就一路拖到現在），開頭缺少夜裡圖書館的場所感；逐章優化路線圖尚未有實測紀錄。
+
+## AFTER：Ch1 完成逐章優化 pass 1/7。v1 砍三處理由說明並補兩句夜裡圖書館描寫；v2 由盲讀觸發——修掉 v1 造成的代詞歧義（「老師」後面的「他」），並把被砍但屬角色專屬的細節以事實句還原。返工 2 次。事件、Knowledge、章末狀態皆未動，`state_change: none`，11 不需同步。
+
+## REASON：作者指示「這章節處理完之後等等每一章都重新優化」；Ch8 的第一次盲讀證明機械詞庫對敘事層解釋失明，需要以逐章盲讀補上。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、drift 綠、evals 83 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證；盲讀結果與方法論修正見 `governance/quality/2026-10-22_Ch01_盲讀比較.md`。
+
 ## CHG-2026-10-22-003
 
 ## DATE：2026-10-22 04:40 +08:00
