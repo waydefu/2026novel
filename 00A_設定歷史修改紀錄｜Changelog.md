@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-003
+
+## DATE：2026-10-22 04:40 +08:00
+
+## TYPE：GOVERNANCE / FORMAT
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（新增第八章）、`11_…Knowledge・State・QA・TBD.md`（CUT-OFF×2、K016、CH08 State Diff、D012／D013）、`09_…章節大綱｜第二版.md`（P08 施工進度）、`governance/change-manifest.yaml`（R3／chapter-08）、`governance/provenance/`（本次溯源紀錄＋首版／第二稿／第三稿／施工紀錄 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第八章新增前備份｜2026-10-22.md`
+
+## BEFORE：現行正文停在第七章；11 的 CUT-OFF 為第七章；P08 為 [PLANNED] 且尚未動筆；治理系統已完成 fail-closed 強化，但尚未用於任何一章實際創作。
+
+## AFTER：新增第八章「她先認字」（1,660 字，亞德里安貼身第三人稱）。本場為 09-P08 弧的第一場：數月後的秋天傍晚，莉諾兒主動跟牧師貝倫學認字，亞德里安在廚房找不到她而去找她；她已能自己讀出部分地名並保留 Ch7 那幾張紙、拒絕他代念、也沒有回答「認完之後呢」。TBD-006／007 維持 OPEN，正文未出現工作契約、學院身分或耳朵／尾巴文化事件。11 同步 CUT-OFF、K016、CH08 與 D012／D013；09 只加施工進度註記，P08 仍為 [PLANNED]。
+
+## REASON：作者指示把 P08 當作治理系統的第一輪實戰驗證（取一個完整場景，走 `novel-canon-pack → novel-draft-mode → novel-qa-mode`，再做一次盲讀），以觀察角色聲音、情緒可信度與返工次數。
+
+## AUTHORITY：作者指示「先取一個完整場景，使用新版 pipeline，完成後進行一次盲讀」；作者決定 TBD-006／007 維持 OPEN。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（新增一章新正文，未改動 Ch1–Ch7、01–08 Canon 與世界設定）
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫全稿 1 筆為 Ch1 既有命中且本章 0 命中、drift 綠、compiler 綠、evals 82 cases、revision-gate R3 綠）；備份快照以 git blob 驗證為 MATCH；返工次數 3（v1→v2→v3→v4，最後一輪由盲讀觸發）；盲讀第一次實測結果見 `governance/quality/2026-10-22_Ch08_盲讀比較.md`。
+
 ## CHG-2026-10-22-002
 
 ## DATE：2026-10-22 05:20 +08:00
