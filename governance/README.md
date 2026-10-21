@@ -5,9 +5,12 @@
 | 檔案 | 用途 |
 |---|---|
 | `agent-rules-source.md` | 單一事實來源：產生 `.cursor/rules/`、`.github/copilot-instructions.md`、`CLAUDE.md`（`tools/sync_agent_rules.py`） |
+| `core-invariants.json` | 核心不變條件（帶穩定標記），必須同時存在於根規則與各工具規則檔（`tools/check_core_invariants.py`） |
 | `adr/` | 方向性決議與 Status 生命週期（proposed／accepted／superseded） |
 | `definition-of-done.md` | R0–R4 各自的完成定義 |
 | `qa-checklists.md` | 施工期可操作清單（起稿前／寫作中／寫完後／判讀紀律／冷讀） |
+| `skill-routing.md` | 九個 skill 的路由、重疊裁決、部署與規格紅線 |
+| `quality-evaluation.md` | 作品品質驗證：可機檢／盲讀比較／誠實的誤報率指標 |
 | `evidence-policy.md` | 三件套（原稿／對話過程／首版輸出）與可稽核性 |
 | `ai-flavor-evidence.md` | 哪些中文特徵真的判別 AI 味、哪些不成立（本專案裁決） |
 | `canon-contracts.json` | 可執行的 Canon 契約（已寫正文的既存事實不得被矛盾） |

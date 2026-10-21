@@ -9,6 +9,9 @@ renders the rest, so drift is impossible by construction and `--check` proves it
 Usage:
     py -3 tools/sync_agent_rules.py          # write
     py -3 tools/sync_agent_rules.py --check  # fail if generated files are stale
+
+Governance rules enforced here (registry: governance/rule-budget.json):
+    HB-015  各工具的規則檔必須由單一來源產生，不得各自腐爛
 """
 
 from __future__ import annotations

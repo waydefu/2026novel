@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-002
+
+## DATE：2026-10-22 05:20 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/`（canon_contract、check_revision_gate、check_rule_budget、compile_context、write_provenance、write_evidence、prose_checks、sync_skills、validate_skills、check_core_invariants）、`evals/`（ci_suite 新閘門與 19 個新案例，總數 82）、`.agents/skills/`（由 `.grok/skills/` 遷移，frontmatter 修正）、`governance/`（skill-routing、quality-evaluation、core-invariants、rule-budget 擴充、canon-contracts 引用修正）、`AGENTS.md`（路徑精確化、Google Docs 與 Markdown 權威釐清、核心不變條件標記）、`.gitignore`、`README.md`、PR 範本
+
+## BEFORE：稽核發現多個會造成錯誤放行或規則失效的缺口。(1) `canon_contract.py --json` 呼叫未匯入的 `asdict`，一用就 NameError；(2) revision gate 只看 `M`／`A`，刪除與重新命名可繞過整道閘門；(3) `ci_suite.py` 忽略 `write_evidence.py` 的結束碼，證據寫入失敗仍然綠；(4) 契約 scope 指向不存在的章節時靜默退化成「從第一章算起」或空集合，forbid-only 契約因此假通過；(5) Skills 放在 `.grok/skills/`，該路徑不在 OpenCode／Claude Code／Codex 的官方探索清單，Skills 可能根本沒被載入；(6) 三個 skill 的 `metadata.paths` 是陣列，違反 Agent Skills「metadata 必須是字串→字串映射」的規格，打包到 claude.ai 會硬錯誤；(7) Windows 主控台 cp950 下工具輸出 `・`（U+30FB）會 UnicodeEncodeError 崩潰，stdout 全空；(8) 規則登記表可被整筆刪除而無痕跡；(9) `HB-019` 冷讀規則被登記成「由掃描器執行」，但沒有任何工具能證明人做過冷讀；(10) 溯源紀錄以「日期＋章名」命名，同日重跑會覆寫，且未保存 AI 首版輸出。
+
+## AFTER：全部修正並加上回歸測試。契約檢查 fail-closed（scope 缺章、空 scope、schema 錯誤皆為錯誤）；契約與規則登記表皆為 append-only（以 `--base` 比對，既有 id 不得刪除或改寫，刪除須列入 `retired_rules` 並附原因）；revision gate 改用 `git diff --name-status -z`，涵蓋 D／R／C，並要求 R2 以上改正文須同步 11（或顯式宣告 `state_change: none`）、備份刪除需 `backup_prune`；CI 驗證證據檔存在、格式、SHA 綁定與各閘門結果，寫入失敗即紅；Skills 遷至 `.agents/skills/`（唯一來源），其他工具路徑由 `tools/sync_skills.py` 產生並由 `tools/validate_skills.py` 驗規格（9/9 通過）；工具輸出強制 UTF-8；`HB-019` 更正為 `manual-review`；溯源紀錄改用 run id、不覆寫、三件套逐件雜湊驗證並可驗證備份是否等於修改前狀態；新增 `governance/skill-routing.md`、`governance/quality-evaluation.md`、`governance/core-invariants.json` 與 `tools/check_core_invariants.py`（核心不變條件須同時存在於根規則與各工具規則檔）；AGENTS.md 改用完整路徑並釐清「Markdown 為施工稿、Google Docs 為發布輸出」。
+
+## REASON：外部深度稽核（唯讀）指出上述缺口；其中四項經程式碼覆核確認成立，其餘依同一原則補足。治理機制只有在「真的會擋、真的會被發現」時才算數。
+
+## AUTHORITY：作者指示「先告訴我目前治理與問題」→ 稽核報告 → 本次修正；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（未動現行正文、01–08、09、11；Skill 由 `.grok/skills/` 遷至 `.agents/skills/`，鏡像由工具產生）
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（evals 82 cases；hard-gate／canon-contract／rule-budget／rule-sync／lexicon-lock／skills／skill-mirror／core-invariants／append-only／compiler／drift／recovery 全 PASS，證據檔驗證通過）；`tools/validate_skills.py` 9/9 通過；`tools/check_core_invariants.py` 8 項不變條件 × 5 個規則檔全數命中；`tools/check_rule_budget.py` AGENTS.md 198 行（上限 200）。
+
 ## CHG-2026-10-22-001
 
 ## DATE：2026-10-22 03:40 +08:00
