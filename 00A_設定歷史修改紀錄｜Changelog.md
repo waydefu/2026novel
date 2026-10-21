@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-010
+
+## DATE：2026-10-22 06:25 +08:00
+
+## TYPE：FORMAT / GOVERNANCE
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch7 行文層）、`governance/quality/`（Ch7 兩輪盲讀比較、逐章優化路線圖更新）、`governance/provenance/`（Ch7 溯源與修訂前後 artifacts、施工紀錄）、`99_備份/01_正文備份/小說正文第三版｜第七章優化前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R1／chapter-07）
+
+## BEFORE：Ch7 的日常段有五個同構插曲並排（「某人 → 輕微反應 → 短對話 → 對方轉去做別的事 → 我走開」），其中兩個結尾幾乎同一句型，讀者會開始用同一模板預測下一段；另有段落導引句、等長三段排比、整章最像章節摘要的一句、宣告決心與成人語域的對比修辭。
+
+## AFTER：Ch7 完成逐章優化 pass 7/7（逐章優化七章全數完成）。純批評模式盲讀給出 6 條一定要改、9 條可以改與 14 條保留；v2 修 15 處；v3 依第二輪修 10 處，修掉我刪除時連帶刪掉的收束（亞德里安場景失去結尾、越門檻的轉折消失、里程碑引用了全章沒出現過的行為），補回日常段的時間刻度與查爾曼提議的理由。盲讀第二輪合計 21.0 vs 19.0。章末選擇（「我先留在這裡」與她把紙留著）完全未動。事件、Knowledge、章末狀態不動（`state_change: none`）。
+
+## REASON：作者指示逐章重新優化；本章驗證了「刪解釋句」這個動作本身會連帶刪掉收束與前因，必須逐句回頭檢查刪除的後果。
+
+## AUTHORITY：作者指示逐章優化；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate 0、canon-contract 0 violations、詞庫 0 命中、drift 綠、evals 82 cases、revision-gate R1 綠）；備份快照 = origin/main 版本並以 git blob 驗證。
+
 ## CHG-2026-10-22-009
 
 ## DATE：2026-10-22 06:12 +08:00
