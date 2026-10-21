@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-001
+
+## DATE：2026-10-22 03:40 +08:00
+
+## TYPE：GOVERNANCE / FORMAT
+
+## SCOPE：`AGENTS.md`、`tools/`（canon_contract、prose_lexicon、prose_rhythm、style_profile、check_rule_budget、sync_agent_rules、write_provenance）、`evals/`（fixtures 與 12 個新案例、ci_suite 新閘門、VERSION 0.3.0）、`governance/`（ADR-0001、DoD、證據政策、QA 清單、去 AI 味證據、規則體量、詞庫鎖檔、樣式基準、單一規則來源、研究彙整）、`.grok/skills/`（5 個改寫＋4 個新增）、`.cursor/rules/`、`.github/copilot-instructions.md`、`CLAUDE.md`
+
+## BEFORE：AGENTS.md 573 行（超過 Anthropic 建議的 200 行上限 2.9 倍）、124 條列、81 個強制語句；CI 只驗 TBD 標籤、P-0N 章名與姓名拼寫三件事，無 Canon 契約、無規則體量上限、無詞庫鎖檔；5 個 skill 使用非標準 frontmatter 欄位（`when-to-use`／`argument-hint`／`paths`，在 claude.ai 打包時會硬錯誤）；無 ADR、DoD、證據政策與逐章溯源機制。
+
+## AFTER：AGENTS.md 降到 190 行（門檻由 `tools/check_rule_budget.py` 阻擋，被移出的 20 條規則在 `governance/rule-budget.json` 登記去向）；新增可執行的 Canon 契約（10 條，設定為 provider、已寫正文為 consumer，方向記於 ADR-0001）；新增中文 AI 味詞庫（含語料證據分級與「不可作為改寫依據」清單）、節奏診斷、本專案正負樣本章節奏校準；新增規則體量、單一規則來源同步、詞庫鎖檔三道閘門與逐章溯源工具；CI 新增 4 道阻擋閘門與候選報告；skills 全部改用 Agent Skills 標準 6 欄 frontmatter，新增 canon-contract、prose-audit、provenance、decision 四個 skill。
+
+## REASON：外部研究（社群治理實務、ADR／DoD／contract testing、Agent Skills 規格、中文 283 萬字對照語料）指出四個缺口：規則過厚會稀釋遵循、CI 只擋格式不擋內容、工具命中被誤當判決、規則檔與量表會各自腐爛。詳見 `governance/research/2026-10-22-governance-and-deai.md`。
+
+## AUTHORITY：作者指示「進 repo，將 repo 超進化（治理、技能、其餘部份都優化），授權你所有內容皆可改，四件事你來決定」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（未動現行正文、01–08、09、11；新增閘門於現行正文全綠）
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（hard-gate／canon-contract／rule-budget／rule-sync／lexicon-lock／regression 64 cases／compiler／drift／recovery）；`tools/canon_contract.py` 於現行正文 0 violations；詞庫於現行正文僅 1 筆候選（具體對比句，判定為保留）。
+
 ## CHG-2026-09-02-002
 
 ## DATE：2026-09-02 00:06 +08:00
