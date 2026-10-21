@@ -202,7 +202,10 @@ def _evidence(results: dict[str, str], git_base: str) -> int:
         print(f"ERROR\tevidence\tunreadable evidence {out}: {exc}", file=sys.stderr)
         return 1
     required = ("head_sha", "tested_sha", "tested_ref_type", "eval_version")
-    if git_base or os.environ.get("EVIDENCE_BASE_SHA"):
+    # A base is only meaningful when it is a real sha: a push to a brand-new
+    # branch reports before=0000..., which must not be demanded as evidence.
+    env_base = os.environ.get("EVIDENCE_BASE_SHA", "").strip()
+    if env_base and set(env_base) != {"0"}:
         required = required + ("base_sha",)
     missing = [k for k in required if not payload.get(k)]
     if missing:

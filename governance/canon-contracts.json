@@ -1,8 +1,8 @@
 {
-  "version": 2,
+  "version": 3,
   "updated": "2026-10-22",
   "direction": "設定為 provider、已寫正文為 consumer。已寫正文中的既存事實不得被設定檔或新稿矛盾；設定只能追認，或以新增條目 + status 標記的方式記錄 retcon，不得改寫既有條目。",
-  "note": "本檔 append-only。新增條目用新 id；被取代的條目保留並改 status=superseded，並在 superseded_by 指向新 id。",
+  "note": "本檔 append-only。既有契約的 scope／require／forbid 不得改寫（要取代請新增 id 並標 superseded_by）；title／rationale 屬說明文字，可修正，但必須遞增 version。",
   "contracts": [
     {
       "id": "CC-001",

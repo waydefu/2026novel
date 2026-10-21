@@ -60,7 +60,14 @@ def sha256_text(text: str) -> str:
 
 def git(*args: str) -> str:
     try:
-        return subprocess.check_output(["git", *args], cwd=ROOT, text=True, stderr=subprocess.DEVNULL).strip()
+        return subprocess.check_output(
+            ["git", *args],
+            cwd=ROOT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            stderr=subprocess.DEVNULL,
+        ).strip()
     except subprocess.CalledProcessError:
         return ""
 
@@ -127,7 +134,11 @@ def main() -> int:
         if bpath.is_file():
             base_blob = git_blob_sha("10_現行創作資料/小說正文第三版.md", args.base)
             backup_blob = subprocess.check_output(
-                ["git", "hash-object", str(bpath)], cwd=ROOT, text=True
+                ["git", "hash-object", str(bpath)],
+                cwd=ROOT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
             ).strip()
             backup_check = "MATCH" if base_blob == backup_blob else "MISMATCH"
         else:

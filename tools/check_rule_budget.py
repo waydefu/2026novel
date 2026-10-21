@@ -67,6 +67,8 @@ def _git_show(base: str, rel: str) -> str | None:
             ["git", "show", f"{base}:{rel}"],
             cwd=ROOT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:

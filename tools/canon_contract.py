@@ -148,13 +148,22 @@ def run_contracts(text: str, contracts: dict) -> list[ContractHit]:
 
 
 def check_immutability(base: str, contract_path: Path = CONTRACT_FILE) -> list[ContractHit]:
-    """Existing contract ids may not be deleted or rewritten (append-only)."""
+    """Existing contract semantics are immutable (append-only).
+
+    * an existing contract id may not disappear;
+    * an active contract's enforced fields (scope / require / forbid) may not be
+      rewritten — that is how a contract gets quietly bent to fit new prose;
+    * documentation (title / rationale) may be corrected, but only when the
+      file's `version` is bumped, so the change stays visible.
+    """
     hits: list[ContractHit] = []
     try:
         raw = subprocess.check_output(
             ["git", "show", f"{base}:{contract_path.relative_to(ROOT).as_posix()}"],
             cwd=ROOT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
@@ -171,7 +180,7 @@ def check_immutability(base: str, contract_path: Path = CONTRACT_FILE) -> list[C
             hits.append(ContractHit(str(cid), str(contract.get("title", "")), "immutable", "既有契約被刪除（契約為 append-only）"))
             continue
         if contract.get("status") == "active" and new_map[cid].get("status") == "active":
-            for field in ("scope", "require", "forbid", "rationale"):
+            for field in ("scope", "require", "forbid"):
                 if contract.get(field) != new_map[cid].get(field):
                     hits.append(
                         ContractHit(
@@ -181,6 +190,21 @@ def check_immutability(base: str, contract_path: Path = CONTRACT_FILE) -> list[C
                             f"既有契約的 {field} 被改寫（要取代請新增 id 並標 superseded_by）",
                         )
                     )
+    changed_docs = [
+        cid
+        for cid, contract in old_map.items()
+        if cid in new_map
+        and (contract.get("title") != new_map[cid].get("title") or contract.get("rationale") != new_map[cid].get("rationale"))
+    ]
+    if changed_docs and int(new.get("version", 0)) <= int(old.get("version", 0)):
+        hits.append(
+            ContractHit(
+                "CONTRACT-FILE",
+                "契約文件",
+                "immutable",
+                f"契約說明文字有變更（{changed_docs}）但 version 未遞增（{old.get('version')} → {new.get('version')}）",
+            )
+        )
     return hits
 
 

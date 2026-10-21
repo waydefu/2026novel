@@ -26,7 +26,13 @@ def _sha(*keys: str, fallback: str = "") -> str:
 
 
 def git_head() -> str:
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    return subprocess.check_output(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    ).strip()
 
 
 def main() -> int:
