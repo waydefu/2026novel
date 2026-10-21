@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "updated": "2026-10-22",
+  "direction": "設定為 provider、已寫正文為 consumer。已寫正文中的既存事實不得被設定檔或新稿矛盾；設定只能追認，或以新增條目 + status 標記的方式記錄 retcon，不得改寫既有條目。",
+  "note": "本檔 append-only。新增條目用新 id；被取代的條目保留並改 status=superseded，並在 superseded_by 指向新 id。",
+  "contracts": [
+    {
+      "id": "CC-001",
+      "status": "active",
+      "title": "PLOT RESET：舊版反派與深淵主線不得回流序章",
+      "scope": { "all": true },
+      "forbid": [
+        "奧斯汀",
+        "渡鴉密庭",
+        "黑鴉廳",
+        "無光深淵",
+        "深淵污染",
+        "封魔晶",
+        "影刃",
+        "霍克伍德"
+      ],
+      "rationale": "AGENTS.md §2 PLOT RESET 2026-08-17：舊正文 07／08／09 的毒殺線與深淵主線全部作廢，只可回顧不可復原。"
+    },
+    {
+      "id": "CC-002",
+      "status": "active",
+      "title": "序章不得提前跳到學院篇",
+      "scope": { "all": true },
+      "forbid": ["皇家魔法劍術學院", "學院篇"],
+      "rationale": "09 章綱：學院生活屬第一篇 A1-01 起；序章止於暫留與入學前。"
+    },
+    {
+      "id": "CC-003",
+      "status": "active",
+      "title": "異世界診療用語層級",
+      "scope": { "all": true },
+      "forbid": ["醫師", "神官"],
+      "rationale": "AGENTS.md §9.12：一般診療者為牧師，神官限高階聖職；現代段用醫院／醫生。"
+    },
+    {
+      "id": "CC-004",
+      "status": "active",
+      "title": "年齡連續性：亞德里安",
+      "scope": { "chapters": ["第五章｜不能把她留在這裡"] },
+      "require": ["亞德里安十歲"],
+      "forbid": ["亞德里安(?:十一|十二|十三|九)歲"],
+      "rationale": "11 State Diff CH05：三年後，亞德里安十歲。"
+    },
+    {
+      "id": "CC-005",
+      "status": "active",
+      "title": "年齡連續性：莉諾兒",
+      "scope": { "chapters": ["第六章｜門外一直有人", "第七章｜門一直開著"] },
+      "require": ["九歲"],
+      "forbid": ["莉諾兒(?:十|十一|八)歲"],
+      "rationale": "11 Voice Fingerprints 莉諾兒：九歲；11 State Diff CH06／CH07。"
+    },
+    {
+      "id": "CC-006",
+      "status": "active",
+      "title": "時間跨度：三年後才進入救援線",
+      "scope": { "chapters": ["第五章｜不能把她留在這裡"] },
+      "require": ["三年後"],
+      "forbid": ["兩年後", "一年後"],
+      "rationale": "11 State Diff CH05：三年後；Ch1–Ch4 的病院期不得被壓縮成一年內。"
+    },
+    {
+      "id": "CC-007",
+      "status": "active",
+      "title": "吊墜始終由莉諾兒持有",
+      "scope": { "chapters": ["第五章", "第六章", "第七章"] },
+      "require": ["吊墜"],
+      "forbid": ["亞德里安(?:取下|拿到|收走|奪下)[^。]{0,6}吊墜"],
+      "rationale": "AGENTS.md §10.8：吊墜始終未被奪。P08 不得追認成已奪走。"
+    },
+    {
+      "id": "CC-008",
+      "status": "active",
+      "title": "第四章的代價必須留在正文",
+      "scope": { "chapters": ["第四章｜只是多試一次"] },
+      "require": ["頭痛", "停課"],
+      "forbid": [],
+      "rationale": "11 State Diff CH04：頭痛、聽覺方向錯、記憶混亂、器具上鎖、停課數日。副作用是後續章可用的學習痕跡，不可無故消失。"
+    },
+    {
+      "id": "CC-009",
+      "status": "active",
+      "title": "暫留不等於成立家人感或工作契約",
+      "scope": { "chapters": ["第七章｜門一直開著"] },
+      "forbid": ["我先留在這裡[^。]{0,20}(?:作為|當作)[^。]{0,10}(?:女僕|近侍|護衛)", "簽(?:了|下)[^。]{0,10}契"],
+      "rationale": "AGENTS.md §10.8／§10.9：救命不產生工作債；正式身分仍為 TBD-006。"
+    },
+    {
+      "id": "CC-010",
+      "status": "active",
+      "title": "第一章不得出現異世界回憶的預先解說",
+      "scope": { "chapters": ["第一章｜明天再去"] },
+      "forbid": ["梵恩伯爵", "渡鴉", "辛古拉提王國"],
+      "rationale": "第一章為現代線；異世界身分的揭露依 11 State Diff CH02 才在前三章逐步發生。"
+    }
+  ]
+}

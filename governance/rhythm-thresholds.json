@@ -1,0 +1,12 @@
+{
+  "updated": "2026-10-22",
+  "note": "節奏門檻是『冷讀定位』用的寬帶，不是 AI 味判別。依 lieflat-less-ai-tone 283 萬字語料研究，句長均勻度 R=0.87、段長均勻度 R=0.94，與 AI 身分無關；因此本檔任何數值都不得用來機械改寫，只用來指出『值得冷讀的段落』。",
+  "short_sentence_max_chars": 10,
+  "short_sentence_rate_high": 0.45,
+  "avg_sentence_len_low": 11.0,
+  "sentence_stdev_low": 7.0,
+  "longest_short_run_high": 8,
+  "short_paragraph_rate_high": 0.75,
+  "dialogue_to_narration_ratio_low": 0.5,
+  "dialogue_avg_len_low": 6.0
+}

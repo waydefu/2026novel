@@ -1,0 +1,88 @@
+{
+  "updated": "2026-10-22",
+  "note": "以本專案自己的正負樣本校準；不使用通用門檻。R 值參考 lieflat-less-ai-tone（283 萬字 / 629 篇）研究。",
+  "not_evidence": {
+    "metaphor": {
+      "label": "比喻",
+      "why": "人類用得比 AI 更多（R=0.42；獨立成段 R=0.13）"
+    },
+    "rhetorical_question": {
+      "label": "設問句",
+      "why": "人類是 AI 的 17 倍（R=0.05）"
+    },
+    "in_sentence_parallel": {
+      "label": "句內排比",
+      "why": "人類不比 AI 少（R=0.61）；只有句間重複才成立"
+    },
+    "passive": {
+      "label": "被動句",
+      "why": "人類更多（R=0.70），能表達受事與責任時應保留"
+    },
+    "nominalisation": {
+      "label": "動詞名詞化",
+      "why": "人類更多（R=0.52），術語不拆"
+    },
+    "colloquial_connective": {
+      "label": "口語連接詞",
+      "why": "AI 反而更少（R=0.26），方向是補不是刪"
+    },
+    "sentence_uniformity": {
+      "label": "句長均勻度",
+      "why": "R=0.87，與 AI 身分無關"
+    },
+    "paragraph_uniformity": {
+      "label": "段長均勻度",
+      "why": "R=0.94，與 AI 身分無關"
+    }
+  },
+  "samples": {
+    "positive_clean": {
+      "dash": 0.0,
+      "colon": 2.98,
+      "enumeration": 0.0,
+      "exclamation": 0.0,
+      "rhetorical_question": 2.98,
+      "metaphor": 0.0,
+      "passive": 0.0,
+      "contrast": 0.0,
+      "explain": 0.0,
+      "ordinal": 2.98,
+      "abstract_noun": 0.0,
+      "eval_adj": 0.0,
+      "self_comment": 0.0,
+      "sentences": 30,
+      "avg_sentence_len": 11.2,
+      "sentence_cv": 0.634,
+      "paragraph_cv": 0.932,
+      "dialogue_ratio": 0.067
+    },
+    "negative_ai_flavor": {
+      "dash": 0.0,
+      "colon": 6.12,
+      "enumeration": 0.0,
+      "exclamation": 0.0,
+      "rhetorical_question": 0.0,
+      "metaphor": 3.06,
+      "passive": 0.0,
+      "contrast": 0.0,
+      "explain": 0.0,
+      "ordinal": 9.17,
+      "abstract_noun": 3.06,
+      "eval_adj": 12.23,
+      "self_comment": 6.12,
+      "sentences": 16,
+      "avg_sentence_len": 20.44,
+      "sentence_cv": 0.419,
+      "paragraph_cv": 0.489,
+      "dialogue_ratio": 0.062
+    }
+  },
+  "bands": {
+    "contrast_per_1k": 1.5,
+    "explain_per_1k": 1.0,
+    "eval_adj_per_1k": 1.0,
+    "self_comment_per_1k": 0.5,
+    "ordinal_per_1k": 2.0
+  },
+  "band_note": "bands 只對『有實證差異』的訊號設限；比喻、設問、排比、被動、句長均勻度不設限。"
+}
