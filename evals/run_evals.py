@@ -7,12 +7,14 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "evals"))
 
 from check_derived_drift import drift_check  # noqa: E402
+from manifest_loader import load_simple_mapping  # noqa: E402
 from check_revision_gate import (  # noqa: E402
     CANON_SETTINGS,
     GOV11,
@@ -251,6 +253,58 @@ def main() -> int:
         failures,
         passed,
     )
+
+    # The same escape hatch, but through the real manifest loader: the eval
+    # above builds the manifest as a dict, so the loader's own handling of
+    # `state_change: none` was never exercised. It used to map the string
+    # "none" to YAML null, which turned this into a failure in the real path.
+    with TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        loader_case = tmp_path / "manifest_state_none.yaml"
+        loader_case.write_text(
+            "revision_level: R2\n"
+            "target: chapter-08\n"
+            "canon_change: false\n"
+            "governance_sync: false\n"
+            "state_change: none\n"
+            "backup_ref: 99_備份/01_正文備份/r2.md\n",
+            encoding="utf-8",
+        )
+        loader_state_none = check_revision(
+            load_simple_mapping(loader_case),
+            [PROSE],
+            ["99_備份/01_正文備份/r2.md"],
+        )
+        expect(
+            "r2_state_change_none_via_loader_green",
+            loader_state_none == [],
+            f"state_change: none must survive the manifest loader — {loader_state_none}",
+            failures,
+            passed,
+        )
+
+        loader_missing = tmp_path / "manifest_state_absent.yaml"
+        loader_missing.write_text(
+            "revision_level: R2\n"
+            "target: chapter-08\n"
+            "canon_change: false\n"
+            "governance_sync: false\n"
+            "backup_ref: 99_備份/01_正文備份/r2.md\n",
+            encoding="utf-8",
+        )
+        loader_absent_state = check_revision(
+            load_simple_mapping(loader_missing),
+            [PROSE],
+            ["99_備份/01_正文備份/r2.md"],
+        )
+        expect(
+            "r2_state_change_absent_red",
+            bool(loader_absent_state),
+            "a manifest without state_change must not be read as 'none' — "
+            f"{loader_absent_state}",
+            failures,
+            passed,
+        )
 
     deleted_prose = check_revision(
         {"revision_level": "R1", "target": "chapter-07", "canon_change": False, "governance_sync": False},

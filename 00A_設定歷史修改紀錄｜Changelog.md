@@ -50,6 +50,32 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-018
+
+## DATE：2026-10-22 10:35 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/manifest_loader.py`、`tools/check_revision_gate.py`、`evals/run_evals.py`、`tools/timeline_probe.py`（新增）
+
+## BEFORE：修稿閘門（`tools/check_revision_gate.py`）提供 `state_change: none` 這個逃生門，但實際走不通。`tools/manifest_loader.py` 把字串 `"none"` 對應到 YAML null，於是 manifest 裡的 `state_change: none` 讀進來是 `None`，閘門拿到 `None` 就當成「不是 none」→ 只要是 R2 以上動了正文又沒同步 11，就一律失敗。
+
+而這個缺陷沒有被既有回歸測試抓到，因為 `evals/run_evals.py` 的 `r2_state_change_none_green` 用 dict 直接呼叫 `check_revision()`，**繞過了 loader**。真正會出錯的那條路徑從未被測試。
+
+實例：第一章第二輪的變更需要 R2（補了兩件道具）＋ `state_change: none`（事件與狀態沒動），閘門卻報「R2+ changed the live draft but did not sync 11」——那正是規則允許的情形。
+
+## AFTER：loader 只把 YAML 真正的 null（`null`、`~`）對應到 `None`，字串 `"none"` 保留為字串；閘門另外區分「key 缺漏」（視為 changed）與「明寫 none」（視為狀態未變）。新增兩條回歸測試，直接走 loader：`r2_state_change_none_via_loader_green` 與 `r2_state_change_absent_red`。evals 由 82 案增為 84 案。
+
+## REASON：第一章第二輪施工時被閘門擋下，回頭查才發現是規則與實作不一致——規則寫的逃生門從來不能走。
+
+## AUTHORITY：作者授權所有內容皆可改；本項為工具正確性修正，不動現行正文、01–08、09、11。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+另新增 `tools/timeline_probe.py`：盤點每章的季節、月份與年齡標記並附上下文，供人眼核對時間線。它是**報告工具不是閘門**——文學文本常會回溯提到季節（Ch8 的「冬天不暖」是指房間、「夏天那件衣服」是指舊衣），用機器規則判季節順序只會誤報。它的讀法是：跨章的年齡是否一致（例如 Ch2 的亞德里安七歲 → Ch5「三年後，亞德里安十歲」→ Ch6 的莉諾兒九歲 ✓ 一致）、季節標記是否需要人眼確認。
+
+## VALIDATION：`py -3 evals/run_evals.py` 全綠（84 cases）；`py -3 evals/ci_suite.py` 全綠；`tools/timeline_probe.py` 於現行正文跑出 1 條 NOTE（Ch8 的秋→冬→夏，經核對為回溯引用，非矛盾）。
+
 ## CHG-2026-10-22-017
 
 ## DATE：2026-10-22 08:40 +08:00

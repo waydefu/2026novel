@@ -34,7 +34,10 @@ def load_simple_mapping(path: Path) -> dict[str, Any]:
             data[key] = True
         elif low in {"false", "no"}:
             data[key] = False
-        elif low in {"null", "none", "~"}:
+        elif low in {"null", "~"}:
+            # YAML nulls. "none" is NOT one of them: `state_change: none` is a
+            # meaningful string, and mapping it to None silently turned the
+            # revision gate's documented escape hatch into a failure.
             data[key] = None
         else:
             data[key] = value
