@@ -108,6 +108,7 @@ def main() -> int:
     args = parser.parse_args()
 
     text = read_text(DRAFT)
+    draft_hash_before = hashlib.sha256(text.encode("utf-8")).hexdigest()
     hard = scan_hard_gate(DRAFT)
     pattern = scan_pattern_risk(DRAFT)
     lex = scan_lexicon(DRAFT)
@@ -198,6 +199,16 @@ def main() -> int:
         f"（本次正文 {cjk(text)} 中文字；sha256:{sha256_text(text)[:16]}）",
         "",
     ]
+    draft_hash_after = hashlib.sha256(read_text(DRAFT).encode("utf-8")).hexdigest()
+    if draft_hash_before != draft_hash_after:
+        print(
+            "ERROR\tprovenance\t正文在寫紀錄的期間被其他行程改動"
+            f"（{draft_hash_before[:12]} → {draft_hash_after[:12]}）；"
+            "本次紀錄的雜湊不可信，請重跑。",
+            file=sys.stderr,
+        )
+        return 1
+
     out.write_text("\n".join(lines), encoding="utf-8")
     print(f"WROTE\t{out.relative_to(ROOT).as_posix()}")
     print(f"RUN\t{run_id}")

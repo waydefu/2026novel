@@ -34,12 +34,29 @@ def drift_check(
     extra = sorted(n for n in facts if n > max_draft)
     if extra:
         errors.append(f"DRIFT FAIL: 11 TEXT-FACT cites chapters not in draft: {extra}")
-    cutoff = re.search(r"CUT-OFF：現行正文第([一二三四五六七八九十]+)章", gov_text)
-    cn = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8}
-    if cutoff:
+    cutoff = re.search(r"CUT-OFF：現行正文第([一二三四五六七八九十百]+)章", gov_text)
+    cn = {
+        "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8,
+        "九": 9, "十": 10, "十一": 11, "十二": 12, "十三": 13, "十四": 14, "十五": 15,
+    }
+    if not cutoff:
+        errors.append("DRIFT FAIL: 11 找不到 CUT-OFF 行（正文與衍生狀態無法對齊）")
+    else:
         cut_n = cn.get(cutoff.group(1))
-        if cut_n is not None and max_draft > cut_n:
+        if cut_n is None:
+            errors.append(
+                f"DRIFT FAIL: 無法解析 CUT-OFF 章號「{cutoff.group(1)}」（支援到 十五）"
+            )
+        elif max_draft > cut_n:
             errors.append(f"DRIFT NEEDS_REVIEW: draft has Ch{max_draft} but 11 CUT-OFF is Ch{cut_n}")
+
+    # 章數交叉檢查：正文有幾章，11 的 State Diff 就必須記到幾章。
+    # 只靠 CUT-OFF 字串會在 CUT-OFF 漏字時整段靜默失效。
+    recorded = {int(n) for n in re.findall(r"^CH(\d+)｜", gov_text, flags=re.MULTILINE)}
+    if recorded:
+        missing = sorted(n for n in range(1, max_draft + 1) if n not in recorded)
+        if missing:
+            errors.append(f"DRIFT NEEDS_REVIEW: 正文有 Ch{max_draft}，但 11 State Diff 缺 CH{missing}")
     if 5 in chapters and "莉諾兒" in chapters[5]:
         errors.append("DRIFT FAIL: 莉諾兒 named in Ch5 but Knowledge says name is unknown until Ch6")
     for name in UNSEEN:

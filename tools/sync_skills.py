@@ -86,10 +86,15 @@ def sync(write: bool, mirror: str = "", clean: bool = False) -> int:
             shutil.copy2(skill_md, dest_dir / "SKILL.md")
         print(f"WROTE\t{mirror}\t{len(skills)} skills\t({MIRRORS[mirror]})")
     else:
+        missing_mirrors: list[str] = []
         for rel_root in MIRRORS:
             target = ROOT / rel_root
             if not target.exists():
-                continue  # not materialized in this working tree — fine
+                # A mirror that was never materialized is not "in sync" — it is
+                # simply absent. Report it instead of silently passing.
+                missing_mirrors.append(rel_root)
+                print(f"SKIPPED\t{rel_root}\t未 materialize（此工作目錄未部署鏡像）")
+                continue
             for skill_md in skills:
                 mirror_file = target / skill_md.parent.name / "SKILL.md"
                 if not mirror_file.is_file():
@@ -102,7 +107,11 @@ def sync(write: bool, mirror: str = "", clean: bool = False) -> int:
             print(f"ERROR\tskills\t{err}", file=sys.stderr)
         print("ERROR\tskill-mirror：來源不合規格或鏡像不同步", file=sys.stderr)
         return 1
-    print(f"OK\tskill-mirror\t{len(skills)} skills validated")
+    print(
+        f"OK\tskill-mirror\t{len(skills)} skills validated"
+        f"\tmirrors_deployed={len(MIRRORS) - len(missing_mirrors)}"
+        f"\tmirrors_absent={len(missing_mirrors)}"
+    )
     return 0
 
 

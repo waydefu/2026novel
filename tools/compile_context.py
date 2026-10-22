@@ -50,6 +50,36 @@ def extract_block(text: str, start: str, end_markers: list[str]) -> str:
     return rest[:cut].strip()
 
 
+SCENE_FIELDS = (
+    "章節目的", "定位", "POV", "時間／地點", "WANT", "OBSTACLE", "KNOWLEDGE",
+    "HARD OUTCOME", "RELATIONSHIP BOUNDARY", "CREATIVE FREEDOM", "EXIT",
+    "DRAFT WARNING", "禁止寫法", "主要場景",
+)
+
+
+def scene_fields(block: str) -> dict[str, str]:
+    """Pull named fields out of a 09 scene card.
+
+    The outline writes each field as `## 欄位：內容`, and list-shaped fields
+    (HARD OUTCOME / CREATIVE FREEDOM / 禁止寫法) put their items on following
+    `## - ` lines. Taking "the first N lines" silently dropped the most
+    important constraint in the card, so fields are now read by name.
+    """
+    fields: dict[str, str] = {}
+    current: str | None = None
+    for line in block.splitlines():
+        m = re.match(r"^##\s*(?:-\s*)?([^：:]{1,24})[：:]\s*(.*)$", line)
+        if m and m.group(1).strip() in SCENE_FIELDS:
+            current = m.group(1).strip()
+            fields.setdefault(current, "")
+            if m.group(2).strip():
+                fields[current] += ("\n" if fields[current] else "") + m.group(2).strip()
+            continue
+        if current and re.match(r"^##\s*-\s+", line):
+            fields[current] += ("\n" if fields[current] else "") + re.sub(r"^##\s*-\s*", "", line).strip()
+    return fields
+
+
 def first_lines(text: str, n: int) -> str:
     lines = [ln for ln in text.splitlines() if ln.strip()]
     return "\n".join(lines[:n])
@@ -147,18 +177,31 @@ def compile_target(root: Path, target: str) -> dict:
     if handoff:
         sources.append({"id": "GOV-HANDOFF", "cite": "11 / CURRENT HANDOFF", "path": gov_rel, "anchor": "CURRENT HANDOFF"})
 
-    hard = []
+    fields = scene_fields(plot)
+    hard: list[str] = []
+    for source in (fields.get("HARD OUTCOME", ""), handoff):
+        for line in source.splitlines():
+            stripped = line.strip(" -#")
+            if stripped and ("硬前提" in line or "不得" in line or "HARD" in line):
+                hard.append(stripped)
     for line in (handoff + "\n" + plot).splitlines():
-        if "硬前提" in line or "不得" in line or "HARD" in line:
+        if "TBD" in line and ("不得" in line or "BLOCK" in line or "保持 TBD" in line):
             hard.append(line.strip(" -#"))
-    capsule["POV"] = "依 09 目標場；一場一人稱一名焦點。"
-    capsule["NOW"] = first_lines(plot, 3) if plot else first_lines(handoff, 3)
-    capsule["WANT"] = "只完成作者指定的本場目標；不把 P08 整段弧一次寫完。" if target_norm == "P08" else "完成本場已核准事件，不預支後章。"
+
+    capsule["POV"] = fields.get("POV") or "依 09 目標場；一場一人稱一名焦點。"
+    capsule["NOW"] = fields.get("時間／地點") or first_lines(plot, 3) or first_lines(handoff, 3)
+    capsule["WANT"] = fields.get("WANT") or (
+        "只完成作者指定的本場目標；不把 P08 整段弧一次寫完。"
+        if target_norm == "P08"
+        else "完成本場已核准事件，不預支後章。"
+    )
     capsule["KNOWS"] = "\n".join(knows[:6])
-    capsule["HARD BOUNDARIES"] = "\n".join(hard[:4]) or "未獲授權不得改 Canon；TBD 不得進正文。"
+    seen: set[str] = set()
+    uniq = [x for x in hard if not (x in seen or seen.add(x))]
+    capsule["HARD BOUNDARIES"] = "\n".join(uniq[:8]) or "未獲授權不得改 Canon；TBD 不得進正文。"
     capsule["VOICE"] = "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。"
-    capsule["DESTINATION"] = first_lines(extract_block(plot, "EXIT：", ["## 禁止", "# 3｜"]) or "本場結束於場景自然出口，不要求 State Diff 式過關。", 2)
-    capsule["FREEDOM"] = "生活細節、誤解、停滯與無大結果的小事可自由處理。"
+    capsule["DESTINATION"] = fields.get("EXIT") or "本場結束於場景自然出口，不要求 State Diff 式過關。"
+    capsule["FREEDOM"] = fields.get("CREATIVE FREEDOM") or "生活細節、誤解、停滯與無大結果的小事可自由處理。"
 
     _ = draft  # presence-checked; compiler does not dump whole draft into capsule
 
