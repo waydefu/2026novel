@@ -34,6 +34,21 @@ allowed-tools: Read Grep Glob Edit Write Bash
 - 正文不放 TBD、規則說明、勾選、字數表或工作筆記。
 - 對象與約束以 `governance/canon-contracts.json` 為準（已寫正文的既存事實不得矛盾）。
 
+## Windows 主控台編碼
+
+本專案的工具輸出是繁體中文。Windows 主控台預設 cp950 會把 `・` 之類的字元打成亂碼，
+甚至讓工具直接崩潰。兩種可靠作法：
+
+```text
+# 1) 直接跑，但先設編碼
+$env:PYTHONIOENCODING='utf-8'; py -3 tools/xxx.py
+
+# 2) 需要拿到正確輸出時，用 python 收字串再寫檔
+py -3 -c "import subprocess,sys; sys.stdout.reconfigure(encoding='utf-8'); print(subprocess.run([sys.executable,'tools/xxx.py'],capture_output=True,text=True,encoding='utf-8',errors='replace').stdout)"
+```
+
+不要把亂碼輸出當成工具結果；看不懂就先換上面的作法。
+
 ## 停手
 
 遇到這些立刻停，問作者，不要猜：

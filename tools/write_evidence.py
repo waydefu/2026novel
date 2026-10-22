@@ -53,6 +53,7 @@ def main() -> int:
     parser.add_argument("--core-invariants", dest="core_invariants", default="SKIP")
     parser.add_argument("--append-only", dest="append_only", default="SKIP")
     parser.add_argument("--candidates", default="SKIP", help="candidate scans are informational")
+    parser.add_argument("--continuity", dest="continuity", default="SKIP")
     parser.add_argument("--base-sha", default="")
     parser.add_argument("--head-sha", default="")
     parser.add_argument("--tested-sha", default="")
@@ -94,6 +95,7 @@ def main() -> int:
         "core_invariants": args.core_invariants,
         "append_only": args.append_only,
         "candidates": args.candidates,
+        "continuity": args.continuity,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "bound": (
             f"evidence verifies tested_sha {tested} "

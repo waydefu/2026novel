@@ -46,6 +46,21 @@ py -3 evals/run_evals.py
 - 句長均勻度、比喻、設問、排比、被動句**不是** AI 判別指標（見 `governance/ai-flavor-evidence.md`）
 - evals 綠燈 ≠ 場景有生命
 
+## Windows 主控台編碼
+
+本專案的工具輸出是繁體中文。Windows 主控台預設 cp950 會把 `・` 之類的字元打成亂碼，
+甚至讓工具直接崩潰。兩種可靠作法：
+
+```text
+# 1) 直接跑，但先設編碼
+$env:PYTHONIOENCODING='utf-8'; py -3 tools/xxx.py
+
+# 2) 需要拿到正確輸出時，用 python 收字串再寫檔
+py -3 -c "import subprocess,sys; sys.stdout.reconfigure(encoding='utf-8'); print(subprocess.run([sys.executable,'tools/xxx.py'],capture_output=True,text=True,encoding='utf-8',errors='replace').stdout)"
+```
+
+不要把亂碼輸出當成工具結果；看不懂就先換上面的作法。
+
 ## 判讀紀律
 
 每個命中三選一，不得靜默略過：

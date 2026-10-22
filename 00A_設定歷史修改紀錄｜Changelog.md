@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-012
+
+## DATE：2026-10-22 07:10 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/`（check_derived_drift、compile_context、sync_skills、write_provenance、continuity_probe 新增）、`evals/ci_suite.py`、`evals/write_evidence` 參數、`tools/write_evidence.py`、`.agents/skills/novel-qa-mode/SKILL.md`、`.agents/skills/novel-draft-mode/SKILL.md`、`governance/quality/2026-10-22_代理行為測試.md`
+
+## BEFORE：代理行為測試（子代理從零走完 skill 路由與工具序）抓到五個真缺陷。(1) `check_derived_drift.py` 的中文數字 map 只到「八」——一旦 CUT-OFF 改成「第九章」，整段 drift 檢查**靜默失效**；(2) `compile_context.py` 用 `hard[:4]` 截斷，capsule 把 P08 最關鍵的「救援與工作必須明確分開…正式法律／契約名稱若仍 TBD，不得自行命名」**丟掉**，還留下空的「HARD OUTCOME：」標題，POV／NOW／DESTINATION 是硬寫的通用句而非 09 的真內容；(3) `sync_skills.py --check` 對未 materialize 的鏡像靜默報 OK，「有沒有部署」沒有任何工具在管；(4) `write_provenance.py` 沒有並發防護，多代理同時寫檔時工具結果不可重現；(5) skill 的執行指令沒有 Windows 主控台編碼的解法（cp950 會把繁中打成亂碼甚至讓工具崩潰）。
+
+## AFTER：drift 的章號 map 補到十五、CUT-OFF 缺行直接 FAIL、並新增「正文章數 vs 11 State Diff 已記錄章數」交叉檢查（不再只靠 CUT-OFF 字串）；compile_context 改為**按欄位名**讀 09 的場景卡（POV／時間地點／WANT／HARD OUTCOME／EXIT／CREATIVE FREEDOM），HARD BOUNDARIES 取全部硬邊界並去重，capsule 由 1,265 → 1,347 字且完整帶出「不得自行命名」；sync_skills 的 `--check` 對未部署鏡像報 SKIPPED 並在結尾列出 deployed／absent；write_provenance 比對正文撰寫前後的 sha256，期間被改動即失敗；新增 `tools/continuity_probe.py`（14 條跨章線頭、39 個斷言）並接入 CI；兩個 skill 補上 Windows 編碼寫法。
+
+## REASON：作者指示「可用子代理嗎／讓他們當第二評閱」；行為測試證明子代理在唯讀情境下能獨立走完規則並找出我自己看不到的缺陷。
+
+## AUTHORITY：作者指示使用子代理作第二評閱。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（未動現行正文、01–08、09、11）
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠；`tools/compile_context.py --target P08` 的 capsule 經逐欄位核對；`tools/continuity_probe.py` 於現行正文 0 failures。
+
 ## CHG-2026-10-22-011
 
 ## DATE：2026-10-22 06:40 +08:00

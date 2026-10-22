@@ -40,6 +40,7 @@ def main() -> int:
         "core_invariants": "FAIL",
         "append_only": "SKIP",
         "candidates": "SKIP",
+        "continuity": "FAIL",
     }
 
     if run([PY, str(ROOT / "tools" / "scan_hard_gate.py")]) != 0:
@@ -97,6 +98,11 @@ def main() -> int:
         run([PY, str(ROOT / "tools" / tool)])
     run([PY, str(ROOT / "tools" / "style_profile.py"), str(ROOT / "10_現行創作資料" / "小說正文第三版.md")])
     results["candidates"] = "REPORTED"
+
+    if run([PY, str(ROOT / "tools" / "continuity_probe.py")]) != 0:
+        _evidence(results, git_base)
+        return 1
+    results["continuity"] = "PASS"
 
     if run([PY, str(ROOT / "evals" / "run_evals.py")]) != 0:
         _evidence(results, git_base)
@@ -185,6 +191,8 @@ def _evidence(results: dict[str, str], git_base: str) -> int:
         results["append_only"],
         "--candidates",
         results["candidates"],
+        "--continuity",
+        results["continuity"],
         "--out",
         str(out),
     ]
