@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R2
+revision_level: R3
 target: chapter-09
 canon_change: false
 governance_sync: true
 state_change: changed
 backup_ref: 99_備份/01_正文備份/小說正文第三版｜第九章新增前備份｜2026-10-22.md
-notes: "P08 arc scene 2: new chapter '第九章｜先不要' (Linoel first person). One winter day: she starts fetching kitchen water unasked; the butler asks whether to record it in the household book and she says 'not yet' (the account shows '不記' struck through); Adrian asks only 'how many trips' and never arranges anything for her; she takes the place-name papers to Bellow and reads two names herself, then asks what she is supposed to do once she has read them all - he refuses to answer for her. Two independent blind reviewers reviewed the chapter; findings merged. No legal or institutional naming: TBD-006/007 stay OPEN."
+notes: "P08 arc scene 2: a new chapter (第九章｜先不要, Linoel first person). One winter day: she starts fetching kitchen water unasked; the butler asks whether to record it in the household book and she says 'not yet' (the account shows '不記' struck through); Adrian asks only 'how many trips' and never arranges anything for her; she takes the place-name papers to Bellow and reads two names herself, then asks what she is supposed to do once she has read them all - he refuses to answer for her. R3 because this is a new chapter at chapter scale AND it updates the 09 outline progress line (R2 may not touch 09); the R3 completion definition is satisfied - existing canon, locked chapter purposes and the chapter-end state are untouched, and a milestone backup was taken. Two independent blind reviewers reviewed the chapter; findings merged. No legal or institutional naming: TBD-006/007 stay OPEN."
