@@ -50,6 +50,28 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-016
+
+## DATE：2026-10-22 09:55 +08:00
+
+## TYPE：GOVERNANCE / FIX
+
+## SCOPE：`tools/check_revision_gate.py`、`governance/change-manifest.yaml`（R0／ops-runtime）
+
+## BEFORE：修稿閘門只比對 `base...HEAD`，也就是**只看已提交的變更**。於是還沒 commit 的本地 CI 會拿到一份空的變更清單、閘門空跑通過；真正抓到問題的是跑在 commit 上的遠端 CI。本地綠、遠端紅，而本地沒有任何訊息指出兩者判斷的是不同的東西。
+
+實例：第九章的 PR 在本地 `revision-gate` 顯示 `OK R2 chapter-09`，遠端卻是 `R-GATE: R2 cannot change 09; use R3+ for outline`——因為本地還沒提交，閘門根本沒看到 09 被改。
+
+## AFTER：閘門改為比對 merge-base 與**工作目錄**（含已 staged、未 staged），並把 untracked 檔案算進新增清單。閘門現在判斷的是「即將送出的那一份變更」，而不是「已經送出的那一份」；本地跑與 CI 跑看的是同一件事。
+
+## REASON：閘門只有在決策當下（提交前）也成立，否則它只能事後追認，不能擋下錯誤。
+
+## AUTHORITY：作者授權所有內容皆可改；本項為工具正確性修正，不動現行正文、01–08、09、11。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠；以本次尚未提交的第九章變更驗證，閘門在本地即可攔到 `R2 cannot change 09`（修正前本地誤判為通過）。
+
 ## CHG-2026-10-22-014
 
 ## DATE：2026-10-22 08:05 +08:00

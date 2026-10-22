@@ -203,30 +203,23 @@ def check_revision(
     return errors
 
 
-def git_changes(base: str) -> list[tuple[str, str]]:
-    """All change types between base and HEAD: (status, path).
+def merge_base(base: str) -> str:
+    """The commit both base and HEAD descend from (empty when unrelated)."""
+    try:
+        out = subprocess.check_output(
+            ["git", "merge-base", base, "HEAD"],
+            cwd=ROOT,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+        ).strip()
+    except (subprocess.CalledProcessError, OSError):
+        return ""
+    return out
 
-    Rename detection is deliberately OFF. With `--find-renames`, git pairs a
-    modified file with a byte-identical copy added elsewhere — which is exactly
-    what a backup snapshot of the live draft looks like — and reports it as a
-    rename. That produced a false "the live draft was renamed" failure on the
-    first prose PR. Without rename detection, a genuine rename shows up as a
-    delete plus an add, and the delete rules below already catch it.
-    """
-    out = subprocess.check_output(
-        [
-            "git",
-            "-c",
-            "core.quotePath=false",
-            "diff",
-            "--name-status",
-            "--no-renames",
-            "-z",
-            f"{base}...HEAD",
-        ],
-        cwd=ROOT,
-    )
-    fields = [f for f in out.split(b"\0") if f]
+
+def _parse_name_status(raw: bytes) -> list[tuple[str, str]]:
+    fields = [f for f in raw.split(b"\0") if f]
     changes: list[tuple[str, str]] = []
     i = 0
     while i < len(fields):
@@ -247,7 +240,51 @@ def git_changes(base: str) -> list[tuple[str, str]]:
     return changes
 
 
+def git_changes(base: str) -> list[tuple[str, str]]:
+    """All change types between the merge-base and the *working tree*: (status, path).
+
+    Two things this deliberately looks at, both of them missing before:
+
+    * the **working tree**, not just HEAD. Diffing `base...HEAD` only sees
+      committed work, so a local run before committing judged an empty change
+      set and the gate passed vacuously — while CI, which runs on the commit,
+      failed it. A gate that only sees committed work cannot be trusted before
+      the commit exists, and that is exactly when it is needed.
+    * **untracked files**, which are part of the change being proposed.
+
+    Rename detection is deliberately OFF. With `--find-renames`, git pairs a
+    modified file with a byte-identical copy added elsewhere — which is exactly
+    what a backup snapshot of the live draft looks like — and reports it as a
+    rename. That produced a false "the live draft was renamed" failure on the
+    first prose PR. Without rename detection, a genuine rename shows up as a
+    delete plus an add, and the delete rules below already catch it.
+    """
+    target = merge_base(base) or base
+    out = subprocess.check_output(
+        [
+            "git",
+            "-c",
+            "core.quotePath=false",
+            "diff",
+            "--name-status",
+            "--no-renames",
+            "-z",
+            target,
+        ],
+        cwd=ROOT,
+    )
+    changes = _parse_name_status(out)
+    untracked = subprocess.check_output(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=ROOT,
+    )
+    for name in parse_git_z(untracked):
+        changes.append(("A", name))
+    return changes
+
+
 def git_names(base: str, diff_filter: str) -> list[str]:
+    target = merge_base(base) or base
     out = subprocess.check_output(
         [
             "git",
@@ -257,7 +294,7 @@ def git_names(base: str, diff_filter: str) -> list[str]:
             "--name-only",
             "-z",
             f"--diff-filter={diff_filter}",
-            f"{base}...HEAD",
+            target,
         ],
         cwd=ROOT,
     )
