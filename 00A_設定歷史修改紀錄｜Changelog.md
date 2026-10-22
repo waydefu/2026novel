@@ -50,6 +50,28 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-019
+
+## DATE：2026-10-22 11:05 +08:00
+
+## TYPE：FORMAT
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch1 第二輪連讀修正）、`governance/quality/2026-10-22_Ch01_第二輪連讀.md`、`governance/provenance/artifacts/2026-10-22_Ch1_修訂前.md`、`governance/provenance/artifacts/2026-10-22_Ch1_修訂後定稿.md`、`99_備份/01_正文備份/小說正文第三版｜第一章第二輪連讀前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R2／chapter-01）
+
+## BEFORE：第二輪的第一章。兩名獨立評閱者拿到的是**本章＋下一章**（Ch1＋Ch2），用來抓接縫；兩人都指出我的視角提醒寫錯了（我寫成「火災後被帶走的小女孩」，實際 Ch1 是大學生在圖書館猝死、Ch2 才是醒在七歲的亞德里安身體裡）——這是本輪第一個被兩份獨立報告交叉驗證的事實。
+
+評閱意見（合併後修 14 處）：第一人稱中段切第三人稱且敘述者替同學補動機；同一個障礙寫了兩次（引文頁碼／附件編號）；三個可能一次列完像出題；三段純設定沒有動作；第一次數數笑點與第二次重複；鬧鐘講三次；「昨天滿堂」是教室用語；「我家」與 Ch2 的「租屋處」矛盾；Word 註解不在右下角；住處沒有生活痕跡使猝死讀起來很方便；宣傳圖那句是粉絲福利；五次交換全部落在節拍上而主角每次都贏。
+
+## AFTER：以上 14 處修畢。補兩件道具（昨天滿號的掛號單、停在上個月的便利貼）與一句（「那部是輕小說改的」，為 Ch2 的「以前看輕小說」鋪墊）。事件、Knowledge、章末狀態與 Canon 不動（`state_change: none`，11 不同步）。R2：補了有功能的局部道具，屬場景層。
+
+## REASON：依作者指示「晚點一樣從第一章開始重讀」——第二輪＝連續重讀，專抓各章各自改完之後的接縫。
+
+## AUTHORITY：作者指示第二輪自第一章開始重讀；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（84 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、revision-gate R2 綠）；備份快照以 git blob 驗證。
+
 ## CHG-2026-10-22-018
 
 ## DATE：2026-10-22 10:35 +08:00
