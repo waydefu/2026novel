@@ -124,7 +124,12 @@ def check_revision(
     governance_sync = bool(manifest.get("governance_sync"))
     backup_ref = manifest.get("backup_ref")
     backup_prune = bool(manifest.get("backup_prune"))
-    state_change = str(manifest.get("state_change") or "changed")
+    # An absent key means "changed"; an explicit `state_change: none` means the
+    # state genuinely did not change and is a legitimate escape hatch.
+    if "state_change" in manifest and manifest.get("state_change") is not None:
+        state_change = str(manifest.get("state_change")).strip().lower()
+    else:
+        state_change = "changed"
     modified_n = [posix(x) for x in modified]
     added_n = [posix(x) for x in added]
     deleted_n = [posix(x) for x in (deleted or [])]
