@@ -1,7 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R2
+target: chapter-02
 canon_change: false
 governance_sync: false
 state_change: none
-notes: "Documentation only: the round-2 continuous re-read section in the roadmap, the Ch9 row, and the summary table (Ch9, the two-reviewer protocol, the Ch1 round-2 result and the revised unverified list). No prose, no canon, no outline, no derived-state change."
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜第二章第二輪連讀前備份｜2026-10-22.md
+notes: "Chapter-02, round 2 (continuous re-read with Ch3 as the seam pair). Two independent blind reviewers read Ch2+Ch3 without prior context; findings merged (28 edits). Cross-chapter seams with Ch1: the phone was dropped on the floor in Ch1 but Ch2 said 'dropped by the bed'; Ch1 had already booked the appointment, so the classmates would ask about the visit, not about registering; '以前看輕小說' reads in Traditional Chinese as 'looking down on novels' and duplicates Ch3's near-identical sentence. Cross-chapter gaps closed: the butler (Chalman) and the priest (Bellow) are named here, because Ch3 has both of them behaving as people the protagonist already knows; the world script's claim 'not Chinese' is dropped because Ch8 teaches Chinese-shaped characters, so the text no longer contradicts the later chapters. In-chapter fixes: 'I almost sat up' contradicted the established weakness; the 'family?' beat had no physical reaction; the priest answered twice with the same words; the Roderick paragraph was the chapter's only pure exposition and became dialogue; the room was an adult ward rather than a seven-year-old's room (added the pencil height marks, the mirror, the clock, the pigeons, the apron's patch, and the body-scale anchors); three confirmation turns had no physiological noise; three sentences explained what the reader could already infer; '圖書館的借期' read as the library's loan period. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
