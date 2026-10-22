@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-015
+
+## DATE：2026-10-22 08:40 +08:00
+
+## TYPE：GOVERNANCE / FORMAT
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（新增第九章）、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（CUT-OFF×2、CURRENT HANDOFF、CH08 用語修正、CH09 State Diff、K017、D014、D015）、`10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（P08 施工進度）、`governance/quality/2026-10-22_Ch09_雙評閱比較.md`、`governance/provenance/`（溯源與修訂前後 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第九章新增前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R2／chapter-09）
+
+## BEFORE：P08 弧只寫了第一場（Ch8）。09-P08 仍是 ARC BLOCK，其餘場景為 [PLANNED]。
+
+## AFTER：新增第九章「先不要」（1,294 字，莉諾兒第一人稱）。初冬的一日：她開始自己去井邊提水（沒有人要求）；管家查爾曼問「小姐提水這些事，要不要記在帳上」，她說「先不要」，帳上寫了「不記」又劃掉那個字；亞德里安只問「提了幾趟」，沒有替她安排什麼，他手裡那支筆一路沒拿出來；她把紙帶去找貝倫，自己念出卡蘭與海丁港，問「等我把這些都念完了，我要怎麼辦」，貝倫拒答（「得妳自己想」）；她說還要再學幾個字，要學地名。**沒有命名任何職位或契約**——TBD-006／007 維持 OPEN。11 同步 CUT-OFF／CH09／K017／D014／D015；09 只更新施工進度，弧仍 [PLANNED]。本章由**兩名獨立評閱者**審閱，意見互補後修正 13 處（A 抓到敘事層與動作順序，B 抓到桶數、因果倒置與語意兩讀）。
+
+## REASON：依作者指示「可用子代理嗎／讓他們當第二評閱」，並把 P08 從單章擴成逐場展開。
+
+## AUTHORITY：作者指示逐章優化與雙評閱；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（新增一章；01–08 Canon 未改，TBD-006／007 未升格）
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（82 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、revision-gate R2 綠）；備份快照 = origin/main 版本並以 git blob 驗證；雙評閱比較紀錄留存。
+
 ## CHG-2026-10-22-014
 
 ## DATE：2026-10-22 08:05 +08:00

@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R1
-target: chapter-08
+revision_level: R2
+target: chapter-09
 canon_change: false
-governance_sync: false
-state_change: none
-backup_ref: 99_備份/01_正文備份/小說正文第三版｜第八章二次修正前備份｜2026-10-22.md
-notes: "Chapter-08 second pass (blind review B, second evaluator). Fixes: 'ting' and 'ting' (listening) are homophones in Mandarin so the correction had no audible difference - replaced with a shape error that fits a writing lesson; the 'hard sound' remark was undefined and replaced with a description the reader can feel (also aligned with Ch9); 'the mountain was added later' was unparseable; the kitchen woman's report explained the character's motive for the reader; 'he learned characters for two years, she for a few dozen days' concluded for the reader - replaced with the visible trace on the board; 'she said it evenly' was an emotion label - cut, action kept. Adds one line of the arc's live external thread (the north is still searching). Line-level only; state_change=none, 11 intentionally untouched."
+governance_sync: true
+state_change: changed
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜第九章新增前備份｜2026-10-22.md
+notes: "P08 arc scene 2: new chapter '第九章｜先不要' (Linoel first person). One winter day: she starts fetching kitchen water unasked; the butler asks whether to record it in the household book and she says 'not yet' (the account shows '不記' struck through); Adrian asks only 'how many trips' and never arranges anything for her; she takes the place-name papers to Bellow and reads two names herself, then asks what she is supposed to do once she has read them all - he refuses to answer for her. Two independent blind reviewers reviewed the chapter; findings merged. No legal or institutional naming: TBD-006/007 stay OPEN."
