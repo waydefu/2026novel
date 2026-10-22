@@ -5,6 +5,7 @@ Governance rules enforced here (registry: governance/rule-budget.json):
     HB-001  正文不得出現 TBD 標籤或 TBD 編號
     HB-002  讀者可見章名不得使用 P-0N 形式
     HB-003  姓名統一寫作「亞德里安・梵恩」
+    HB-027  正文不得混入簡體字（繁體稿）
 """
 
 from __future__ import annotations
