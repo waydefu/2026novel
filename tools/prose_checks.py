@@ -121,7 +121,21 @@ def scan_hard_gate(
             hits.append(Hit(path, i, "FORMAT-01 讀者可見章名不得用 P-0N", "hard", line))
         if WRONG_NAME_DOT.search(line) or ASCII_NAME.search(line):
             hits.append(Hit(path, i, "TERM-01 姓名拼寫偏離「亞德里安・梵恩」", "hard", line))
+        bad = sorted({c for c in line if c in SIMPLIFIED_ONLY})
+        if bad:
+            hits.append(
+                Hit(path, i, f"FONT-01 簡體字混入正文：{''.join(bad)}", "hard", line)
+            )
     return hits
+
+
+# Simplified-only forms that must never appear in this Traditional-Chinese
+# manuscript. Only characters that are unambiguously simplified are listed —
+# 后 (皇后) and 里 (公里) are valid Traditional too, so they are NOT here.
+SIMPLIFIED_ONLY = (
+    "个们这说对时动还觉长门问认记纸笔头实边声响开关东马书见会为从众没术严礼仪银环"
+    "纪级组织继续简变离远进过岁乐课讲练议该让计义极样龙战边书"
+)
 
 
 def _is_parallel_you(line: str) -> bool:

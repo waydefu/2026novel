@@ -50,6 +50,32 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-021
+
+## DATE：2026-10-22 12:40 +08:00
+
+## TYPE：FORMAT
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch3 第二輪連讀修正）、`governance/quality/2026-10-22_Ch03_第二輪連讀.md`、`governance/provenance/artifacts/2026-10-22_Ch3_修訂前.md`、`governance/provenance/artifacts/2026-10-22_Ch3_修訂後定稿.md`、`99_備份/01_正文備份/小說正文第三版｜第三章第二輪連讀前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R2／chapter-03）、`tools/continuity_probe.py`、`tools/prose_checks.py`、`tools/scan_hard_gate.py`、`evals/run_evals.py`、`evals/fixtures/fail_simplified.md`、`governance/rule-budget.json`（HB-027）、`governance/quality/逐章優化路線圖.md`
+
+## BEFORE：第二輪的第三章，素材＝Ch3（受評）＋Ch4（接縫對照），兩名互不知情的評閱者。這一次派稿的視角提醒**先讀了 Ch3 與 Ch4 的開頭才寫**（前兩次都寫錯了）。
+
+章內問題：開頭把主題講完，還提前說破晚餐那場戲的機制；侍女的同一次進場寫了兩次而且方向相反；羅德里克從此無聲消失卻與人同框；同一本書被叫了四個名字而且「收好」之後又出現在桌上；三處替讀者補邏輯；條列式總結；家臣的職銜從未出現；七歲的身體全章缺席；晚餐那句「回答完我的問題」裡他問的問題從未出現。
+
+工具缺口：正文沒有任何簡體字防護。我自己在一輪修改裡誤植了一個簡體字（「顺」），用全字串取代修掉時又誤改了「里」「后」，反而觸發 canon 契約違規——這次差錯證明繁體稿需要一道硬閘門。
+
+## AFTER：以上 22 處修畢：開頭壓縮成「具體演出＋那個錯的信念」；晚餐讓「叉匙的位置是對的、卻說不出為什麼」真的演出來；補七歲的身體（椅子、鹽瓶、叉匙）、侍女的圍裙補丁（Ch2 已有）、鐘與厚地毯、職銜的長度（不寫出內容）、筆記裡的「紀年——未答」、他畫到第三行停手的那張表（正好接上 Ch4 開頭那張畫了一半的紙）、以及牧師「准我看不准碰」的權限鏈。
+
+另新增 **HB-027**：正文不得混入簡體字，由 `tools/scan_hard_gate.py` 執行（FONT-01），附回歸測試與 fixture，evals 84 → 85 案。只列無歧義的簡體字（後與里在繁體也合法，故不列入）。`tools/continuity_probe.py` 新增 4 條跨章線頭，並逐一做過反向驗證（把正文改回壞的樣子，探針必須紅）。事件、Knowledge、章末狀態與 Canon 不動（`state_change: none`，11 不同步）。R2：補了有功能的局部細節與對話，屬場景層。
+
+## REASON：依作者指示「晚點一樣從第一章開始重讀」——第二輪＝連續重讀，專抓各章各自改完之後的接縫。
+
+## AUTHORITY：作者指示第二輪自第一章開始重讀；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（85 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、hard-gate 0 hits、revision-gate R2 綠）；備份快照以 git blob 驗證。
+
 ## CHG-2026-10-22-020
 
 ## DATE：2026-10-22 11:50 +08:00

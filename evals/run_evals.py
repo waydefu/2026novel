@@ -76,6 +76,13 @@ def main() -> int:
         passed,
     )
     expect(
+        "fail_simplified_char",
+        any("FONT-01" in h.kind for h in scan_hard_gate(FIXTURES / "fail_simplified.md")),
+        "simplified characters in the prose must be red",
+        failures,
+        passed,
+    )
+    expect(
         "fail_pcode_heading",
         any("P-0" in h.kind for h in scan_hard_gate(FIXTURES / "fail_pcode.md")),
         "P-01 heading must be red",
