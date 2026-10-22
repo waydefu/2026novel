@@ -1,8 +1,7 @@
 schema: governance-change-manifest/v1
-revision_level: R2
-target: chapter-01
+revision_level: R0
+target: ops-runtime
 canon_change: false
 governance_sync: false
 state_change: none
-backup_ref: 99_備份/01_正文備份/小說正文第三版｜第一章第二輪連讀前備份｜2026-10-22.md
-notes: "Chapter-01, round 2 (continuous re-read with Ch2 as the seam pair). Two independent blind reviewers read Ch1+Ch2 without prior context; findings merged. Fixes: the first-person narrative switched to 'he' for the classmate mid-paragraph and the narrator explained that classmate's motive; the same obstacle was described twice with different nouns (citation page numbers vs attachment numbering); the three-option enumeration read like a question being set; three paragraphs of pure setting with no action; the first counting joke duplicated the later, better one; the alarm clock was mentioned three times; 'full house' is classroom vocabulary, not clinic vocabulary; 'my place' contradicted Ch2's 'rental flat'; Word comments do not sit in the bottom-right corner; the apartment had no signs of anyone living in it; the promo-art line was fan-service; the five-exchange rebuttal was too metronomic and the narrator won every exchange. Adds two props (last night's full-clinic slip, a stale sticky note) and one clause (the anime is adapted from a light novel) to set up Ch2. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
+notes: "Documentation only: the round-2 continuous re-read section in the roadmap, the Ch9 row, and the summary table (Ch9, the two-reviewer protocol, the Ch1 round-2 result and the revised unverified list). No prose, no canon, no outline, no derived-state change."
