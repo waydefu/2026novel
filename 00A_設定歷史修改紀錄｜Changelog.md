@@ -56,7 +56,7 @@ VALIDATION：如何確認已正確落地
 
 ## TYPE：GOVERNANCE / FORMAT
 
-## SCOPE：`10_現行創作資料/小說正文第三版.md`（新增第九章）、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（CUT-OFF×2、CURRENT HANDOFF、CH08 用語修正、CH09 State Diff、K017、D014、D015）、`10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（P08 施工進度）、`governance/quality/2026-10-22_Ch09_雙評閱比較.md`、`governance/provenance/`（溯源與修訂前後 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第九章新增前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R2／chapter-09）
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（新增第九章）、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（CUT-OFF×2、CURRENT HANDOFF、CH08 用語修正、CH09 State Diff、K017、D014、D015）、`10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（P08 施工進度）、`governance/quality/2026-10-22_Ch09_雙評閱比較.md`、`governance/provenance/`（溯源與修訂前後 artifacts）、`99_備份/01_正文備份/小說正文第三版｜第九章新增前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R3／chapter-09）
 
 ## BEFORE：P08 弧只寫了第一場（Ch8）。09-P08 仍是 ARC BLOCK，其餘場景為 [PLANNED]。
 
@@ -68,7 +68,9 @@ VALIDATION：如何確認已正確落地
 
 ## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY（新增一章；01–08 Canon 未改，TBD-006／007 未升格）
 
-## VALIDATION：`py -3 evals/ci_suite.py` 全綠（82 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、revision-gate R2 綠）；備份快照 = origin/main 版本並以 git blob 驗證；雙評閱比較紀錄留存。
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（82 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、revision-gate R3 綠）；備份快照 = origin/main 版本並以 git blob 驗證；雙評閱比較紀錄留存。
+
+本列為 R3 而非 R2：新增一章是章級施工，且本次同步了 09 的施工進度，而 R2 不得更動 09（遠端閘門：`R-GATE: R2 cannot change 09; use R3+ for outline`）。R3 的完成定義皆滿足——既有 Canon、已鎖章節目的與章末狀態皆未動，且已做里程碑備份。
 
 ## CHG-2026-10-22-016
 
