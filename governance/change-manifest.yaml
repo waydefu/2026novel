@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
 revision_level: R2
-target: chapter-03
+target: chapter-04
 canon_change: false
 governance_sync: false
 state_change: none
-backup_ref: 99_備份/01_正文備份/小說正文第三版｜第三章第二輪連讀前備份｜2026-10-22.md
-notes: "Chapter-03, round 2 (continuous re-read with Ch4 as the seam pair). Two independent blind reviewers read Ch3+Ch4 without prior context; findings merged (22 edits). The opening stated the theme and then spoiled the dinner scene's mechanism, so it was compressed to the concrete example plus the wrong belief; the two promised examples (the corridor turn, the cutlery) now appear as a scene at dinner. The servant entered twice through the same doorway with opposite directions, and Roderick vanished from the room without leaving; the same book was called four names and was 'put away' yet still on the table. Three sentences named the emotion or stated the theme after the scene had shown it. Added: the seven-year-old body (the chair, the salt bottle, the cutlery), the maid's apron patch (which Ch2 already gave her), the clock and the carpet, the servant's title length without the title itself, the calendar question written into the notes so it reads as suspended rather than forgotten, the cheat sheet drawn and abandoned - which is the half-drawn paper Ch4 opens on - and the priest's permission ('allowed to look, not to touch') so Ch4's lesson has an authority chain. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜第四章第二輪連讀前備份｜2026-10-22.md
+notes: "Chapter-04, round 2 (the Ch3 review's cross-chapter findings land here). Five fixes: the sentence '雖然這個玩具真的會魔法。' appeared twice in a row, right on the seam; the reaching-hand beat was staged twice (Ch3 already played hand-out -> permitted -> set down); the priest's permission was missing although Ch3 states the priest forbids practising privately, so the lesson had no authority chain; the opening had no spatial anchor, so '桌上一共三件東西' hung in the air; the eagerness set up in Ch3 ('我臥床時就一直很想碰') was toned down into 'a child getting a new toy'. The half-drawn paper is now named as the cheat sheet he drew and abandoned at the end of Ch3, so the two chapters close into a loop. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."

@@ -50,6 +50,28 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-22-022
+
+## DATE：2026-10-22 13:10 +08:00
+
+## TYPE：FORMAT
+
+## SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch4 第二輪跨章修正）、`governance/quality/2026-10-22_Ch04_第二輪連讀.md`、`governance/provenance/artifacts/2026-10-22_Ch4_修訂前.md`、`governance/provenance/artifacts/2026-10-22_Ch4_修訂後定稿.md`、`99_備份/01_正文備份/小說正文第三版｜第四章第二輪連讀前備份｜2026-10-22.md`、`governance/change-manifest.yaml`（R2／chapter-04）
+
+## BEFORE：這一章的第二輪修正**來自 Ch3 那一輪的評閱**——兩名評閱者讀的是「Ch3＋Ch4」，他們在接縫上指出來的問題落在這一章，因此另開一個 PR（不把兩章塞進同一個變更）。
+
+五處問題：「雖然這個玩具真的會魔法。」連續出現兩次，而且正好落在接縫上；手部動作重跑（Ch3 結尾已經演過「伸手→被允許→放下」，Ch4 開頭又演一次「碰到→叫停→停住」）；牧師未點頭（Ch3 明寫「牧師不准私下亂試」，Ch4 卻直接把器具擺上桌，全章沒有一句提到他准了）；開頭沒有方位錨點，所以「桌上一共三件東西」懸空；Ch3 的「我臥床時就一直很想碰」是飢餓，Ch4 卻調成「小孩第一次拿到新玩具」，接不上原本的飢餓感。
+
+## AFTER：以上五處修畢。開頭補一句羅德里克轉述的牧師條件（每天上午、旁邊有人），補陽光從窗子左邊斜進來的方位錨點；Ch4 那張「畫了一半的紙」明說是 Ch3 結尾他畫到第三行就停手的那張表，兩章閉合成一個圈（那正是他在 Ch3 問過的「能不能一張紙寫完的那種」）。事件、Knowledge、章末狀態與 Canon 不動（`state_change: none`，11 不同步）。R2：補了有功能的局部細節與一句對白，屬場景層。
+
+## REASON：依作者指示「晚點一樣從第一章開始重讀」——第二輪＝連續重讀；跨章問題落在後一章時，後一章另開小 PR。
+
+## AUTHORITY：作者指示第二輪自第一章開始重讀；作者先前授權「所有內容皆可改」。
+
+## COMPATIBILITY：NON-BREAKING / DOCUMENT-ONLY
+
+## VALIDATION：`py -3 evals/ci_suite.py` 全綠（85 cases、continuity 0 failures、drift 綠、canon-contract 0 violations、hard-gate 0 hits、revision-gate R2 綠）；備份快照以 git blob 驗證。
+
 ## CHG-2026-10-22-021
 
 ## DATE：2026-10-22 12:40 +08:00
