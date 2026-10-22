@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
 revision_level: R2
-target: chapter-04
+target: chapter-05
 canon_change: false
 governance_sync: false
 state_change: none
-backup_ref: 99_備份/01_正文備份/小說正文第三版｜第四章第二輪連讀前備份｜2026-10-22.md
-notes: "Chapter-04, round 2 (the Ch3 review's cross-chapter findings land here). Five fixes: the sentence '雖然這個玩具真的會魔法。' appeared twice in a row, right on the seam; the reaching-hand beat was staged twice (Ch3 already played hand-out -> permitted -> set down); the priest's permission was missing although Ch3 states the priest forbids practising privately, so the lesson had no authority chain; the opening had no spatial anchor, so '桌上一共三件東西' hung in the air; the eagerness set up in Ch3 ('我臥床時就一直很想碰') was toned down into 'a child getting a new toy'. The half-drawn paper is now named as the cheat sheet he drew and abandoned at the end of Ch3, so the two chapters close into a loop. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜第五章第二輪連讀前備份｜2026-10-22.md
+notes: "Chapter-05, round 2 (continuous re-read with Ch6 as the seam pair). Two independent blind reviewers read Ch5+Ch6; findings merged (14 edits). Hard error fixed: 'he saw the cat ears FIRST' came after the injuries had already been described, so the order claim contradicted the prose; the world's zero reaction to cat ears was also made explicit. The merchants contradicted themselves (they said they had come this morning while standing at the village mouth with their packs still on); now they stopped at the mouth. 'The living ones must be found too' had no addressee, and the two bodies were called corpses while nobody had confirmed the deaths - the priest now checks, and the line is addressed to the guards. Two stray blank-line gaps read like un-cleaned edits. The rule set up in the opening (he stops when his head aches) is now tested once. The pendant enters the household's awareness ('don't lose that pendant'), which is what Ch6's 'nobody will take the pendant' needs. The chapter now ends with a destination and with Ida putting the pendant back inside her collar, which is where Ch6 finds it against her chest. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
