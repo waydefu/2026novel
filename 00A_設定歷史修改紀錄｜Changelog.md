@@ -74,6 +74,8 @@ VALIDATION：如何確認已正確落地
 
 ## VALIDATION：`py -3 evals/ci_suite.py --git-base origin/main` 全綠（85 cases、continuity threads=18 assertions=47 failures=0、drift 綠、canon-contract 0 violations、hard-gate 0 hits、revision-gate R2 chapter-09 綠）；備份快照以 git blob 驗證（23438 chars）。
 
+## CORRECTION（2026-10-23）：上面寫「24 處修畢」是合併意見的數目；實際落地 26 處——另有收尾 2 處（副詞失去指涉的「她把碗又推回來一點。」整句刪除；帳冊四處全部改正）。字數更正為 1,294 → 1,318。
+
 ## CHG-2026-10-22-026
 
 ## DATE：2026-10-22 16:10 +08:00
