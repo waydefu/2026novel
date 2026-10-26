@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R2
+revision_level: R4
 target: chapter-09
 canon_change: false
-governance_sync: false
-state_change: none
+governance_sync: true
+state_change: changed
 backup_ref: 99_備份/01_正文備份/小說正文第三版｜第九章第二輪連讀前備份｜2026-10-22.md
-notes: "Chapter-09, round 2 (last chapter; seam read backwards against Ch8). Two independent blind reviewers read Ch8+Ch9; findings merged (24 edits). The hard item was physical: she sets both buckets down by the stove, then Charman looks at the buckets in her hands - four buckets. The three trips only existed as two on the page, so the current trip is now the third. 'I understood that sentence' was the chapter's one author-summary and it never said what she understood - cut, leaving 'not yet' to carry it. What the ledger ends up holding had three incompatible readings; he now writes her name and strikes it out, which is the only outcome with a cost. The paper count is pinned to one set of three (Charman's), so the two bill backs stay in Ch8 as practice sheets. 'Ze' was promised in Ch8 and never named here - now named, and her request is 'the ones about water' so it belongs. Bellow's refusal no longer repeats three times. The apron appears before it is taken off; the glass window (not of this world) becomes condensation; the bowl is in one place at a time; the soup is no longer 'just off the stove' right after she says it is nearly ready. No event, Knowledge, chapter-end state or Canon change; state_change=none, 11 intentionally untouched."
+notes: "Author withdrew Chapter 09. Remove it from the sole live draft and remove its derived Knowledge, State, Dependency, outline progress and continuity assertions. Keep the existing Ch09 snapshot and Git history as archives, not active Canon. Ch08 and character Canon unchanged. Fix literal duplicate phrases in Ch06/07. Make prose review driven by actual reading problems rather than formulaic micro-rules or routine A/B grading. No new plot, world mechanics or motivations are decided."

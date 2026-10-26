@@ -50,6 +50,27 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-27-001
+
+DATE：2026-10-27 +08:00
+
+TYPE：AUTHOR-DIRECTED RETRACTION / PROSE WORKFLOW
+
+SCOPE：現行正文、09／11、連讀探針、AGENTS／QA／品質評估、修稿史索引與 change-manifest。
+
+BEFORE：正文含 Ch1–Ch9；已撤回的 Ch9 仍在 Knowledge、State、Dependency、P08 進度及探針中被當成既成事實；寫作指令含固定句式門檻與偏重強制盲讀的流程。Ch6／Ch7 另有逐字相鄰重複句。
+
+AFTER：依作者明確指示自唯一施工稿完整移除 Ch9，撤回其衍生事實與機器斷言；Ch8 與人物 Bible 不變。Ch9 的既有備份、PR、稽核與修改紀錄僅保留歷史性，不再具 Canon 權威。去除已確認的 Ch6／Ch7 原樣重複句。寫作流程改為輕量起稿、具體編輯冷讀、必需的硬性合理性檢查；文風禁詞與盲讀量表不能代替閱讀。
+
+REASON：作者要求刪除第九章，重點處理自然敘事、角色聲音、合理性，避免把小說寫成按 QA 表逐項履約的作品；不確定的劇情與世界設定需交由作者決策。
+
+AUTHORITY：作者 2026-10-27 最新指示，授權開新 PR、刪除第九章。
+
+COMPATIBILITY：BREAKING FOR LIVE DRAFT（Ch9 撤回）；01–08 人物 Canon 和 Ch8 既存情節保持不變。
+
+VALIDATION：以新 PR 的 CI、逐章確認與人工閱讀結果為準，未執行的項目不得稱為通過。
+
+
 ## CHG-2026-10-22-027
 
 ## DATE：2026-10-22 18:05 +08:00
