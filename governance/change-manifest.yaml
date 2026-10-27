@@ -5,4 +5,4 @@ canon_change: false
 governance_sync: true
 state_change: changed
 backup_ref: 99_備份/01_正文備份/小說正文第三版｜第九章第二輪連讀前備份｜2026-10-22.md
-notes: "Author withdrew Chapter 09. Remove it from the sole live draft and remove its derived Knowledge, State, Dependency, outline progress and continuity assertions. Keep the existing Ch09 snapshot and Git history as archives, not active Canon. Ch08 and character Canon unchanged. Fix literal duplicate phrases in Ch06/07. Make prose review driven by actual reading problems rather than formulaic micro-rules or routine A/B grading. No new plot, world mechanics or motivations are decided."
+notes: "Author withdrew Chapter 09; remove its live text and derived facts without reusing plot. Also fix confirmed physical/text continuity in Ch05 boarding sequence, Ch07 ambiguous sentences and Ch08 board/pencil ownership. Ch03 Roderick reincarnation-knowledge error remains OPEN, prose unchanged. No new canon or major events; retain existing Ch09 historical snapshot and governance sync."

@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-27-002
+
+DATE：2026-10-27 +08:00
+
+TYPE：TEXT-FIX / CONTINUITY
+
+SCOPE：現行正文 Ch5／Ch7／Ch8；逐章優化路線圖；change-manifest。
+
+BEFORE：Ch5 上車後療傷，卻在後文才敘述抱上馬車；Ch7「才鬆開」指涉不明、舊紙似會長出新字；Ch8 木板動作交接不連貫、「在炭筆上寫字」誤寫、晚餐炭筆無來源。
+
+AFTER：調整同一組既存車廂動作順序、澄清 Ch7 指涉、讓 Ch8 木板持有狀態一致。Ch3 紀年台詞仍待修，沒有新增世界觀或變更已知事件。
+
+REASON：作者要求繼續，且不確定事項需先詢問；僅修能直接確認的物件與行文硬傷。
+
+AUTHORITY：作者 2026-10-27「繼續」及不得擅自新設定。
+
+COMPATIBILITY：NON-BREAKING / TEXT ONLY
+
+VALIDATION：提交前靜態確認章數、範圍、Ch3 未動；CI 以 GitHub 回報為準。
+
 ## CHG-2026-10-27-001
 
 DATE：2026-10-27 +08:00
