@@ -50,6 +50,22 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-27-004
+
+DATE：2026-10-27 +08:00
+
+TYPE：AUTHOR-DIRECTED SCENE CONTEXT REFINEMENT
+
+SCOPE：現行正文 Ch5 出行背景；09-P05 大綱；修稿路線圖與 change-manifest。
+
+BEFORE：上一版將車隊行程設定為田莊庫房存貨、帳目核對，詞彙過於現代商務。
+
+AFTER：依作者明確回饋「改成酒莊還差不多」，車隊目的地改為梵恩家的酒莊；查爾曼查看酒窖並與管事談葡萄酒，亞德里安認路、貝倫沿途看診、伊妲與護衛隨行。沒有新增屠村陰謀或角色知情設定，維持原有事件順序。
+
+AUTHORITY：作者 2026-10-27 指定酒莊。
+
+COMPATIBILITY：NON-BREAKING / PROSE + OUTLINE SYNC
+
 ## CHG-2026-10-27-003
 
 DATE：2026-10-27 +08:00
