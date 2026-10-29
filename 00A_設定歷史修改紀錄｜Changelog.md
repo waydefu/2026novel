@@ -50,6 +50,83 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-27-004
+
+DATE：2026-10-27 +08:00
+
+TYPE：AUTHOR-DIRECTED SCENE CONTEXT REFINEMENT
+
+SCOPE：現行正文 Ch5 出行背景；09-P05 大綱；修稿路線圖與 change-manifest。
+
+BEFORE：上一版將車隊行程設定為田莊庫房存貨、帳目核對，詞彙過於現代商務。
+
+AFTER：依作者明確回饋「改成酒莊還差不多」，車隊目的地改為梵恩家的酒莊；查爾曼查看酒窖並與管事談葡萄酒，亞德里安認路、貝倫沿途看診、伊妲與護衛隨行。沒有新增屠村陰謀或角色知情設定，維持原有事件順序。
+
+AUTHORITY：作者 2026-10-27 指定酒莊。
+
+COMPATIBILITY：NON-BREAKING / PROSE + OUTLINE SYNC
+
+## CHG-2026-10-27-003
+
+DATE：2026-10-27 +08:00
+
+TYPE：AUTHOR-APPROVED LOW-STAKES SCENE CONTEXT
+
+SCOPE：現行正文第五章、09-P05 大綱、逐章優化路線圖、change-manifest。
+
+BEFORE：第五章車隊無一般出行目的，查爾曼／貝倫／亞德里安／伊妲同行理由不明。
+
+AFTER：作者授權「隨便掰個合理的就行」。車隊原本前往山另一側的梵恩家田莊；查爾曼核對庫房存貨、亞德里安跟著認路、貝倫沿途替人看診、伊妲帶護衛護送。因意外遇見屠村現場而折返梵恩家。只補普通行程，不推斷屠村真兇、車隊秘密目的、法律或職權。維持 Ch3 羅德里克未知轉生之作者確認及待修狀態。
+
+REASON：先補足觀察者會問「為何車隊在這」的因果，而不把救援場景改成其他新劇情。
+
+AUTHORITY：作者 2026-10-27「你隨便掰個合理的就行」。
+
+COMPATIBILITY：NON-BREAKING / SMALL STORY CONTEXT
+
+VALIDATION：現行主稿八章、Ch5 事故先後、Ch3 未修原句及 P08 其餘硬邊界須保持一致；以提交後實際 CI 為準。
+
+## CHG-2026-10-27-002
+
+DATE：2026-10-27 +08:00
+
+TYPE：TEXT-FIX / CONTINUITY
+
+SCOPE：現行正文 Ch5／Ch7／Ch8；逐章優化路線圖；change-manifest。
+
+BEFORE：Ch5 上車後療傷，卻在後文才敘述抱上馬車；Ch7「才鬆開」指涉不明、舊紙似會長出新字；Ch8 木板動作交接不連貫、「在炭筆上寫字」誤寫、晚餐炭筆無來源。
+
+AFTER：調整同一組既存車廂動作順序、澄清 Ch7 指涉、讓 Ch8 木板持有狀態一致。Ch3 紀年台詞仍待修，沒有新增世界觀或變更已知事件。
+
+REASON：作者要求繼續，且不確定事項需先詢問；僅修能直接確認的物件與行文硬傷。
+
+AUTHORITY：作者 2026-10-27「繼續」及不得擅自新設定。
+
+COMPATIBILITY：NON-BREAKING / TEXT ONLY
+
+VALIDATION：提交前靜態確認章數、範圍、Ch3 未動；CI 以 GitHub 回報為準。
+
+## CHG-2026-10-27-001
+
+DATE：2026-10-27 +08:00
+
+TYPE：AUTHOR-DIRECTED RETRACTION / PROSE WORKFLOW
+
+SCOPE：現行正文、09／11、連讀探針、AGENTS／QA／品質評估、修稿史索引與 change-manifest。
+
+BEFORE：正文含 Ch1–Ch9；已撤回的 Ch9 仍在 Knowledge、State、Dependency、P08 進度及探針中被當成既成事實；寫作指令含固定句式門檻與偏重強制盲讀的流程。Ch6／Ch7 另有逐字相鄰重複句。
+
+AFTER：依作者明確指示自唯一施工稿完整移除 Ch9，撤回其衍生事實與機器斷言；Ch8 與人物 Bible 不變。Ch9 的既有備份、PR、稽核與修改紀錄僅保留歷史性，不再具 Canon 權威。去除已確認的 Ch6／Ch7 原樣重複句。寫作流程改為輕量起稿、具體編輯冷讀、必需的硬性合理性檢查；文風禁詞與盲讀量表不能代替閱讀。
+
+REASON：作者要求刪除第九章，重點處理自然敘事、角色聲音、合理性，避免把小說寫成按 QA 表逐項履約的作品；不確定的劇情與世界設定需交由作者決策。
+
+AUTHORITY：作者 2026-10-27 最新指示，授權開新 PR、刪除第九章。
+
+COMPATIBILITY：BREAKING FOR LIVE DRAFT（Ch9 撤回）；01–08 人物 Canon 和 Ch8 既存情節保持不變。
+
+VALIDATION：以新 PR 的 CI、逐章確認與人工閱讀結果為準，未執行的項目不得稱為通過。
+
+
 ## CHG-2026-10-22-027
 
 ## DATE：2026-10-22 18:05 +08:00
