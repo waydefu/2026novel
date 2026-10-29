@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R4
-target: chapter-09
+revision_level: R2
+target: chapters-03-08
 canon_change: false
 governance_sync: true
-state_change: changed
-backup_ref: 99_備份/01_正文備份/小說正文第三版｜第九章第二輪連讀前備份｜2026-10-22.md
-notes: "Author withdrew Chapter 09; remove its live text and derived facts without reusing plot. Also fix confirmed physical/text continuity in Ch05 boarding sequence, Ch07 ambiguous sentences and Ch08 board/pencil ownership. Ch03 Roderick reincarnation-knowledge error remains OPEN, prose unchanged. A mundane Ch05 caravan errand (visiting the Vane winery cellar and discussing wine with its steward, child accompanying to learn the route, priest visiting households, escorts) has been authored to match the author's winery choice; no massacre conspiracy or hidden purpose is inferred. No other new canon or major events; retain Ch09 historical snapshot and governance sync."
+state_change: none
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜前八章非待決修訂前備份｜2026-10-29.md
+notes: "Author requested fix all non-decision textual/narrative issues first, defer undecided canon. Revise Ch03 calendar-knowledge line (Roderick does not know reincarnation), Ch05 misattributed maxim, Ch06 name utterance, Ch07 guard withdrawal, and Ch08 board/dialogue; preserve all Ch01-08 outcomes, titles, winery and withdrawn Ch09. Update quality/ledger/provenance archival status only. No new calendar era, family/legal authority, heroine status or Ch09 scene."
