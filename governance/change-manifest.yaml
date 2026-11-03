@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
 revision_level: R2
-target: chapters-02-03-08
+target: chapters-01-08
 canon_change: false
 governance_sync: true
 state_change: none
 backup_ref: 99_備份/01_正文備份/小說正文第三版｜PR36文學驗收前快照｜2026-11-03.md
-notes: "Editor-led review after PR36: fix Ch02 height-mark/handle spatial logic, Ch03 unfulfilled calendar book promise and note ownership, Ch08 ruined-house memory versus guest room, prudent mentor reaction after headaches, ambiguous paper/board dialogue, and overly explicit dinner feelings. Other chapters untouched. No new world lore, heroine status, or Ch09. See governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md for research and scope."
+notes: "Editor-led review after PR36: fix Ch02 height-mark/handle spatial logic, Ch03 unfulfilled calendar book promise and note ownership, Ch08 ruined-house memory versus guest room, prudent mentor reaction after headaches, ambiguous paper/board dialogue, and overly explicit dinner feelings. Additional scoped prose edits in Ch01, Ch04, Ch05, Ch06, Ch07 fix a repeated red-font cue, count of magic trials, rescue staging and uncertain kin search, vocative continuity, and unclear journey options. No story outcome altered. No new world lore, heroine status, or Ch09. See governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md for research and scope."
