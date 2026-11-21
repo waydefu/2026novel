@@ -50,6 +50,30 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-10-29-001
+
+DATE：2026-10-29 +08:00
+
+TYPE：FIX / PROSE / CONTINUITY
+
+SCOPE：唯一現行正文 Ch3、Ch5–Ch8；逐章優化路線圖、歷史總表提醒、11 的編輯進度標示及治理 manifest。
+
+BEFORE：Ch3 教師台詞誤導其知道另一世界且未兌現門柱承諾；Ch5 把「多一次應該沒事」錯歸羅德里克；Ch6 自報姓名音節矛盾；Ch7 守衛轉場與門縫重複；Ch8 木板、貝倫說教與餐桌對話連續性問題。
+
+AFTER：以無新世界設定的 R2 敘事修訂修正，保留 Ch1–Ch8 事件／知情／章末狀態及作者已指定酒莊；不寫新 Ch9。作者未決設定全部延後。
+
+REASON：作者 2026-10-29「全改完再處理待決」。
+
+AUTHORITY：作者最新指示、羅德里克不知轉生既定 Canon、現行前八章及 AGENTS。
+
+COMPATIBILITY：NON-BREAKING / PROSE ONLY
+
+BACKUP：`99_備份/01_正文備份/小說正文第三版｜前八章非待決修訂前備份｜2026-10-29.md`
+
+PROVENANCE：`governance/provenance/2026-10-29_Ch03-08_非待決正文精修.md`
+
+VALIDATION：提交後由 PR CI 確認工程硬閘；已以唯一主稿校對章節與主要因果，文學品質仍待人工閱稿。
+
 ## CHG-2026-10-27-004
 
 DATE：2026-10-27 +08:00
