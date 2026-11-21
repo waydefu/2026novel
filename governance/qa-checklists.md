@@ -27,11 +27,13 @@
 依序跑：
 
 ```text
-py -3 tools/scan_hard_gate.py      # 阻擋式：TBD 標籤／P-0N 章名／姓名拼寫
+py -3 tools/scan_hard_gate.py      # 阻擋式：TBD 標籤／P-0N 章名／姓名拼寫／簡體字／隱形字元
 py -3 tools/canon_contract.py      # 阻擋式：已寫正文的既存事實
+py -3 tools/continuity_probe.py    # 阻擋式：跨章接縫與線頭斷言
 py -3 tools/scan_pattern_risk.py   # 候選
 py -3 tools/prose_lexicon.py       # 候選（含 --not-evidence 清單）
 py -3 tools/prose_rhythm.py        # 候選：只作冷讀定位
+py -3 tools/timeline_probe.py      # 報告：跨章季節、月份與年齡盤點
 py -3 tools/style_profile.py       # 量測：非判據項目標記「非判據」
 py -3 tools/count_chapter.py --chapter N
 py -3 tools/check_derived_drift.py

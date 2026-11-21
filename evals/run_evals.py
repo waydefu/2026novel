@@ -728,6 +728,77 @@ def main() -> int:
         )
         expect("live_drift", live_drift == [], str(live_drift), failures, passed)
 
+    from prose_checks import chapter_number  # noqa: E402
+
+    expect(
+        "chapter_number_over_20",
+        chapter_number("二十") == 20 and chapter_number("二十五") == 25 and chapter_number("一百零八") == 108,
+        f"got 20={chapter_number('二十')}, 25={chapter_number('二十五')}, 108={chapter_number('一百零八')}",
+        failures,
+        passed,
+    )
+
+    a1_payload = compile_target(ROOT, "A1-01")
+    expect(
+        "compiler_supports_act1_targets",
+        a1_payload["target"] == "A1-01" and any(s["id"] == "PLOT-A1-01" for s in a1_payload["sources"]),
+        f"target={a1_payload.get('target')} sources={[s['id'] for s in a1_payload.get('sources', [])]}",
+        failures,
+        passed,
+    )
+    expect(
+        "compiler_loads_real_voice_fingerprint",
+        "ATTENTION" in a1_payload["capsule"].get("VOICE", "") and any(s["id"].startswith("VOICE-") for s in a1_payload["sources"]),
+        f"VOICE={a1_payload['capsule'].get('VOICE', '')[:120]!r}",
+        failures,
+        passed,
+    )
+
+    inv_hits = scan_hard_gate(FIXTURES / "pass_clean.md", text="這是一段帶有\u200b零寬空白的正文。\n", force_scope="prose")
+    expect(
+        "fail_invisible_zero_width_char",
+        any("FORMAT-01" in h.kind and "U+200B" in h.kind for h in inv_hits),
+        f"zero-width char must fail hard gate, got {inv_hits}",
+        failures,
+        passed,
+    )
+
+    r0_derived_header = check_revision(
+        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": True, "state_change": "none"},
+        [GOV11],
+        [],
+    )
+    expect(
+        "r0_derived_header_sync_green",
+        r0_derived_header == [],
+        f"R0 header/TBD sync on 11 with governance_sync=true & state_change=none must pass: {r0_derived_header}",
+        failures,
+        passed,
+    )
+
+    r0_derived_unflagged = check_revision(
+        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": False},
+        [GOV11],
+        [],
+    )
+    expect(
+        "r0_derived_without_flags_red",
+        bool(r0_derived_unflagged),
+        "R0 touching 11 without governance_sync=true & state_change=none must fail",
+        failures,
+        passed,
+    )
+
+    routing_doc = (ROOT / "governance" / "skill-routing.md").read_text(encoding="utf-8")
+    all_skills_routed = all(f"`{s.parent.name}`" in routing_doc for s in skills)
+    expect(
+        "all_skills_in_routing_table",
+        all_skills_routed,
+        "every skill in .agents/skills must be documented in governance/skill-routing.md",
+        failures,
+        passed,
+    )
+
     total = len(passed) + len(failures)
     if failures:
         print("EVAL FAIL")

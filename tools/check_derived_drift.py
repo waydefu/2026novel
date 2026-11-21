@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from prose_checks import GOVERNANCE_11, OUTLINE, SETTINGS, DRAFT, split_chapters  # noqa: E402
+from prose_checks import GOVERNANCE_11, OUTLINE, SETTINGS, DRAFT, chapter_number, split_chapters  # noqa: E402
 
 UNSEEN = ("克蕾西雅", "瑟拉菲娜", "艾琳娜")
 
@@ -34,18 +34,14 @@ def drift_check(
     extra = sorted(n for n in facts if n > max_draft)
     if extra:
         errors.append(f"DRIFT FAIL: 11 TEXT-FACT cites chapters not in draft: {extra}")
-    cutoff = re.search(r"CUT-OFF：現行正文第([一二三四五六七八九十百]+)章", gov_text)
-    cn = {
-        "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8,
-        "九": 9, "十": 10, "十一": 11, "十二": 12, "十三": 13, "十四": 14, "十五": 15,
-    }
+    cutoff = re.search(r"CUT-OFF：現行正文第([一二三四五六七八九十百零]+)章", gov_text)
     if not cutoff:
         errors.append("DRIFT FAIL: 11 找不到 CUT-OFF 行（正文與衍生狀態無法對齊）")
     else:
-        cut_n = cn.get(cutoff.group(1))
+        cut_n = chapter_number(cutoff.group(1))
         if cut_n is None:
             errors.append(
-                f"DRIFT FAIL: 無法解析 CUT-OFF 章號「{cutoff.group(1)}」（支援到 十五）"
+                f"DRIFT FAIL: 無法解析 CUT-OFF 章號「{cutoff.group(1)}」"
             )
         elif max_draft > cut_n:
             errors.append(f"DRIFT NEEDS_REVIEW: draft has Ch{max_draft} but 11 CUT-OFF is Ch{cut_n}")

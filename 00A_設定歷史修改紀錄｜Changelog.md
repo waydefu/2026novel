@@ -50,6 +50,38 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-003
+
+DATE：2026-11-22 +08:00
+
+TYPE：GOVERNANCE / OPS / QUALITY-REFACTOR
+
+SCOPE：AGENTS.md、10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md（僅修 09-P08 誤標之 `## ` H2 標題前綴，文字與事件不變）、10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md（更新 `CURRENT WORKING DRAFT` 為 2026-11-03）、tools/compile_context.py、tools/prose_lexicon.py、tools/prose_checks.py、tools/check_derived_drift.py、tools/continuity_probe.py、tools/check_revision_gate.py、tools/README.md、evals/ci_suite.py、evals/run_evals.py、governance/canon-contracts.json、governance/core-invariants.json、governance/rule-budget.json、governance/lexicon.lock、governance/qa-checklists.md、governance/status.md、governance/README.md、governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md、governance/provenance/2026-11-03_Ch02-03-08_文學審查修訂.md、.agents/skills/novel-qa-mode/SKILL.md、.agents/skills/novel-draft-mode/SKILL.md、.agents/skills/novel-backup/SKILL.md、governance/change-manifest.yaml。
+
+BEFORE：
+1. `tools/compile_context.py` 的 `VOICE` 欄位僅輸出靜態佔位字，未從 `11` §03 載入當前 POV 角色的 Voice Fingerprint；且目標參數只支援 `P01`–`P09`，無法編譯第一篇 `A1-01`–`A1-08`，角色 Canon 也只固定載入亞德里安與莉諾兒。
+2. `09-P08` 整段（第 361–409 行）每行均被誤加上 `## ` 二級標題前綴。
+3. `governance/ai-flavor-evidence.md` §2 標註「待補進詞庫」的中文專屬翻譯腔、系詞迴避與零寬隱形字元（U+200B/200C/200D/FEFF/2060）尚未落實至 `prose_lexicon.py` 與 `scan_hard_gate.py`。
+4. `canon-contracts.json` 與 `continuity_probe.py` 未完整覆蓋已定稿之第八章（Ch8）既存事實（吊墜持有、六十三次練習頭痛停下、認字線）；`timeline_probe.py` 未納入 `ci_suite.py` 與 `novel-qa-mode`。
+5. `AGENTS.md` 達 199/200 行臨界點且缺 `[AUTHORIZATION-SCOPE]` 核心不變條件標記；`prose_checks.py`／`check_derived_drift.py` 的中文數字章號上限卡在 15–19 章；`check_revision_gate.py` 禁止在 R0 同步 `11` 標頭日期；`tools/README.md` 與 `governance/README.md` 漏列 10 支新工具與治理檔。
+
+AFTER：
+1. 重構 `tools/compile_context.py`：自動從 `11` §03 抽取當前場景 POV 角色的 Voice Fingerprint（`ATTENTION`／`COGNITIVE TEXTURE`／`ERROR BIAS`／`AVOID`），支援 `A1-01`–`A1-08` 第一篇目標與 `P08A` 等子場，並按出場角色動態載入克蕾西雅／瑟拉菲娜／艾琳娜的 Canon 指標。
+2. 清理 `09-P08` 誤標的 `## ` 前綴，恢復正常欄位與清單排版。
+3. 擴充 `tools/prose_lexicon.py`（新增歐化名詞化結構、「作為一個X，他…」、系詞迴避、段首空泛起手式、零寬隱形字元）並更新 `governance/lexicon.lock`；在 `tools/prose_checks.py`（`scan_hard_gate`）將零寬隱形字元列為 `FORMAT-01` 硬閘門阻擋項。
+4. 在 `governance/canon-contracts.json`（v4）新增 `CC-011` 保護第八章既存事實，在 `tools/continuity_probe.py` 擴充 `T03`、`T04` 與新增 `T11`（Ch4→Ch8 頭痛練習上限連續性），並將 `timeline_probe.py` 納入 `ci_suite.py`、`novel-qa-mode` 與 `qa-checklists.md`。
+5. 精簡 `AGENTS.md` §10–§15 排版至約 175 行（保留全部規則語意並預留 25 行緩衝）、補上 `[AUTHORIZATION-SCOPE]` 並納入 `core-invariants.json`（9 項不變條件）；`chapter_number()` 支援至百位數章號；允許 `R0` 在 `governance_sync: true` 且 `state_change: none` 時同步 `11` 標頭與 `09` 排版，並將 `11` 的 `CURRENT WORKING DRAFT` 更新為 `2026-11-03`；補齊 `tools/README.md`、`governance/README.md` 與 `evals/run_evals.py` 的 7 項新回歸測試（共 92 項測試）。
+
+REASON：作者指示針對 CI、技能、Markdown 與治理層進行研究，將對小說品質有實質提升的項目全部整理並重構。
+
+AUTHORITY：作者 2026-11-22 指示「先研究，要對小說品質有實質提昇的，幫我全部整理並部份重構『依照你的判斷』」。
+
+COMPATIBILITY：NON-BREAKING / QUALITY & GOVERNANCE ENHANCEMENT（正文隻字未改，Canon 與事件未改）
+
+VALIDATION：`py -3 tools/prose_lexicon.py --update-lock`、`py -3 tools/sync_skills.py --mirror .claude/skills`、`py -3 evals/ci_suite.py --git-base origin/main`（92 cases EVAL OK，全部 gate PASS）。
+
+ROLLBACK：backup_ref `99_備份/02_設定與規則備份/2026-11-22_品質導向工具與治理重構前備份/AGENTS.md`，或 git 還原本次 PR。
+
 ## CHG-2026-11-22-002
 
 DATE：2026-11-22 +08:00

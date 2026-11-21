@@ -18,7 +18,9 @@
     "governance/lexicon.lock",
     "governance/rhythm-thresholds.json",
     "governance/style-profile.json",
-    "governance/agent-rules-source.md"
+    "governance/agent-rules-source.md",
+    "governance/trust-and-authorization.md",
+    "governance/status.md"
   ],
   "retired_rules": [],
   "hoisted_rules": [

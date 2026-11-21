@@ -51,32 +51,33 @@ def extract_block(text: str, start: str, end_markers: list[str]) -> str:
 
 
 SCENE_FIELDS = (
-    "章節目的", "定位", "POV", "時間／地點", "WANT", "OBSTACLE", "KNOWLEDGE",
-    "HARD OUTCOME", "RELATIONSHIP BOUNDARY", "CREATIVE FREEDOM", "EXIT",
-    "DRAFT WARNING", "禁止寫法", "主要場景",
+    "章節目的", "定位", "施工進度", "POV", "時間／地點", "WANT", "OBSTACLE", "KNOWLEDGE",
+    "KNOWLEDGE BOUNDARY", "HARD OUTCOME", "RELATIONSHIP BOUNDARY", "CREATIVE FREEDOM", "EXIT",
+    "DRAFT WARNING", "禁止寫法", "主要場景", "CHANGE", "RELATIONSHIP", "篇幅感", "序章完成狀態",
 )
 
 
 def scene_fields(block: str) -> dict[str, str]:
     """Pull named fields out of a 09 scene card.
 
-    The outline writes each field as `## 欄位：內容`, and list-shaped fields
-    (HARD OUTCOME / CREATIVE FREEDOM / 禁止寫法) put their items on following
-    `## - ` lines. Taking "the first N lines" silently dropped the most
-    important constraint in the card, so fields are now read by name.
+    Supports both normal outline lines (`欄位：內容` / `- 項目`) and H2-prefixed
+    lines (`## 欄位：內容` / `## - 項目`).
     """
     fields: dict[str, str] = {}
     current: str | None = None
     for line in block.splitlines():
-        m = re.match(r"^##\s*(?:-\s*)?([^：:]{1,24})[：:]\s*(.*)$", line)
-        if m and m.group(1).strip() in SCENE_FIELDS:
-            current = m.group(1).strip()
-            fields.setdefault(current, "")
-            if m.group(2).strip():
-                fields[current] += ("\n" if fields[current] else "") + m.group(2).strip()
-            continue
-        if current and re.match(r"^##\s*-\s+", line):
-            fields[current] += ("\n" if fields[current] else "") + re.sub(r"^##\s*-\s*", "", line).strip()
+        m = re.match(r"^(?:##\s*)?(?:-\s*)?([^：:]{1,28})[：:]\s*(.*)$", line)
+        if m:
+            raw_key = m.group(1).strip()
+            base_key = re.sub(r"（.*）|\(.*\)", "", raw_key).strip()
+            if base_key in SCENE_FIELDS:
+                current = base_key
+                fields.setdefault(current, "")
+                if m.group(2).strip():
+                    fields[current] += ("\n" if fields[current] else "") + m.group(2).strip()
+                continue
+        if current and re.match(r"^(?:##\s*)?-\s+", line):
+            fields[current] += ("\n" if fields[current] else "") + re.sub(r"^(?:##\s*)?-\s*", "", line).strip()
     return fields
 
 
@@ -108,17 +109,59 @@ def knowledge_ids_for(gov_text: str, target: str) -> list[str]:
     return ids[-4:]
 
 
+VOICE_SECTIONS = (
+    ("亞德里安", "亞德里安・梵恩", ["克蕾西雅\n", "瑟拉菲娜\n", "莉諾兒\n", "艾琳娜\n", "# 04｜"]),
+    ("克蕾西雅", "克蕾西雅", ["瑟拉菲娜\n", "莉諾兒\n", "艾琳娜\n", "# 04｜"]),
+    ("瑟拉菲娜", "瑟拉菲娜", ["莉諾兒\n", "艾琳娜\n", "# 04｜"]),
+    ("莉諾兒", "莉諾兒", ["艾琳娜\n", "# 04｜"]),
+    ("艾琳娜", "艾琳娜", ["# 04｜"]),
+)
+
+
+def extract_voice_for(gov_text: str, pov_text: str, plot_text: str) -> tuple[str, list[str]]:
+    """Extract only the active POV character's Voice Fingerprint from 11 §03."""
+    voice_block = extract_block(gov_text, "# 03｜Voice Fingerprints", ["# 04｜"])
+    if not voice_block:
+        return "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。", []
+    matched_names: list[str] = []
+    snippets: list[str] = []
+    for short_name, header, stop_markers in VOICE_SECTIONS:
+        if short_name in pov_text or (not matched_names and short_name in plot_text):
+            sec = extract_block(voice_block, header, stop_markers)
+            if sec:
+                matched_names.append(short_name)
+                keep_lines = []
+                for ln in sec.splitlines():
+                    ln_s = ln.strip()
+                    if not ln_s or ln_s.startswith("CURRENT TEXT") or ln_s.startswith("TEXT-FACT"):
+                        continue
+                    keep_lines.append(ln_s)
+                snippets.append("\n".join(keep_lines[:10]))
+    if not snippets:
+        return "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。", []
+    return "\n\n".join(snippets), matched_names
+
+
+def normalize_target(target: str) -> str:
+    t = target.strip().upper()
+    if t.startswith("09-"):
+        t = t[3:]
+    t = t.replace("CHAPTER-", "P").replace("CH", "P")
+    if re.fullmatch(r"\d+", t):
+        return f"P{int(t):02d}"
+    if re.fullmatch(r"P0?\d+[A-Z]?", t):
+        m = re.match(r"^P0?(\d+)([A-Z]?)$", t)
+        if m:
+            return f"P{int(m.group(1)):02d}{m.group(2)}"
+    if re.fullmatch(r"A\d+-0?\d+", t):
+        m = re.match(r"^A(\d+)-0?(\d+)$", t)
+        if m:
+            return f"A{int(m.group(1))}-{int(m.group(2)):02d}"
+    raise ValueError(f"unsupported target: {target}")
+
+
 def compile_target(root: Path, target: str) -> dict:
-    target_norm = target.strip().upper().replace("CHAPTER-", "P").replace("CH", "P")
-    if target_norm in {"8", "P8", "P08"}:
-        target_norm = "P08"
-    elif target_norm in {"7", "P7", "P07"}:
-        target_norm = "P07"
-    else:
-        if re.fullmatch(r"P0?\d+", target_norm):
-            target_norm = f"P{int(target_norm[1:]):02d}"
-        else:
-            raise ValueError(f"unsupported target: {target}")
+    target_norm = normalize_target(target)
 
     settings_rel = "10_現行創作資料/01-08_小說設定總表｜角色・關係・劇情資料.md"
     outline_rel = "10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md"
@@ -138,16 +181,10 @@ def compile_target(root: Path, target: str) -> dict:
     sources.append({"id": "RULE-00", "cite": "AGENTS.md / Draft Capsule", "path": agents_rel, "anchor": "AGENTS.md"})
     _ = agents  # loaded only to prove allowlist read; not inlined
 
-    linoir = extract_block(settings, "# 04｜莉諾兒", ["# 05｜"])
-    adrian = extract_block(settings, "# 01｜亞德里安", ["# 02｜"])
-    if adrian:
-        sources.append({"id": "CANON-01", "cite": "01–06 / 亞德里安", "path": settings_rel, "anchor": "01｜亞德里安"})
-    if linoir:
-        sources.append({"id": "CANON-04", "cite": "01–06 / 莉諾兒", "path": settings_rel, "anchor": "04｜莉諾兒"})
-
-    plot = extract_block(outline, f"## 09-{target_norm}", ["## 09-P", "# 3｜", "# 4｜"])
+    plot_stops = ["## 09-P", "## 09-A", "# 3｜", "# 4｜", "# 5｜", "# 6｜"]
+    plot = extract_block(outline, f"## 09-{target_norm}", plot_stops)
     if not plot:
-        plot = extract_block(outline, f"## 09-{target_norm}｜", ["## 09-P", "# 3｜"])
+        plot = extract_block(outline, f"## 09-{target_norm}｜", plot_stops)
     if not plot:
         # Fail closed: a capsule without the target's outline is a capsule that
         # looks authoritative but says nothing about the scene being written.
@@ -156,6 +193,17 @@ def compile_target(root: Path, target: str) -> dict:
             "refusing to emit a capsule without its scene card"
         )
     sources.append({"id": f"PLOT-{target_norm}", "cite": f"09 / {target_norm}", "path": outline_rel, "anchor": f"09-{target_norm}"})
+
+    char_specs = [
+        ("CANON-01", "01｜亞德里安", "# 01｜亞德里安", ["# 02｜"], True),
+        ("CANON-02", "02｜克蕾西雅", "# 02｜克蕾西雅", ["# 03｜"], "克蕾西雅" in plot),
+        ("CANON-03", "03｜瑟拉菲娜", "# 03｜瑟拉菲娜", ["# 04｜"], "瑟拉菲娜" in plot),
+        ("CANON-04", "04｜莉諾兒", "# 04｜莉諾兒", ["# 05｜"], True),
+        ("CANON-05", "05｜艾琳娜", "# 05｜艾琳娜", ["# 06｜"], "艾琳娜" in plot),
+    ]
+    for cid, anchor, start_m, end_m, should_load in char_specs:
+        if should_load and extract_block(settings, start_m, end_m):
+            sources.append({"id": cid, "cite": f"01–06 / {anchor.split('｜')[1]}", "path": settings_rel, "anchor": anchor})
 
     # Knowledge ids are derived from the target, not hardcoded per chapter.
     know_ids = knowledge_ids_for(gov, target_norm)
@@ -199,7 +247,10 @@ def compile_target(root: Path, target: str) -> dict:
     seen: set[str] = set()
     uniq = [x for x in hard if not (x in seen or seen.add(x))]
     capsule["HARD BOUNDARIES"] = "\n".join(uniq[:8]) or "未獲授權不得改 Canon；TBD 不得進正文。"
-    capsule["VOICE"] = "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。"
+    voice_text, voice_names = extract_voice_for(gov, capsule["POV"], plot)
+    capsule["VOICE"] = voice_text
+    for vname in voice_names:
+        sources.append({"id": f"VOICE-{vname}", "cite": f"11 / Voice Fingerprints / {vname}", "path": gov_rel, "anchor": f"03｜Voice Fingerprints / {vname}"})
     capsule["DESTINATION"] = fields.get("EXIT") or "本場結束於場景自然出口，不要求 State Diff 式過關。"
     capsule["FREEDOM"] = fields.get("CREATIVE FREEDOM") or "生活細節、誤解、停滯與無大結果的小事可自由處理。"
 

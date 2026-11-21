@@ -18,6 +18,9 @@
 | `rhythm-thresholds.json` | 節奏量測門檻（只作冷讀定位，不作改寫依據） |
 | `style-profile.json` | 以本專案正負樣本校準的風格基準 |
 | `rule-budget.json` | 規則體量上限與「被移出規則的登記表」 |
+| `trust-and-authorization.md` | 信任邊界、受保護檔案授權、不弱化檢查與 6 項交付證據規則 |
+| `status.md` | 目前進度快照、作者授權紀錄與未決缺口 |
+| `quality/` | 逐章盲讀比較、連續重讀與文學驗收紀錄（進 git） |
 | `research/` | 外部研究摘要與出處（參考，非 Canon） |
 | `evidence/` | CI 產生的 SHA 綁定證據（JSON，不進 git） |
 | `provenance/` | 逐章修稿溯源紀錄（Markdown，進 git） |

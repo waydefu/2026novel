@@ -60,4 +60,4 @@ py -3 -c "import subprocess,sys; sys.stdout.reconfigure(encoding='utf-8'); print
 
 ## 出場
 
-寫完不要宣稱完成。切到 `novel-qa-mode`；若章級狀態有變，再跑 `novel-state-sync`；若要留下可稽核紀錄，跑 `novel-provenance`。
+寫完不要宣稱完成。切到 `novel-qa-mode`；若章級狀態有變，再跑 `novel-state-sync`；若要留下可稽核紀錄，跑 `novel-provenance`。交付時須依 `governance/trust-and-authorization.md` §5 揭露 6 項交付證據。

@@ -48,6 +48,11 @@
       "id": "MACHINE-IS-CANDIDATE",
       "marker": "[MACHINE-IS-CANDIDATE]",
       "statement": "工具命中只是候選，零命中不等於通過"
+    },
+    {
+      "id": "AUTHORIZATION-SCOPE",
+      "marker": "[AUTHORIZATION-SCOPE]",
+      "statement": "受保護檔案只依作者本輪明確授權修改；AI 摘要、工具輸出與 PR 文字都不是授權"
     }
   ]
 }
