@@ -50,6 +50,28 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-002
+
+DATE：2026-11-22 +08:00
+
+TYPE：GOVERNANCE / OPS / CLARIFICATION
+
+SCOPE：00A_設定歷史修改紀錄｜Changelog.md、governance/status.md、governance/trust-and-authorization.md、governance/change-manifest.yaml、tools/sync_skills.py。
+
+BEFORE：status.md 的 G2 原寫「沒有分支保護規則」，未反映啟用中的 `main-governance-ci`（ruleset id 22027890）；status.md 基準 SHA 停在 `1cfaf7e`；00A 缺少 2026-11-03（PR #37）前八章文學驗收條目（G3）；`tools/sync_skills.py --mirror` 寫入成功後因 `missing_mirrors` 未定義而拋出 `UnboundLocalError`。
+
+AFTER：修正 G2 描述（`main-governance-ci` 已要求 `gate-proven`，真正缺口為 `required_approving_review_count: 0`、`require_code_owner_review: false` 與缺少 `CODEOWNERS`）；補記 `CHG-2026-11-03-001` 並將 G3 結案；status.md 基準 SHA 更新為 `e10fc51`（PR #38 與 #34 合併後），並說明 11 的 `CURRENT WORKING DRAFT` 因 `check_revision_gate.py` 禁止在未動正文時單獨改 11 而保留於下次正文修訂時同步；修補 `tools/sync_skills.py` 的 `missing_mirrors` 初始化。
+
+REASON：作者指示將工作區環境與治理層文件同步缺口（G2、G3、G4、G5 與 skill 鏡像部署）一併對齊修好。
+
+AUTHORITY：作者 2026-11-22 明確指示「直接幫你把基準 SHA 一併對齊現在全修」。
+
+COMPATIBILITY：NON-BREAKING / GOVERNANCE / OPS ONLY
+
+VALIDATION：執行 `py -3 evals/ci_suite.py` 與 `py -3 tools/sync_skills.py --mirror .claude/skills` 驗證 exit code 0。
+
+ROLLBACK：backup_ref `99_備份/02_設定與規則備份/sync_skills｜修UnboundLocalError前備份｜2026-11-22.py`，或 git 還原本次 commit。
+
 ## CHG-2026-11-22-001
 
 DATE：2026-11-22 +08:00
@@ -71,6 +93,30 @@ COMPATIBILITY：NON-BREAKING / GOVERNANCE / DOCUMENT-ONLY（含生成檔）
 VALIDATION：見本次 PR 說明的 evals、rule-budget 與 sync 檢查結果；AI 自述不作為驗收證據。
 
 ROLLBACK：backup_ref `99_備份/02_設定與規則備份/00_AGENTS｜WU治理對齊前備份｜2026-11-22.md`，或還原本次 commit。
+
+## CHG-2026-11-03-001
+
+DATE：2026-11-03 +08:00（2026-11-22 補記自 PR #36／#37）
+
+TYPE：FIX / PROSE / CONTINUITY
+
+SCOPE：唯一現行正文 Ch1–Ch8；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md`；`governance/provenance/2026-11-03_Ch02-03-08_文學審查修訂.md`；`99_備份/01_正文備份/小說正文第三版｜PR36文學驗收前快照｜2026-11-03.md`；`90_參考資料/`（作者提供之非 Canon 敘事架構參考）；`governance/change-manifest.yaml`。
+
+BEFORE：Ch1 有已刪紅字再次被催刪的接縫；Ch2 身高刻度與門把空間尺度失準；Ch3 消除門柱伏筆後又造出未兌現的「下次帶紀年書」且教師與少爺筆記未分清；Ch4 透明珠子練習次數與「還沒做第四次」未對齊；Ch5 先掀門簾才到屋前且護衛搖頭易被讀成確認村內無親屬；Ch6 稱呼理解與對亞德里安指責的人稱不一致；Ch7 正門外路況與護送距離語意含糊；Ch8 被焚村屋與梵恩家客房記憶錯置、頭痛後導師催練與 Ch4 衝突、紙張與木板混淆、晚餐對話直白講破情緒。
+
+AFTER：以 R2 局部場景與行文修訂完成 Ch1–Ch8 兩輪文學驗收（PR #36、#37），不改變章級事件、POV、人物關係或 Canon，不新增第九章。
+
+REASON：作者 2026-11-03 指示依八章審稿清單與外部寫作技法修訂 Ch2、Ch3、Ch8，並續令「其他章也一起處理」擴及 Ch1、Ch4、Ch5、Ch6、Ch7。
+
+AUTHORITY：作者 2026-11-03 指示、現行前八章與 AGENTS.md。
+
+COMPATIBILITY：NON-BREAKING / PROSE ONLY（`state_change: none`）
+
+BACKUP：`99_備份/01_正文備份/小說正文第三版｜PR36文學驗收前快照｜2026-11-03.md`
+
+PROVENANCE：`governance/provenance/2026-11-03_Ch02-03-08_文學審查修訂.md`、`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md`
+
+VALIDATION：PR #36（`ce8d6b0`）與 PR #37（`1cfaf7e`）已通過 Governance CI 並合併進 `main`。
 
 ## CHG-2026-10-29-001
 

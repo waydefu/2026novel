@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-22｜基準：`origin/main` @ `1cfaf7e`（PR #37 合併後）
+Snapshot：2026-11-22｜基準：`origin/main` @ `e10fc51`（PR #38 與 #34 合併後）
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -12,8 +12,8 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `1cfaf7e`（PR #37 合併後）
 | 第八章（09-P08 弧第一場） | 已寫 | 11 CURRENT HANDOFF |
 | 09-P08 第二場起 | PLANNED，事件未鎖定，需作者決策或單場試寫確認 | 11 NEXT；09 §7 |
 | 原第九章 | 已撤回（作者 2026-10-27 指示），不具正文事實權威，不得搬回 | 00A；11 CURRENT HANDOFF |
-| 前八章文學驗收（PR #36、#37） | 已合併 | `governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md`；`change-manifest.yaml` |
-| 治理層 | Governance 2.0 已落地（2026-09-01）；本次新增信任、授權與證據規則 | `governance/trust-and-authorization.md` |
+| 前八章文學驗收（PR #36、#37） | 已合併（11 的 `CURRENT WORKING DRAFT` 因 `check_revision_gate.py` 禁止在未動正文時單獨改 11，留待下次正文 PR 同步更新日期） | `00A`（`CHG-2026-11-03-001`）；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md` |
+| 治理層 | Governance 2.0 已落地（2026-09-01）；本次新增信任、授權與證據規則並對齊 G2／G3／基準 SHA | `governance/trust-and-authorization.md`；`00A`（`CHG-2026-11-22-001`、`CHG-2026-11-22-002`） |
 
 ## 2. 作者授權紀錄
 
@@ -22,6 +22,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `1cfaf7e`（PR #37 合併後）
 | 日期 | 作者原話（節錄） | 授權範圍 | 不包含 |
 | --- | --- | --- | --- |
 | 2026-11-22 | 「照 world-unbound 的治理幫我更新 2026novel 的設定」 | 治理與操作層（`governance/`、`AGENTS.md` 一行指標、PR 範本、生成檔、00A 一筆、備份快照） | 正文、Canon、TBD 答案、第九章 |
+| 2026-11-22 | 「直接幫你把基準 SHA 一併對齊現在全修」 | 修正 G2 描述、補記 00A 2026-11-03 條目（G3）、對齊 `status.md` 基準 SHA（G4）、說明 11 日期同步限制（G5）、修補 `tools/sync_skills.py` 並部署本地 skill 鏡像 | 正文、Canon、TBD 答案、第九章 |
 
 ## 3. 未決缺口
 
@@ -29,7 +30,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `1cfaf7e`（PR #37 合併後）
 | --- | --- | --- |
 | G1 | 單人維護，沒有獨立第二審查者 | 作者 |
 | G2 | main 已有啟用中的分支規則 `main-governance-ci`（ruleset id 22027890），要求 `gate-proven` 通過；但 `required_approving_review_count` 為 0，`require_code_owner_review` 為 false，repo 也沒有 CODEOWNERS，受保護檔案的修改不需要任何人批准 | 作者（GitHub 設定） |
-| G3 | 00A 沒有 2026-11-03 前八章文學驗收的條目；該次紀錄只在 `governance/quality/` 與 change-manifest | 作者決定是否補記 |
+| G3 | （已解決）00A 已補記 `CHG-2026-11-03-001` 前八章文學驗收條目 | 已於 `CHG-2026-11-22-002` 補記 |
 | G4 | 09-P08 第二場起的事件未鎖定 | 作者 |
 | G5 | 第一篇主線入口（TBD-008）未決 | 作者 |
 | G6 | 制度與身分類 TBD（TBD-006 莉諾兒正式身分與契約、TBD-007 學院身分、TBD-013 瑟拉菲娜學院身分） | 作者 |

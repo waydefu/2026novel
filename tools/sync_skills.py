@@ -51,6 +51,7 @@ MIRRORS = {
 
 def sync(write: bool, mirror: str = "", clean: bool = False) -> int:
     errors: list[str] = []
+    missing_mirrors: list[str] = []
     skills = collect_skills([SOURCE])
     if not skills:
         print(f"ERROR\tno source skills under {SOURCE}", file=sys.stderr)
@@ -85,8 +86,10 @@ def sync(write: bool, mirror: str = "", clean: bool = False) -> int:
             dest_dir.mkdir(parents=True, exist_ok=True)
             shutil.copy2(skill_md, dest_dir / "SKILL.md")
         print(f"WROTE\t{mirror}\t{len(skills)} skills\t({MIRRORS[mirror]})")
+        for rel_root in MIRRORS:
+            if not (ROOT / rel_root).exists():
+                missing_mirrors.append(rel_root)
     else:
-        missing_mirrors: list[str] = []
         for rel_root in MIRRORS:
             target = ROOT / rel_root
             if not target.exists():
