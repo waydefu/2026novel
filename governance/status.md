@@ -28,7 +28,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `1cfaf7e`（PR #37 合併後）
 | # | 缺口 | 誰可以解決 |
 | --- | --- | --- |
 | G1 | 單人維護，沒有獨立第二審查者 | 作者 |
-| G2 | GitHub 端沒有 CODEOWNERS 或分支保護規則，受保護檔案只靠本 repo 文件與 PR 審查 | 作者（GitHub 設定） |
+| G2 | main 已有啟用中的分支規則 `main-governance-ci`（ruleset id 22027890），要求 `gate-proven` 通過；但 `required_approving_review_count` 為 0，`require_code_owner_review` 為 false，repo 也沒有 CODEOWNERS，受保護檔案的修改不需要任何人批准 | 作者（GitHub 設定） |
 | G3 | 00A 沒有 2026-11-03 前八章文學驗收的條目；該次紀錄只在 `governance/quality/` 與 change-manifest | 作者決定是否補記 |
 | G4 | 09-P08 第二場起的事件未鎖定 | 作者 |
 | G5 | 第一篇主線入口（TBD-008）未決 | 作者 |
