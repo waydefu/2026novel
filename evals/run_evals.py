@@ -799,6 +799,39 @@ def main() -> int:
         passed,
     )
 
+    p08_live = compile_target(ROOT, "P08")
+    p08_knows = p08_live["capsule"].get("KNOWS", "")
+    expect(
+        "compiler_keeps_k_prefix_and_k016",
+        "K016｜" in p08_knows and "K014｜" in p08_knows,
+        f"compile_target(P08) must retain K-prefixed ids and include K016 (Ch8): got {p08_knows[:120]!r}",
+        failures,
+        passed,
+    )
+    expect(
+        "compiler_includes_active_contracts_in_boundaries",
+        "[CC-001]" in p08_live["capsule"].get("HARD BOUNDARIES", "") and "[CC-011]" in p08_live["capsule"].get("HARD BOUNDARIES", ""),
+        f"compile_target(P08) must surface active canon contracts in HARD BOUNDARIES",
+        failures,
+        passed,
+    )
+
+    stale_gov = (
+        "# 第八章｜x\n"
+        "CUT-OFF：現行正文第八章結束。\n"
+        "CURRENT TEXT：截至第七章尚未登場。\n"
+        "CH01｜\nCH02｜\nCH03｜\nCH04｜\nCH05｜\nCH06｜\nCH07｜\nCH08｜\n"
+    )
+    eight_ch_draft = "\n".join(f"# 第{c}章｜t\n內容。\n" for c in ("一", "二", "三", "四", "五", "六", "七", "八"))
+    stale_errs = drift_check(eight_ch_draft, stale_gov, "09-P08", "莉諾兒")
+    expect(
+        "drift_catches_stale_chapter_cutoff_phrase",
+        any("截至第七章" in e for e in stale_errs),
+        f"drift_check must flag stale '截至第七章' when draft has Ch8: {stale_errs}",
+        failures,
+        passed,
+    )
+
     total = len(passed) + len(failures)
     if failures:
         print("EVAL FAIL")

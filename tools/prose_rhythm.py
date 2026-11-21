@@ -68,6 +68,8 @@ class Metrics:
     short_sentence_rate: float = 0.0
     long_sentence_rate: float = 0.0
     longest_short_run: int = 0
+    longest_short_run_line: int = 0
+    longest_short_run_snippet: str = ""
     short_run_clusters: int = 0
     short_paragraph_rate: float = 0.0
     dialogue_sentence_ratio: float = 0.0
@@ -101,24 +103,33 @@ def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
     m.long_sentence_rate = round(sum(1 for l in lens if l > 30) / len(lens), 4)
 
     run = 0
-    runs: list[int] = []
+    run_sents: list[str] = []
+    runs: list[tuple[int, str]] = []
     # 只算敘述句：台詞天生短，混進來會讓指標對對話密集的章節失真。
     for s, l in zip(sents, lens):
         if s.startswith("「"):
             if run:
-                runs.append(run)
+                runs.append((run, " ".join(run_sents[:3])))
             run = 0
+            run_sents = []
             continue
         if l <= thresholds["short_sentence_max_chars"] + 2:
             run += 1
+            run_sents.append(s)
         else:
             if run:
-                runs.append(run)
+                runs.append((run, " ".join(run_sents[:3])))
             run = 0
+            run_sents = []
     if run:
-        runs.append(run)
-    m.longest_short_run = max(runs) if runs else 0
-    m.short_run_clusters = sum(1 for r in runs if r >= 3)
+        runs.append((run, " ".join(run_sents[:3])))
+    if runs:
+        best_run, best_snip = max(runs, key=lambda x: x[0])
+        m.longest_short_run = best_run
+        m.longest_short_run_snippet = best_snip[:50]
+    else:
+        m.longest_short_run = 0
+    m.short_run_clusters = sum(1 for r, _ in runs if r >= 3)
 
     if paragraphs:
         m.short_paragraph_rate = round(sum(1 for p in paragraphs if cjk(p) <= 30) / len(paragraphs), 4)
@@ -144,7 +155,8 @@ def candidates_for(m: Metrics, thresholds: dict) -> list[dict]:
     if m.sentence_stdev < thresholds["sentence_stdev_low"]:
         flag("RHYTHM-03", f"句長標準差 {m.sentence_stdev} < {thresholds['sentence_stdev_low']}：讀感平坦", m.sentence_stdev)
     if m.longest_short_run >= thresholds["longest_short_run_high"]:
-        flag("RHYTHM-04", f"最長連續短句串 {m.longest_short_run} 句：疑似碎句製造張力", m.longest_short_run)
+        snip = f"（例：{m.longest_short_run_snippet}）" if m.longest_short_run_snippet else ""
+        flag("RHYTHM-04", f"最長連續短句串 {m.longest_short_run} 句：疑似碎句製造張力{snip}", m.longest_short_run)
     if m.short_paragraph_rate > thresholds["short_paragraph_rate_high"]:
         flag("RHYTHM-05", f"短段占比 {m.short_paragraph_rate:.0%} > {thresholds['short_paragraph_rate_high']:.0%}：一句一段風險", m.short_paragraph_rate)
     if m.dialogue_avg_len and m.narration_avg_len and (m.dialogue_avg_len / m.narration_avg_len) < thresholds["dialogue_to_narration_ratio_low"]:
@@ -208,7 +220,8 @@ def main() -> int:
         for row in chapters:
             met = row["metrics"]
             flag = ",".join(c["code"] for c in row["candidates"]) or "-"
-            print(f"CHAPTER\t{row['chapter']}\tavg={met['avg_sentence_len']}\tstdev={met['sentence_stdev']}\tshort={met['short_sentence_rate']:.2f}\t{flag}")
+            snip_col = f"\trun_max={met['longest_short_run']}({met['longest_short_run_snippet'][:24]})" if met.get("longest_short_run", 0) >= 6 else ""
+            print(f"CHAPTER\t{row['chapter']}\tavg={met['avg_sentence_len']}\tstdev={met['sentence_stdev']}\tshort={met['short_sentence_rate']:.2f}\t{flag}{snip_col}")
     print("NOTE\t節奏候選需人工依 AGENTS.md §5／§11 STYLE-02／§13 冷讀判定，工具不自動判錯。")
     return 1 if (args.strict and (cands or any(r["candidates"] for r in chapters))) else 0
 

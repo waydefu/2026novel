@@ -34,17 +34,29 @@ def drift_check(
     extra = sorted(n for n in facts if n > max_draft)
     if extra:
         errors.append(f"DRIFT FAIL: 11 TEXT-FACT cites chapters not in draft: {extra}")
-    cutoff = re.search(r"CUT-OFF：現行正文第([一二三四五六七八九十百零]+)章", gov_text)
-    if not cutoff:
+    cutoff_matches = re.findall(r"CUT-OFF：現行正文第([一二三四五六七八九十百零]+)章", gov_text)
+    if not cutoff_matches:
         errors.append("DRIFT FAIL: 11 找不到 CUT-OFF 行（正文與衍生狀態無法對齊）")
     else:
-        cut_n = chapter_number(cutoff.group(1))
-        if cut_n is None:
-            errors.append(
-                f"DRIFT FAIL: 無法解析 CUT-OFF 章號「{cutoff.group(1)}」"
-            )
-        elif max_draft > cut_n:
-            errors.append(f"DRIFT NEEDS_REVIEW: draft has Ch{max_draft} but 11 CUT-OFF is Ch{cut_n}")
+        for cut_str in cutoff_matches:
+            cut_n = chapter_number(cut_str)
+            if cut_n is None:
+                errors.append(
+                    f"DRIFT FAIL: 無法解析 CUT-OFF 章號「{cut_str}」"
+                )
+            elif max_draft != cut_n:
+                errors.append(f"DRIFT NEEDS_REVIEW: draft has Ch{max_draft} but 11 CUT-OFF is Ch{cut_n}")
+
+    # 檢查 11 內部的殘留舊截止字樣（如正文已到 Ch8，但 11 的 Voice 或 Reader Knowledge 仍寫「截至第七章」）
+    for m_stale in re.finditer(r"截至第([一二三四五六七八九十百零]+)章", gov_text):
+        stale_n = chapter_number(m_stale.group(1))
+        if stale_n is not None and stale_n < max_draft:
+            line_no = gov_text[: m_stale.start()].count("\n") + 1
+            line_str = gov_text.splitlines()[line_no - 1].strip()
+            if "歷史記錄" not in line_str and "BASELINE" not in line_str:
+                errors.append(
+                    f"DRIFT NEEDS_REVIEW: 11 line {line_no} 仍寫「截至第{m_stale.group(1)}章」，但現行正文已到第 {max_draft} 章：{line_str[:60]}"
+                )
 
     # 章數交叉檢查：正文有幾章，11 的 State Diff 就必須記到幾章。
     # 只靠 CUT-OFF 字串會在 CUT-OFF 漏字時整段靜默失效。
