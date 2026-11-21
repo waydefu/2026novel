@@ -50,6 +50,36 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-004
+
+DATE：2026-11-22 +08:00
+
+TYPE：GOVERNANCE / OPS / QUALITY-REFACTOR
+
+SCOPE：10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md、10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md、tools/compile_context.py、tools/check_derived_drift.py、tools/prose_rhythm.py、tools/count_chapter.py、evals/run_evals.py、governance/status.md、governance/change-manifest.yaml。
+
+BEFORE：
+1. `tools/compile_context.py` 的 `knowledge_ids_for()` 因 `re.findall(r"^K(\d{3})｜")` 剝除 `K` 字首，卻在 `int(kid[1:])` 再切掉第一位數字，導致 `K010`～`K016` 全數算成 `K001`～`K007` 而載入過長區間；且搜尋目標僅比對 `P08` 字串，漏掉標註 `[TEXT-FACT Ch8]` 的 `K016｜認字與那幾張紙`；同時 Draft Capsule 的 `HARD BOUNDARIES` 未自動載入 `canon-contracts.json` 的有效契約（違反 `novel-canon-pack` 步驟 4）。
+2. `11_小說工程治理總表` 內部仍有 8 處停留在 Ch7 時代的過時描述：K001 仍寫「手機掉到床邊」（與 `T15` 要求的「手機滑落／掉到地板上」衝突）、Voice Fingerprints（克蕾西雅／瑟拉菲娜／艾琳娜）與 RK007／RK012／06 State Diff BASELINE／K009／D011 仍寫「截至第七章／Ch1–7」，且 `05 Reader Knowledge` 缺少 Ch8 的 `RK013`（認字與地名紙）；`09` §7 亦寫「第一章～第七章已完成」。
+3. `tools/check_derived_drift.py` 只檢查第一個 `CUT-OFF` 行，無法抓出 `11` 內部的殘留「截至第七章」字樣。
+4. `tools/prose_rhythm.py` 僅輸出 `RHYTHM-04` 連續短句串的句數，未提供該短句串的原文片段供冷讀定位；`tools/count_chapter.py` 不支援一次統計全書各章與總字數。
+
+AFTER：
+1. 修復 `tools/compile_context.py` 的 `knowledge_ids_for()` 索引切片 bug，同時將 `P0N` 映射至 `ChN` 比對，使 `P08` 精準載入 `K016｜認字與那幾張紙`，並自動將 `governance/canon-contracts.json` 的 active 契約注入 `HARD BOUNDARIES`。
+2. 全面對齊 `11` 與 `09` §7 的第八章狀態：修正 K001 為「手機滑落的那一刻（Ch1 手機掉到地板上）」、更新所有「截至第七章／Ch1–7」為「截至第八章／Ch1–8」、新增 `RK013｜莉諾兒認字與地名紙`。
+3. 強化 `tools/check_derived_drift.py`：檢查所有 `CUT-OFF` 行，並自動掃描 `11` 內部非歷史紀錄行的過時「截至第N章」（`N < max_draft`）。
+4. 升級 `tools/prose_rhythm.py` 輸出最長連續短句串的原文預覽片段；升級 `tools/count_chapter.py` 支援無參數或 `--all` 一次列出全書各章與總漢字數；`evals/run_evals.py` 新增 3 項回歸測試（共 95 項測試）。
+
+REASON：作者指示進行第二輪深入研究與重構，消除工具隱藏邏輯 bug 與衍生治理帳（11／09）的跨章狀態漂移。
+
+AUTHORITY：作者 2026-11-22 指示「合，然後第二輪」。
+
+COMPATIBILITY：NON-BREAKING / QUALITY & GOVERNANCE ENHANCEMENT（正文隻字未改，Canon 與事件未改）
+
+VALIDATION：`py -3 tools/compile_context.py --target P08`、`py -3 tools/count_chapter.py --all`、`py -3 evals/ci_suite.py --git-base origin/main`（95 cases EVAL OK，全部 gate PASS）。
+
+ROLLBACK：backup_ref `99_備份/02_設定與規則備份/2026-11-22_第二輪品質導向工具與治理重構前備份/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`，或 git 還原本次 PR。
+
 ## CHG-2026-11-22-003
 
 DATE：2026-11-22 +08:00

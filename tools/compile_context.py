@@ -89,23 +89,35 @@ def first_lines(text: str, n: int) -> str:
 def knowledge_ids_for(gov_text: str, target: str) -> list[str]:
     """Pick the Knowledge Ledger entries that actually talk about the target.
 
-    Entries whose block mentions the target id (e.g. "P08") win; otherwise the
-    last four entries are used. Hardcoding ids per chapter made the compiler
-    silently return an empty KNOWS for any target nobody had listed.
+    Entries whose block mentions the target id (e.g. "P08" or corresponding
+    "Ch8") win; otherwise the last four entries are used. Hardcoding ids per
+    chapter made the compiler silently return an empty KNOWS for any target
+    nobody had listed.
     """
-    ids = re.findall(r"^K(\d{3})｜", gov_text, flags=re.MULTILINE)
+    ids = re.findall(r"^(K\d{3})｜", gov_text, flags=re.MULTILINE)
     if not ids:
         return []
     blocks: dict[str, str] = {}
     for kid in ids:
         nxt = f"K{int(kid[1:]) + 1:03d}"
-        block = extract_block(gov_text, f"K{kid}｜", [f"{nxt}｜", "# 05｜"])
+        block = extract_block(gov_text, f"{kid}｜", [f"{nxt}｜", "# 05｜"])
         blocks[kid] = block
-    targeted = [kid for kid in ids if target and target in blocks.get(kid, "")]
+    search_tokens = [target] if target else []
+    m_p = re.match(r"^P0?(\d+)", target or "")
+    if m_p:
+        ch_n = int(m_p.group(1))
+        search_tokens.extend([f"Ch{ch_n}", f"CH0{ch_n}", f"Ch{ch_n - 1}–{ch_n}", f"Ch{ch_n}–"])
+    targeted = [
+        kid
+        for kid in ids
+        if any(tok and tok in blocks.get(kid, "") for tok in search_tokens)
+    ]
     if targeted:
         first = ids.index(targeted[0])
         keep = ids[max(0, first - 2) : first] + targeted  # targeted entries plus two entries of context
-        return keep[:6]
+        seen: set[str] = set()
+        uniq = [k for k in keep if not (k in seen or seen.add(k))]
+        return uniq[-6:]
     return ids[-4:]
 
 
@@ -244,9 +256,23 @@ def compile_target(root: Path, target: str) -> dict:
         else "完成本場已核准事件，不預支後章。"
     )
     capsule["KNOWS"] = "\n".join(knows[:6])
+    # Also append RELEVANT ACTIVE CONTRACTS from canon-contracts.json so the writer sees hard boundaries directly
+    contracts_path = root / "governance" / "canon-contracts.json"
+    if contracts_path.is_file():
+        try:
+            c_data = json.loads(contracts_path.read_text(encoding="utf-8"))
+            for c_item in c_data.get("contracts", []):
+                if c_item.get("status", "active") != "active":
+                    continue
+                c_scope = c_item.get("scope", {})
+                if c_scope.get("all") or target_norm == "P08":
+                    hard.append(f"[{c_item.get('id')}] {c_item.get('title')}")
+        except (OSError, json.JSONDecodeError):
+            pass
+
     seen: set[str] = set()
     uniq = [x for x in hard if not (x in seen or seen.add(x))]
-    capsule["HARD BOUNDARIES"] = "\n".join(uniq[:8]) or "未獲授權不得改 Canon；TBD 不得進正文。"
+    capsule["HARD BOUNDARIES"] = "\n".join(uniq[:16]) or "未獲授權不得改 Canon；TBD 不得進正文。"
     voice_text, voice_names = extract_voice_for(gov, capsule["POV"], plot)
     capsule["VOICE"] = voice_text
     for vname in voice_names:
