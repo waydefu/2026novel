@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "updated": "2026-10-22",
+  "version": 4,
+  "updated": "2026-11-22",
   "direction": "設定為 provider、已寫正文為 consumer。已寫正文中的既存事實不得被設定檔或新稿矛盾；設定只能追認，或以新增條目 + status 標記的方式記錄 retcon，不得改寫既有條目。",
   "note": "本檔 append-only。既有契約的 scope／require／forbid 不得改寫（要取代請新增 id 並標 superseded_by）；title／rationale 屬說明文字，可修正，但必須遞增 version。",
   "contracts": [
@@ -97,6 +97,15 @@
       "scope": { "chapters": ["第一章｜明天再去"] },
       "forbid": ["梵恩伯爵", "渡鴉", "辛古拉提王國"],
       "rationale": "第一章為現代線；異世界身分的揭露依 11 State Diff CH02 才在前三章逐步發生。"
+    },
+    {
+      "id": "CC-011",
+      "status": "active",
+      "title": "第八章既存事實：吊墜仍在莉諾兒身上、自主認字且不強制代念",
+      "scope": { "chapters": ["第八章｜她先認字"] },
+      "require": ["吊墜", "木板", "六十三", "澤"],
+      "forbid": ["已撤回", "契約已簽", "我的女僕"],
+      "rationale": "11 Dependency D011／D012 與 State Diff CH08：吊墜持續由莉諾兒持有、亞德里安練習數到六十三因頭痛主動停下、莉諾兒向貝倫學認字並預告明天學『澤』。"
     }
   ]
 }

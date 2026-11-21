@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-22｜基準：`origin/main` @ `e10fc51`（PR #38 與 #34 合併後）
+Snapshot：2026-11-22｜基準：`origin/main` @ `a3db776`（PR #39 合併後）
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -12,8 +12,8 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `e10fc51`（PR #38 與 #34 合�
 | 第八章（09-P08 弧第一場） | 已寫 | 11 CURRENT HANDOFF |
 | 09-P08 第二場起 | PLANNED，事件未鎖定，需作者決策或單場試寫確認 | 11 NEXT；09 §7 |
 | 原第九章 | 已撤回（作者 2026-10-27 指示），不具正文事實權威，不得搬回 | 00A；11 CURRENT HANDOFF |
-| 前八章文學驗收（PR #36、#37） | 已合併（11 的 `CURRENT WORKING DRAFT` 因 `check_revision_gate.py` 禁止在未動正文時單獨改 11，留待下次正文 PR 同步更新日期） | `00A`（`CHG-2026-11-03-001`）；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md` |
-| 治理層 | Governance 2.0 已落地（2026-09-01）；本次新增信任、授權與證據規則並對齊 G2／G3／基準 SHA | `governance/trust-and-authorization.md`；`00A`（`CHG-2026-11-22-001`、`CHG-2026-11-22-002`） |
+| 前八章文學驗收（PR #36、#37） | 已合併；`11` 的 `CURRENT WORKING DRAFT` 已同步至 `2026-11-03` | `00A`（`CHG-2026-11-03-001`）；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md` |
+| 治理層 | Governance 2.0 已落地（2026-09-01）；已完成信任與授權規則、Context Compiler 動態 POV Voice 注入、中文去 AI 味詞庫與零寬字元閘門、Ch8 契約保護與 CI／Skill／MD 全面對齊 | `governance/trust-and-authorization.md`；`00A`（`CHG-2026-11-22-001`～`003`） |
 
 ## 2. 作者授權紀錄
 
@@ -23,6 +23,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `e10fc51`（PR #38 與 #34 合�
 | --- | --- | --- | --- |
 | 2026-11-22 | 「照 world-unbound 的治理幫我更新 2026novel 的設定」 | 治理與操作層（`governance/`、`AGENTS.md` 一行指標、PR 範本、生成檔、00A 一筆、備份快照） | 正文、Canon、TBD 答案、第九章 |
 | 2026-11-22 | 「直接幫你把基準 SHA 一併對齊現在全修」 | 修正 G2 描述、補記 00A 2026-11-03 條目（G3）、對齊 `status.md` 基準 SHA（G4）、說明 11 日期同步限制（G5）、修補 `tools/sync_skills.py` 並部署本地 skill 鏡像 | 正文、Canon、TBD 答案、第九章 |
+| 2026-11-22 | 「ci、技能、md、治理還有哪些問題一起看」「先研究，要對小說品質有實質提昇的，幫我全部整理並部份重構『依照你的判斷』」 | 重構 `tools/`（Context Compiler 注入真實 POV Voice 與支援第一篇 `A1`、詞庫補齊翻譯腔與隱形字元、`chapter_number` 百位數支援、`continuity_probe` 與 `CC-011` 納入 Ch8、`check_revision_gate` 允許 R0 同步 11 標頭）、瘦身 `AGENTS.md` 並加上 `[AUTHORIZATION-SCOPE]`、修復 `09-P08` 標題格式、更新 `11` 與 `tools/README.md`／`governance/README.md`／Skills／evals | 正文內容、角色 Canon、TBD 答案、新第九章 |
 
 ## 3. 未決缺口
 

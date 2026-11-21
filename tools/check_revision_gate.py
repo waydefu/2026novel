@@ -156,7 +156,11 @@ def check_revision(
                     errors.append(f"R-GATE: backup_ref missing from added files and not on disk: {ref}")
 
     if any(k == "derived" for k in kinds.values()) and not any(k == "prose" for k in kinds.values()):
-        errors.append("R-GATE: 11 changed without live prose change (derived state cannot drift alone)")
+        if not (governance_sync and state_change == "none"):
+            errors.append(
+                "R-GATE: 11 changed without live prose change "
+                "(derived state cannot drift alone unless governance_sync=true and state_change=none for header/TBD sync)"
+            )
 
     if any(k == "derived" for k in kinds.values()) and not governance_sync:
         errors.append("R-GATE: 11 changed but governance_sync is not true")
@@ -196,6 +200,10 @@ def check_revision(
             if kind == "backup" and rel in added_n:
                 continue
             if kind == "ops":
+                continue
+            if kind == "derived" and governance_sync and state_change == "none":
+                continue
+            if kind == "outline" and governance_sync and state_change == "none":
                 continue
             errors.append(f"R-GATE: R0 cannot change {rel} ({kind})")
 

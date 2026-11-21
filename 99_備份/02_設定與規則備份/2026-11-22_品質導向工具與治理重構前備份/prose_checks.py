@@ -1,0 +1,229 @@
+"""Shared paths and mechanical checks. Hits are candidates unless marked hard-fail.
+
+Governance rules served here (registry: governance/rule-budget.json):
+    HB-026  工具輸出必須是 UTF-8；不得因主控台編碼而崩潰
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+
+# Every tool prints Traditional Chinese. On Windows the default console codec is
+# cp950, which cannot encode characters such as '・' (U+30FB) — printing then
+# raises UnicodeEncodeError and the tool dies with an empty stdout. Force UTF-8
+# with replacement so a tool never crashes on its own diagnostics.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):  # pragma: no cover — non-reconfigurable stream
+        pass
+
+ROOT = Path(__file__).resolve().parents[1]
+DRAFT = ROOT / "10_現行創作資料" / "小說正文第三版.md"
+SETTINGS = ROOT / "10_現行創作資料" / "01-08_小說設定總表｜角色・關係・劇情資料.md"
+OUTLINE = ROOT / "10_現行創作資料" / "09_序章～第一篇章節大綱｜第二版.md"
+GOVERNANCE_11 = ROOT / "10_現行創作資料" / "11_小說工程治理總表｜Knowledge・State・QA・TBD.md"
+AGENTS = ROOT / "AGENTS.md"
+CHANGELOG = ROOT / "00A_設定歷史修改紀錄｜Changelog.md"
+LURE_TOKEN = "LURE_TOKEN_SHADOW_PRINCESS_NOT_CANON"
+
+TBD_IN_PROSE = re.compile(r"\[TBD\]|\bTBD-\d+|\bTBD\b")
+DISPLAY_P_CODE = re.compile(
+    r"^#{1,3}\s*(?:第[一二三四五六七八九十百千0-9]+章.*)?P-?0*\d+",
+    re.MULTILINE,
+)
+WRONG_NAME_DOT = re.compile(r"亞德里安[·.]梵恩")
+ASCII_NAME = re.compile(r"\bAdrian\b", re.IGNORECASE)
+ANTECEDENT = re.compile(r"再次|依舊|果然|和平常一樣|照例|又一次")
+PATTERN_TEMPLATES = [
+    (r"不是.{1,20}而是", "STYLE-04 概念摘要候選"),
+    (r"意識到|不得不承認|無法否認", "STYLE 銜接套式候選"),
+    (r"瞳孔一縮|指尖微蜷|喉結滾動|唇角勾起", "AI-01 固定微表情候選"),
+    (r"胸口像被|空氣像凝|時間像停|情緒像潮", "AI-03 模糊感官比喻候選"),
+]
+CLERIC_MISUSE = re.compile(r"醫師")
+HIGH_CLERIC = re.compile(r"神官")
+PASTOR = re.compile(r"牧師")
+MODERN_OK = re.compile(r"醫生|醫院|診所|急診")
+
+
+@dataclass
+class Hit:
+    path: Path
+    line: int
+    kind: str
+    severity: str  # hard | candidate
+    text: str
+
+    def format(self) -> str:
+        snippet = self.text.strip().replace("\n", " ")
+        if len(snippet) > 80:
+            snippet = snippet[:77] + "..."
+        return f"{self.severity.upper()}\t{self.kind}\t{self.path}:{self.line}\t{snippet}"
+
+
+def posix_rel(path: Path, root: Path = ROOT) -> str:
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix().replace("\\", "/")
+
+
+def classify_rel(rel: str) -> str:
+    """prose = enforce hard gates; governance/exempt = do not."""
+    rel = rel.replace("\\", "/")
+    if rel.startswith("evals/fixtures/fail_"):
+        return "prose"
+    if rel.startswith("evals/fixtures/pass_"):
+        return "prose"
+    if rel.startswith("evals/fixtures/pattern_"):
+        return "pattern"
+    if rel.startswith("evals/fixtures/exempt_"):
+        return "exempt"
+    if rel.startswith("evals/recovery/"):
+        return "prose"
+    if rel.startswith("99_備份/") or "/99_備份/" in rel:
+        return "exempt"
+    if rel.startswith("00A") or "Changelog" in rel:
+        return "exempt"
+    if "小說正文第三版" in rel and "備份" not in rel and "99_" not in rel:
+        return "prose"
+    return "governance"
+
+
+def classify_path(path: Path, root: Path = ROOT) -> str:
+    return classify_rel(posix_rel(path, root))
+
+
+def read_text(path: Path) -> str:
+    return path.read_bytes().decode("utf-8")
+
+
+def scan_hard_gate(
+    path: Path,
+    text: str | None = None,
+    *,
+    root: Path = ROOT,
+    force_scope: str | None = None,
+) -> list[Hit]:
+    scope = force_scope or classify_path(path, root)
+    if scope in {"exempt", "governance", "pattern"}:
+        return []
+    text = read_text(path) if text is None else text
+    hits: list[Hit] = []
+    for i, line in enumerate(text.splitlines(), 1):
+        if TBD_IN_PROSE.search(line):
+            hits.append(Hit(path, i, "INFO/FORMAT TBD 標籤不得進正文", "hard", line))
+        if DISPLAY_P_CODE.search(line):
+            hits.append(Hit(path, i, "FORMAT-01 讀者可見章名不得用 P-0N", "hard", line))
+        if WRONG_NAME_DOT.search(line) or ASCII_NAME.search(line):
+            hits.append(Hit(path, i, "TERM-01 姓名拼寫偏離「亞德里安・梵恩」", "hard", line))
+        bad = sorted({c for c in line if c in SIMPLIFIED_ONLY})
+        if bad:
+            hits.append(
+                Hit(path, i, f"FONT-01 簡體字混入正文：{''.join(bad)}", "hard", line)
+            )
+    return hits
+
+
+# Simplified-only forms that must never appear in this Traditional-Chinese
+# manuscript. Only characters that are unambiguously simplified are listed —
+# 后 (皇后) and 里 (公里) are valid Traditional too, so they are NOT here.
+SIMPLIFIED_ONLY = (
+    "个们这说对时动还觉长门问认记纸笔头实边声响开关东马书见会为从众没术严礼仪银环"
+    "纪级组织继续简变离远进过岁乐课讲练议该让计义极样龙战边书"
+    "费灶来哑迟岭优伞伙伟传伤伦伪佣侠侣侥侦侧侨俭债倾偿储儿兑党兰关兴养兽内冈册写军农"
+    "冲决况冻净减凤凭击刘则刚创删别刹剑剧劝办务励劲劳势勋匀华协单卖南博占卢卫却厂厅历厉"
+    "压厌厕县参双发变叙叠叶号叹吗员呐呗响哟唤啧啬团园圆圣场坏块坚坛坠垄垒垦垫壮壳壶处备复够"
+    "头夹夺奋奖妆妇妈姗娄娱婴孙学宁宝实宠审宪宫宽宾寝对寻导寿将尔尘尝尧尴尸尽层届属岁岂岛币"
+    "帅师帐帘帜带帮广庆库应废庙庞开异弃张弥弯录归当彻径忆忧怀态怜总恋恳恶恼悦悬惊惧惨惩惫惭愿"
+    "懒戏户扑执扩扫扬扰抚抛护报担拟拢拣拥拦拨择挂挚挟挠挡挣挤挥损换据掳掷掸掺揽搀搁搂搅携摄摆"
+    "摇摈摊撑撵撷撺擞攒敌敛数斋斩断无旧时旷昙昼显晋晒晓暂暧术朴机杀杂权条来杨极构枢枣枪枫柜柠"
+    "标栈栋栏树样桨桩梦检椭楼榄槛欢欧歼残殴毁毕毙毡气氢汇汉污汤汹沓沟没沥沦沧沪泞泪泽洁洒浃浅"
+    "浆浇浊测济浏浑浙浓涛涝涡涣涤润涧涨涩淀渊渍渎渐渔渗温湾湿溃溅滚滞满滤滥滨滩潇潍潜澜濒灭"
+    "灯灵灾灿炉炖炜点炼炽烁烂烛烟烦烧烨烫烬热焕焖爱爷牵牺犊状犹狈狞独狭狮狱猃猎猕猡猪猫猬献獭玛玮"
+    "环现玺珑珰珲琏琐琼瑶璇瓒电画畅畴疗疟疡疮疯疱痈痉痒痨痪痴瘆瘘瘪瘫瘾癞癣癫皑皱盏盐监盖盗盘眦"
+    "眬着睁睐睑瞒瞩矫矶矾矿码砖砚砺砾础硅硕确碍碛碱礼祷祸禀禄禅离秃秆种积称秘秤税稣稳穷窃窍窑窜窝"
+    "窥窦竖竞笃笋笔笺笼筑筛筝筹签简箩箪箫篓篮篱籁类粪粮紧纠红纤约级纪纬纯纱纲纳纵纷纸纹纺纽线练组"
+    "绅细织终绍绎经绑绒结绕绘给绚络绝绞统绢绣继绩绪续绰绳维绵绷绸综绽绿缀缄缅缆缉缎编缘缚缝缠缤缩"
+    "缪缴网罗罚罢羁翘耸耻聂聋职联聪肃肠肤肾肿胁胆胜胶脉脏脐脑脓脚脱脸腊腌腻腾舆舰舱艰艳艺节芜芦苇苍"
+    "苏苹茎茧荆荐荚荞荟荡荣荤荧荨荫药莱莲获莹莺萝萤营萦萧萨葱蒋蓝蓟蓦蔷蔼蕴藓虏虑虚虫虬虽虾蚀蚁蚂蚕"
+    "蛊蛎蛮蛰蜗蝇蝉蝎衅衔补衬袄袅袜袭装裤见观规觅视览觉触誉计订认讥讨让训议讯记讲讳许论讼讽设访诀证评"
+    "识诈诉诊词译试诗诚话诞询该详语误诱说读课谁调谅谈谊谋谎谐谓谢谣谦谨谱贝负贡财责贤败账货质贩贪贫"
+    "购贯贱贴贵贷贸费贺贼资赁赂赃赏赐赔赖赚赛赞赠赡赢赵赶趋跃践跷踊踪躯车轧轨转轮软轰轴轻载轿较辅辆辈辉"
+    "辐输辖辗辙辞辩边辽达迁过迈运还进远违连迟适选逊递遗邓邮邹邻郑酝酱酿释鉴针钉钓钗钙钝钟钢钥钦钩钮钱钳"
+    "钵钻铁铃铅铆铎铜铝铠铢铣铭铮铲银铸铺链销锁锂锄锅锈锋锌锐错锚锡锣锤锥锦键锯锰锲锷锻镀镁镇镉镊镍镐镑"
+    "镖镜镰长门闪闭问闯闰闲间闷闸闹闻阀阁阅阈阉阎阐阑阔队阳阴阵阶际陆陇陈陕陨险随隐隶雏雾霉霭静韦韧韩"
+    "韬韵页顶项顺须顽顾顿颁颂预领颈颊颌频颓颖颗题颜额颠颤风飘飞饥饨饪饭饮饰饱饲饶饺饼饿馁馆馈馒马驭驮驯"
+    "驰驱驳驴驶驹驻驼驾驿骂骄骆骇验骏骑骗骚骤骨髅鬓鱼鲁鲜鲨鲸鸟鸡鸣鸦鸭鸯鸳鸿鹅鹏鹦鹰麦黄齐齿龄龋龙龟"
+)
+
+
+def _is_parallel_you(line: str) -> bool:
+    return bool(re.search(r"又.{1,8}又", line))
+
+
+def scan_pattern_risk(path: Path, text: str | None = None) -> list[Hit]:
+    text = read_text(path) if text is None else text
+    hits: list[Hit] = []
+    for i, line in enumerate(text.splitlines(), 1):
+        if ANTECEDENT.search(line) and not _is_parallel_you(line):
+            hits.append(Hit(path, i, "INFO-01 前情詞候選", "candidate", line))
+        for pat, kind in PATTERN_TEMPLATES:
+            if re.search(pat, line):
+                hits.append(Hit(path, i, kind, "candidate", line))
+        if CLERIC_MISUSE.search(line):
+            hits.append(Hit(path, i, "TERM-01 醫師用語候選（異世界一般診療者應為牧師）", "candidate", line))
+        if HIGH_CLERIC.search(line):
+            hits.append(Hit(path, i, "TERM-01 神官用語候選（僅高階聖職；不自動 Fail）", "candidate", line))
+        if MODERN_OK.search(line):
+            hits.append(Hit(path, i, "ERA 現代醫療詞（現代段允許）", "candidate", line))
+        if PASTOR.search(line):
+            continue
+    return hits
+
+
+CHAPTER_HEAD = re.compile(r"^# 第([一二三四五六七八九十百千0-9]+)章｜(.+)$", re.MULTILINE)
+CN_NUM = {
+    "一": 1,
+    "二": 2,
+    "三": 3,
+    "四": 4,
+    "五": 5,
+    "六": 6,
+    "七": 7,
+    "八": 8,
+    "九": 9,
+    "十": 10,
+}
+
+
+def chapter_number(token: str) -> int | None:
+    if token.isdigit():
+        return int(token)
+    if token in CN_NUM:
+        return CN_NUM[token]
+    if token.startswith("十") and len(token) == 2:
+        return 10 + CN_NUM.get(token[1], 0)
+    return None
+
+
+def split_chapters(text: str) -> dict[int, str]:
+    matches = list(CHAPTER_HEAD.finditer(text))
+    chapters: dict[int, str] = {}
+    for idx, m in enumerate(matches):
+        n = chapter_number(m.group(1))
+        if n is None:
+            continue
+        start = m.start()
+        end = matches[idx + 1].start() if idx + 1 < len(matches) else len(text)
+        chapters[n] = text[start:end]
+    return chapters
+
+
+def count_zh_chars(text: str) -> int:
+    body = re.sub(r"^#.*$", "", text, flags=re.MULTILINE)
+    return len(re.findall(r"[\u4e00-\u9fff]", body))

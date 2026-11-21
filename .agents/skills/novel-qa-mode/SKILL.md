@@ -22,11 +22,13 @@ allowed-tools: Read Grep Glob Edit Write Bash
 2. 跑機械掃描（候選，不是自動判決）：
 
 ```text
-py -3 tools/scan_hard_gate.py      # 阻擋式
-py -3 tools/canon_contract.py      # 阻擋式
+py -3 tools/scan_hard_gate.py      # 阻擋式：TBD／P-0N／姓名／簡體字／隱形字元
+py -3 tools/canon_contract.py      # 阻擋式：已寫正文的既存事實
+py -3 tools/continuity_probe.py    # 阻擋式：跨章接縫與線頭斷言
 py -3 tools/scan_pattern_risk.py   # 候選
 py -3 tools/prose_lexicon.py       # 候選（--not-evidence 看不可當依據者）
 py -3 tools/prose_rhythm.py        # 候選：只作冷讀定位
+py -3 tools/timeline_probe.py      # 報告：跨章季節、月份與年齡盤點
 py -3 tools/style_profile.py       # 量測：非判據項目標「非判據」
 py -3 tools/count_chapter.py --chapter N
 py -3 tools/check_derived_drift.py
@@ -71,4 +73,4 @@ py -3 -c "import subprocess,sys; sys.stdout.reconfigure(encoding='utf-8'); print
 
 ## 交付摘要
 
-修改範圍、主要修正模式、章長、Canon／TBD 狀態、跑過哪些檢查、哪些未驗證。正文裡不要出現這些標籤。
+修改範圍、主要修正模式、章長、Canon／TBD 狀態、跑過哪些檢查（含 exit code）、哪些未驗證、可能副作用與回退方式（完整 6 項交付證據見 `governance/trust-and-authorization.md` §5）。正文裡不要出現這些標籤。

@@ -126,6 +126,11 @@ def scan_hard_gate(
             hits.append(
                 Hit(path, i, f"FONT-01 簡體字混入正文：{''.join(bad)}", "hard", line)
             )
+        inv = sorted({f"U+{ord(c):04X}" for c in line if c in "\u200b\u200c\u200d\ufeff\u2060"})
+        if inv:
+            hits.append(
+                Hit(path, i, f"FORMAT-01 零寬隱形字元混入正文：{','.join(inv)}", "hard", line)
+            )
     return hits
 
 
@@ -188,6 +193,7 @@ def scan_pattern_risk(path: Path, text: str | None = None) -> list[Hit]:
 
 CHAPTER_HEAD = re.compile(r"^# 第([一二三四五六七八九十百千0-9]+)章｜(.+)$", re.MULTILINE)
 CN_NUM = {
+    "零": 0,
     "一": 1,
     "二": 2,
     "三": 3,
@@ -198,17 +204,26 @@ CN_NUM = {
     "八": 8,
     "九": 9,
     "十": 10,
+    "百": 100,
 }
 
 
 def chapter_number(token: str) -> int | None:
+    if not token:
+        return None
     if token.isdigit():
         return int(token)
-    if token in CN_NUM:
-        return CN_NUM[token]
-    if token.startswith("十") and len(token) == 2:
-        return 10 + CN_NUM.get(token[1], 0)
-    return None
+    if "百" in token:
+        h_left, _, h_right = token.partition("百")
+        hundreds = (CN_NUM.get(h_left, 1) if h_left else 1) * 100
+        rest = h_right.lstrip("零")
+        return hundreds + (chapter_number(rest) or 0) if rest else hundreds
+    if "十" in token:
+        left, _, right = token.partition("十")
+        tens = (CN_NUM.get(left, 1) if left else 1) * 10
+        ones = CN_NUM.get(right, 0) if right else 0
+        return tens + ones
+    return CN_NUM.get(token)
 
 
 def split_chapters(text: str) -> dict[int, str]:

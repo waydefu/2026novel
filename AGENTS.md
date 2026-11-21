@@ -137,63 +137,39 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 詳細 Voice Fingerprints 與關係矩陣見 `11` §03 與 `01-08` §06。
 
 # 10｜EDITING WORKFLOW
-固定施工分兩種模式：
+固定施工分 **DRAFT MODE**（READ → 壓縮成 Draft Capsule → 起稿／重寫，先讓場景成立再修句子）與 **QA MODE**（重讀修後正文 → Hard Gate → 人工判定 Pattern Risk → 自由冷讀）；兩模式不把完整治理表混在同一個主筆上下文。
 
-- **DRAFT MODE**：READ → 壓縮必要資料成 Draft Capsule → 起稿／重寫。先讓場景成立，再修句子。
-- **QA MODE**：重新讀修後正文 → Hard Gate → 人工判定 Pattern Risk → 自由冷讀。
-
-兩種模式不得把完整治理表混在同一個主筆上下文裡。
-
-- QA 的機械掃描（順序見 `governance/qa-checklists.md`）：`scan_hard_gate.py`、`canon_contract.py`（阻擋式）→ `scan_pattern_risk.py`、`prose_lexicon.py`、`prose_rhythm.py`、`style_profile.py`（候選）。
-- 機械掃描只負責找候選。每個命中都要按上下文人工判斷；不能把關鍵字零命中當作全文通過。
-- 審稿時不要替初稿辯護。先看人物是否真有事要做，再找最影響閱讀的問題；不為製造小動作、漂亮收尾或主題總結而改寫。
-- 不用同義詞替換做「人味化」。場景聲音從根上不對時，回到場景卡重寫。
-- 自我檢查不能只說「整體符合」。每個 Fail 必須能指出原句／段落與失敗原因。
-- 作者指出「怪、看不出來、太 AI」時，不只修那句；先找它代表的生成模式，再掃全文同類問題。
-- 角色可以先反應、晚點才理解；重要心理變化不要求當場完成分析。
-- 後台因果可以精密，前台不准露出工程圖。主筆不得把 Knowledge／State／Dependency 的排列順序轉寫成正文結構。
-- 如果所有角色都使用「觀察 → 分析 → 結論」同一認知模板，即使設定正確也視為需要重寫 Voice。
-- 不以「零命中禁詞」證明人味；允許閒聊、直白、幽默與無重大轉折的日常。最後問：角色有沒有正在生活，而不是正在履約。
-- Skill 的選擇與重疊裁決見 `governance/skill-routing.md`；作品品質的盲讀比較見 `governance/quality-evaluation.md`（不阻擋 CI）。
+- QA 機械掃描（順序見 `governance/qa-checklists.md`）：`scan_hard_gate.py`、`canon_contract.py`（阻擋式）→ `scan_pattern_risk.py`、`prose_lexicon.py`、`prose_rhythm.py`、`style_profile.py`、`continuity_probe.py`、`timeline_probe.py`（候選／報告）。工具只找候選，每個命中按上下文人工判斷；關鍵字零命中不等於全文通過。
+- 審稿時不替初稿辯護：先看人物是否真有事要做，再找最影響閱讀的問題；不用同義詞替換做「人味化」，場景聲音從根上不對就回場景卡重寫。自我檢查每個 Fail 須指出原句／段落與失敗原因；作者指出「怪、看不出來、太 AI」時先找它代表的生成模式再掃全文同類問題。
+- 角色可先反應、晚點才理解；後台因果不准露出工程圖（不得把 Knowledge／State／Dependency 順序轉寫成正文結構）。若所有角色都共用「觀察 → 分析 → 結論」同一認知模板，視為需重寫 Voice。允許閒聊、直白、幽默與無重大轉折的日常，最後問：角色有沒有正在生活，而不是正在履約。
+- Skill 路由與重疊裁決見 `governance/skill-routing.md`；作品品質驗證見 `governance/quality-evaluation.md`（不阻擋 CI）。
 
 # 11｜FAIL CODES
-- 判定原則：Canon、POV 越界、Knowledge、資訊前提、術語、明確 OOC、格式屬 **HARD GATE**；STYLE、AI、句型、微表情、碎句、解說感、場景效率與 Voice 同質化屬 **PATTERN RISK**，只有形成模式或實際降低閱讀品質時才判 Fail。
+- 判定原則：Canon、POV 越界、Knowledge、資訊前提、術語、明確 OOC、格式屬 **HARD GATE**；STYLE、AI、句型、微表情、碎句、解說感、場景效率與 Voice 同質化屬 **PATTERN RISK**（形成模式或降低閱讀品質才判 Fail）。不得為消滅風險詞把文字洗成動作報告。
 
-**HARD GATE**（成立即 FAIL）：`POV-01` 第一人稱指涉混亂到影響理解｜`POV-02` 同一場景跳進另一人的內心｜`POV-03` 角色知道不可能取得的資訊｜`POV-04` 場景混用人稱或假第三人稱越界｜`INFO-01` 前情詞無依據｜`ERA-01` 稱謂階級場合不合｜`ERA-02` 現代制度／網路詞穿幫或假古風｜`TERM-01` 診療用語層級、人名頭銜不符 Canon｜`CHAR-01` 人物 OOC｜`CHAR-02` 女主功能化、全知化、感情路線撞車｜`CANON-01` 從舊稿或模型常識補設定｜`FORMAT-01` 未經指示改動章名、分段、空行、標點、編碼。
+**HARD GATE**（成立即 FAIL）：`POV-01` 第一人稱指涉混亂到影響理解｜`POV-02` 同一場景跳進另一人的內心｜`POV-03` 角色知道不可能取得的資訊｜`POV-04` 場景混用人稱或假第三人稱越界｜`INFO-01` 前情詞無依據｜`ERA-01` 稱謂階級場合不合｜`ERA-02` 現代制度／網路詞穿幫或假古風｜`TERM-01` 診療用語層級、人名頭銜不符 Canon｜`CHAR-01` 人物 OOC｜`CHAR-02` 女主功能化、全知化、感情路線撞車｜`CANON-01` 從舊稿或模型常識補設定｜`FORMAT-01` 未經指示改動章名、分段、空行、標點、編碼或混入隱形字元。
 
 **PATTERN RISK**：`SCENE-01` 只有事件梗概｜`SCENE-02` 細節變裝飾｜`STYLE-01` 抽象情緒繞遠｜`STYLE-02` 一句一段、碎句階梯｜`STYLE-03` 作者跳出來評論角色｜`STYLE-04` 概念摘要模板｜`VOICE-01` 各 POV 聲音同質｜`DIALOG-01` 台詞一次講完主題｜`DIALOG-02` 潛台詞被解說｜`AI-01` 固定微表情與固定段尾｜`AI-02` 演出後再補抽象解釋｜`AI-03` 模糊感官比喻｜`AI-04` 過度合規（可看見場景卡順序）。
 
-不得為了消滅風險詞把文字淨化成動作報告，也不得用同義詞替換假裝人味化。
-
 # 12｜REVISION LEVELS ＆ COMPLETION
-R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUCTURAL／CANON REVISION（需作者明確決定）。[REVISION-LEVEL]
+R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUCTURAL／CANON REVISION（需作者明確決定）。未指定層級時以最低層級施工；途中須升級就停下。各級完成定義見 `governance/definition-of-done.md`。[REVISION-LEVEL]
 
-未指定層級時，以完成作者要求所需的最低層級施工；途中發現必須升級，停止該部分。每級的完成定義見 `governance/definition-of-done.md`。
-
-- R1 禁止改 01–06、09、11。R2 以上必須附 `backup_ref`（`99_備份/` 內的新增快照）。只改 11 而不改正文＝FAIL。
+- R1 禁止改 01–06、09、11。R2 以上必須附 `backup_ref`（`99_備份/` 內的新增快照）。只改 11 而不改正文＝FAIL（除非 `R0` 同步標頭／TBD 且 `state_change: none`）。
 - Canon 方向（ADR-0001）：已寫正文的既存事實不得被設定矛盾；正文不得自行升格 Canon；設定只能追認或走明示 retcon。[CANON-AUTHORITY]
 
 # 13｜FINAL QA ＆ COLD READ
-完成一章後依序檢查：STRUCTURE、CLARITY、PROSE、POV、INFORMATION、BODY、DETAIL、DIALOGUE、CHARACTER、ERA、TERMS、CONTINUITY、AI／PATTERN、OVER-COMPLIANCE、LENGTH、FORMAT。逐項清單見 `11` §02 Acceptance Tests A–M。
-
-最後做一次自由冷讀：不要想「有沒有遵守規則」，只問哪裡怪、哪裡假、哪裡卡、哪裡像模板。規則全 Pass 但整體仍不好讀，一樣不算完成。
+完成一章後依序檢查 STRUCTURE、CLARITY、PROSE、POV、INFORMATION、BODY、DETAIL、DIALOGUE、CHARACTER、ERA、TERMS、CONTINUITY、AI／PATTERN、OVER-COMPLIANCE、LENGTH、FORMAT（清單見 `11` §02 Acceptance Tests A–M）。最後做一次自由冷讀：不問有沒有守規則，只問哪裡怪、假、卡、像模板；規則全 Pass 但不好讀一樣不算完成。
 
 # 14｜OUTPUT ＆ VERIFICATION
-- 只修改作者指定的最新施工稿與範圍；不得把歷史副本或參考文件誤當交付稿。
-- 正文中不混入審稿標籤、規則說明、人格分析、完成勾選、字數表、雜湊或工作筆記。
-- 每次交付至少說明修改範圍、主要修正模式、章長、Canon／TBD 狀態與完成的驗證，並明列哪些未驗證。
-- 修稿要留下溯源紀錄（`tools/write_provenance.py` → `governance/provenance/`），含改稿意圖、保留理由與未驗證項目；規則見 `governance/evidence-policy.md`。
-- 若修稿碰到作者尚未決定的事件、家庭狀態、病因、關係或世界規則，只在場景卡、工作記錄或交付摘要保留 TBD；正文不得出現 TBD 標籤，也不得自行升格成 Canon。
+- 只修改作者指定的最新施工稿與範圍；正文中不混入審稿標籤、規則說明、人格分析、完成勾選、字數表、雜湊或工作筆記。
+- 每次交付至少說明修改範圍、主要修正模式、章長、Canon／TBD 狀態、完成的驗證與未驗證項目（揭露規則見 `governance/trust-and-authorization.md` §5），並留溯源紀錄（`tools/write_provenance.py` → `governance/provenance/`；見 `governance/evidence-policy.md`）。碰到未決設定只在工作記錄或交付摘要保留 TBD。
 
 # 15｜VERSION GOVERNANCE ＆ CHANGELOG
-- 本文件只放跨章的根規則。單章事件、字數實測、伏筆、章尾終點、完成勾選與雜湊放在場景卡或修稿工作記錄，不塞回本檔。
-- 每累積三次以上重大文風修正，就重新整理本文件：合併重複規則、刪掉失效條文，不准一直往後堆。失效規則要退場，不是註解留著。
-- 方向性決定寫 `governance/adr/`（含 Status 生命週期）；重大 Canon、治理或版本結構變更寫 `00A_設定歷史修改紀錄｜Changelog.md`。純行文、錯字、標點與格式修正不需改 Changelog。
-- 備份採里程碑保留制，只新增不修改；永久刪除備份時必須在 00A 記錄刪除項目與保留項目。
-- `tools/`、`evals/`、`.agents/`、`.github/`、`.cursor/`、`governance/` 是操作層，不具 Canon 權威。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]` 與 evals 的預期失敗樣本不適用同一把尺。
-- 變更須提交 `governance/change-manifest.yaml`（revision_level／target／canon_change／governance_sync／backup_ref）。多工具規則檔由 `governance/agent-rules-source.md` 單一來源產生（`tools/sync_agent_rules.py --check`）。
-- 受保護檔案（`AGENTS.md`、`governance/`、`tools/`、`evals/`、`.github/`、`.agents/`、`.cursor/`）只依作者本輪明確授權修改，不得為了過關而放寬檢查。細則見 `governance/trust-and-authorization.md`。
-- 使用本範本時，本文件是修稿約束來源，不是正文成品。輸出應是修後正文與必要驗證摘要，不得把整份規則複製進小說裡。
+- 本文件只放跨章根規則；單章事件、字數、伏筆與雜湊放場景卡或工作記錄。每累積三次以上重大文風修正就整理本檔（合併重複、刪失效條文）。方向性決定寫 `governance/adr/`；重大 Canon、治理或結構變更寫 `00A_設定歷史修改紀錄｜Changelog.md`。備份採里程碑保留制，只新增不修改；永久刪除備份時須在 00A 記錄。
+- `tools/`、`evals/`、`.agents/`、`.github/`、`.cursor/`、`governance/` 是操作層，不具 Canon 權威。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]` 與 evals 預期失敗樣本不適用同一把尺。
+- 變更須提交 `governance/change-manifest.yaml`。多工具規則檔由 `governance/agent-rules-source.md` 單一來源產生（`tools/sync_agent_rules.py --check`）。
+- 受保護檔案（`AGENTS.md`、`governance/`、`tools/`、`evals/`、`.github/`、`.agents/`、`.cursor/`）只依作者本輪明確授權修改，不得為了過關而放寬檢查；細則見 `governance/trust-and-authorization.md`。[AUTHORIZATION-SCOPE]
+- 本文件是修稿約束來源，不是正文成品；輸出應是修後正文與必要驗證摘要。
 
 # 16｜CHANGELOG
 詳細版本歷史移至〈00A_設定歷史修改紀錄｜Changelog〉。本文件只保留現行根規則。

@@ -94,7 +94,7 @@ def main() -> int:
     results["append_only"] = "PASS"
 
     # Candidate scans: informational. They report, they do not judge.
-    for tool in ("scan_pattern_risk.py", "prose_lexicon.py", "prose_rhythm.py"):
+    for tool in ("scan_pattern_risk.py", "prose_lexicon.py", "prose_rhythm.py", "timeline_probe.py"):
         run([PY, str(ROOT / "tools" / tool)])
     run([PY, str(ROOT / "tools" / "style_profile.py"), str(ROOT / "10_現行創作資料" / "小說正文第三版.md")])
     results["candidates"] = "REPORTED"
