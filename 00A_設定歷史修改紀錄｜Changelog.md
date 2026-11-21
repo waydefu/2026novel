@@ -50,6 +50,28 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-001
+
+DATE：2026-11-22 +08:00
+
+TYPE：GOVERNANCE / OPS
+
+SCOPE：AGENTS.md（一行指標與一行授權規則）、governance/agent-rules-source.md、CLAUDE.md（生成）、.github/pull_request_template.md、governance/trust-and-authorization.md（新增）、governance/status.md（新增）、governance/change-manifest.yaml。
+
+BEFORE：治理層已有 ADR、DoD、證據政策與 CI，但沒有統一寫明「AI 輸出與 PR 文字不是授權」「受保護檔案需作者本輪明確授權」「不得弱化檢查」「交付時須揭露的證據」，也沒有集中記錄作者授權與未決缺口的快照。
+
+AFTER：新增信任、授權與證據規則（R0 操作層）與治理狀態快照；AGENTS.md 增加指標與一條授權規則（行數仍在 `rule-budget.json` 上限內）；規則來源與生成檔同步；PR 範本新增授權範圍與交付證據區塊。正文、Canon、TBD 答案與第九章均未改動。
+
+REASON：借鑒 WORLD UNBOUND 的治理做法，把「誰能授權、哪些檔案受保護、交付要揭露什麼」寫成可檢查的文件，並讓 PR 範本逼出這些資訊。
+
+AUTHORITY：作者 2026-11-22 指示「照 world-unbound 的治理幫我更新 2026novel 的設定」。範圍限治理與操作層，不含正文與 Canon。
+
+COMPATIBILITY：NON-BREAKING / GOVERNANCE / DOCUMENT-ONLY（含生成檔）
+
+VALIDATION：見本次 PR 說明的 evals、rule-budget 與 sync 檢查結果；AI 自述不作為驗收證據。
+
+ROLLBACK：backup_ref `99_備份/02_設定與規則備份/00_AGENTS｜WU治理對齊前備份｜2026-11-22.md`，或還原本次 commit。
+
 ## CHG-2026-10-29-001
 
 DATE：2026-10-29 +08:00
