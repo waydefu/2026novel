@@ -78,7 +78,11 @@ class Metrics:
 
 
 def split_sentences(text: str) -> list[str]:
-    return [s.strip() for s in re.split(r"(?<=[。！？…])", text) if cjk(s) > 0]
+    return [s.strip() for s in re.split(r"(?<=[。！？…])」?", text) if cjk(s) > 0]
+
+
+def is_dialogue_sent(s: str) -> bool:
+    return s.startswith("「") or "「" in s or s.endswith("」")
 
 
 def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
@@ -107,7 +111,7 @@ def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
     runs: list[tuple[int, str]] = []
     # 只算敘述句：台詞天生短，混進來會讓指標對對話密集的章節失真。
     for s, l in zip(sents, lens):
-        if s.startswith("「"):
+        if is_dialogue_sent(s):
             if run:
                 runs.append((run, " ".join(run_sents[:3])))
             run = 0
@@ -134,8 +138,8 @@ def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
     if paragraphs:
         m.short_paragraph_rate = round(sum(1 for p in paragraphs if cjk(p) <= 30) / len(paragraphs), 4)
 
-    dlg = [cjk(s) for s in sents if s.startswith("「")]
-    nar = [cjk(s) for s in sents if not s.startswith("「")]
+    dlg = [cjk(s) for s in sents if is_dialogue_sent(s)]
+    nar = [cjk(s) for s in sents if not is_dialogue_sent(s)]
     m.dialogue_sentence_ratio = round(len(dlg) / len(lens), 4)
     m.dialogue_avg_len = round(statistics.mean(dlg), 2) if dlg else 0.0
     m.narration_avg_len = round(statistics.mean(nar), 2) if nar else 0.0

@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-22｜基準：`origin/main` @ `74a9f56`（PR #41 合併後）
+Snapshot：2026-11-22｜基準：`origin/main` @ `773c4e1`（PR #42 合併後）
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -8,12 +8,12 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `74a9f56`（PR #41 合併後）
 
 | 項目 | 狀態 | 依據 |
 | --- | --- | --- |
-| 正文第一至八章 | 已在 main | `10_現行創作資料/小說正文第三版.md`；11 CURRENT HANDOFF |
+| 正文第一至八章 | 已在 main（本輪完成 Ch2–Ch8 跨章接縫、資訊前提與碎句節奏精修，`short_para` 80.8% → 63.7%、`longest_run` 9 → 6、西幻段詞庫 0 命中） | `10_現行創作資料/小說正文第三版.md`；11 CURRENT HANDOFF；`00A`（`CHG-2026-11-22-005`） |
 | 第八章（09-P08 弧第一場） | 已寫 | 11 CURRENT HANDOFF |
 | 09-P08 第二場起 | PLANNED，事件未鎖定，需作者決策或單場試寫確認 | 11 NEXT；09 §7 |
 | 原第九章 | 已撤回（作者 2026-10-27 指示），不具正文事實權威，不得搬回 | 00A；11 CURRENT HANDOFF |
-| 前八章文學驗收（PR #36、#37） | 已合併；`11` 的 `CURRENT WORKING DRAFT` 與內部 K001／K009／RK007／RK012／RK013／D011 已全數同步至第八章 | `00A`（`CHG-2026-11-03-001`、`CHG-2026-11-22-004`）；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md` |
-| 治理層 | Governance 2.0 已落地（2026-09-01）；已完成兩輪品質導向工具與治理重構（Context Compiler 動態 Voice＋K016＋契約注入、中文去 AI 味詞庫＋零寬字元閘門、Ch8 契約保護、11 衍生帳漂移深層偵測、節奏短句預覽與全書字數統計） | `governance/trust-and-authorization.md`；`00A`（`CHG-2026-11-22-001`～`004`） |
+| 前八章文學驗收（PR #36、#37 ＋ 本輪精修） | 已合併；`11` 的 `CURRENT WORKING DRAFT` 已更新至 `2026-11-22` | `00A`（`CHG-2026-11-03-001`、`CHG-2026-11-22-005`）；`governance/quality/2026-11-03_前八章編輯驗收與寫作依據.md` |
+| 治理層 | Governance 2.0 已落地（2026-09-01）；已完成兩輪品質導向工具與治理重構＋`prose_rhythm.py` 右引號切句修正 | `governance/trust-and-authorization.md`；`00A`（`CHG-2026-11-22-001`～`005`） |
 
 ## 2. 作者授權紀錄
 
@@ -25,6 +25,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `74a9f56`（PR #41 合併後）
 | 2026-11-22 | 「直接幫你把基準 SHA 一併對齊現在全修」 | 修正 G2 描述、補記 00A 2026-11-03 條目（G3）、對齊 `status.md` 基準 SHA（G4）、說明 11 日期同步限制（G5）、修補 `tools/sync_skills.py` 並部署本地 skill 鏡像 | 正文、Canon、TBD 答案、第九章 |
 | 2026-11-22 | 「ci、技能、md、治理還有哪些問題一起看」「先研究，要對小說品質有實質提昇的，幫我全部整理並部份重構『依照你的判斷』」 | 第一輪重構 `tools/`（Context Compiler 注入真實 POV Voice 與支援第一篇 `A1`、詞庫補齊翻譯腔與隱形字元、`chapter_number` 百位數支援、`continuity_probe` 與 `CC-011` 納入 Ch8、`check_revision_gate` 允許 R0 同步 11 標頭）、瘦身 `AGENTS.md` 並加上 `[AUTHORIZATION-SCOPE]`、修復 `09-P08` 標題格式、更新 `11` 與 `tools/README.md`／`governance/README.md`／Skills／evals | 正文內容、角色 Canon、TBD 答案、新第九章 |
 | 2026-11-22 | 「合，然後第二輪」 | 第二輪深層重構：修復 `compile_context.py` 的 `K016` 索引切片 bug 與自動注入 active Canon 契約至 `HARD BOUNDARIES`、清除 `11` 與 `09` 內部 9 處殘留之 Ch7 過時描述（含 K001「手機掉到床邊」與補齊 `RK013`）、升級 `check_derived_drift.py` 攔截過時「截至第N章」、升級 `prose_rhythm.py` 顯示最長短句串原文預覽、升級 `count_chapter.py` 支援全書統計、新增 3 項 evals（共 95 項） | 正文內容、角色 Canon、TBD 答案、新第九章 |
+| 2026-11-22 | 「可以，然後依你看正文須重構與補強的地方全改」 | R2 正文跨章接縫、資訊前提與碎句節奏精修（Ch2–Ch8）、同步 `11` 標頭日期與 `00A`、建立里程碑備份與溯源紀錄、修正 `tools/prose_rhythm.py` 右引號切句 bug | 角色／世界新 Canon、TBD 答案、新第九章 |
 
 ## 3. 未決缺口
 

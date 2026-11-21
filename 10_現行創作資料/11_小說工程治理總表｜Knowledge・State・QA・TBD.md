@@ -7,7 +7,7 @@ Knowledge・State・QA・TBD
 STATUS：ACTIVE OPERATIONAL GOVERNANCE
 
 LAST VERIFIED BASELINE：2026-09-01｜既有完整治理索引逐條檢查截至第七章（歷史記錄）
-CURRENT WORKING DRAFT：2026-11-03｜主稿 Ch1–Ch8 已完成兩輪非待決敘事與場景／潛台詞文學驗收（PR #36、#37）；11 的衍生帳需隨未來重大新事件再逐條重查
+CURRENT WORKING DRAFT：2026-11-22｜主稿 Ch1–Ch8 已完成跨章接縫、資訊前提與碎句節奏精修；11 的衍生帳需隨未來重大新事件再逐條重查
 
 用途
 
