@@ -53,7 +53,8 @@ PR 說明依 `.github/pull_request_template.md` 填寫。
 
 WORLD UNBOUND 的下列機制依賴 GitHub 平台或程式碼專案，目前不適用於本 repo，記錄在 `governance/status.md` 的未決缺口中：
 
-- CODEOWNERS、push ruleset、必要 workflow 與 `pull_request_target` 的保護（需要作者在 GitHub 設定中決定）。
+- CODEOWNERS，以及把受保護檔案的審查設為必要（目前 `main-governance-ci` 只要求 `gate-proven`，需要作者在 GitHub 設定中決定）。
+- 必要 workflow 與 `pull_request_target` 的保護（需要作者在 GitHub 設定中決定）。
 - 雙人審查（目前單人維護，沒有第二位審查者）。
 - 手機實機閘門、渲染審查與 ADR 式效能驗收（不適用於小說）。
 

@@ -4,5 +4,5 @@ target: ops-runtime
 canon_change: false
 governance_sync: true
 state_change: none
-backup_ref: 99_備份/02_設定與規則備份/00_AGENTS｜WU治理對齊前備份｜2026-11-22.md
-notes: "Governance alignment with WORLD UNBOUND practices (trust boundary, protected-file authorization, no-weakening checks, evidence disclosure, status snapshot). Adds governance/trust-and-authorization.md and governance/status.md; one pointer line and one directive line in AGENTS.md (budget checked); rules-source bullet [AUTHORIZATION-SCOPE] regenerates CLAUDE.md and tool rule files; PR template gains authorization and evidence sections. No prose, Canon, TBD answer, or Ch09 change. Backups: 99_備份/02 AGENTS and agent-rules-source snapshots before edit."
+backup_ref: 99_備份/02_設定與規則備份/sync_skills｜修UnboundLocalError前備份｜2026-11-22.py
+notes: "Align governance/status.md baseline SHA to e10fc51 (G4), correct G2 branch protection description (main-governance-ci ruleset 22027890 active, missing CODEOWNERS and required review count) in status.md and trust-and-authorization.md, backfill CHG-2026-11-03-001 and add CHG-2026-11-22-002 in 00A (closing G3 and documenting G5 derived-11 R-GATE constraint), and fix UnboundLocalError in tools/sync_skills.py when running --mirror. No prose, Canon, TBD answer, or Ch09 change."
