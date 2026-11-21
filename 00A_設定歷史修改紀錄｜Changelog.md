@@ -197,6 +197,8 @@ VALIDATION：以新 PR 的 CI、逐章確認與人工閱讀結果為準，未執
 
 ## VALIDATION：`py -3 evals/ci_suite.py --git-base origin/main` 全綠（85 cases、continuity threads=18 assertions=47 failures=0、drift 綠、canon-contract 0 violations、hard-gate 0 hits、revision-gate R2 chapter-09 綠）；備份快照以 git blob 驗證（23438 chars）。
 
+## CORRECTION（2026-10-23；歷史數據）：上面寫「24 處修畢」是合併意見的數目；實際落地 26 處——另有收尾 2 處（副詞失去指涉的「她把碗又推回來一點。」整句刪除；帳冊四處全部改正）。**當時舊第九章**字數更正為 1,294 → 1,318；**當時九章全稿**第二輪合計為 17,450 字（只計漢字）。本條僅校正 2026-10-22 的歷史紀錄：作者已於 2026-10-27 撤回該第九章，現行正文僅第一至第八章；此更正不代表恢復第九章或變更現行正文。
+
 ## CHG-2026-10-22-026
 
 ## DATE：2026-10-22 16:10 +08:00
