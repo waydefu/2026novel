@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R2
+target: chapters-02-08
 canon_change: false
 governance_sync: true
 state_change: none
-backup_ref: 99_備份/02_設定與規則備份/2026-11-22_第二輪品質導向工具與治理重構前備份/11_小說工程治理總表｜Knowledge・State・QA・TBD.md
-notes: "Round 2 quality-driven refactor: (1) fix compile_context.py knowledge_ids_for K-prefix slicing bug (where K012[1:] became 1 instead of 12, dropping K016 for P08) and inject active canon contracts into Capsule HARD BOUNDARIES per novel-canon-pack step 4; (2) clean 9 stale Ch7 references in 11 and 09 section 7 (including K001 '手機掉到床邊' -> '手機滑落的那一刻（Ch1 手機掉到地板上）', K009/RK007/RK012/D011/06 BASELINE -> Ch8, and add RK013 for Ch8 literacy & place-name papers); (3) upgrade check_derived_drift.py to detect stale '截至第N章' phrases when draft has more chapters; (4) upgrade prose_rhythm.py to show the snippet of the longest short-sentence run for cold-read localization; (5) upgrade count_chapter.py to support --all full-book summary; (6) add 3 new evals (95 total). Live prose and Canon unchanged."
+backup_ref: 99_備份/01_正文備份/小說正文第三版｜前八章跨章接縫與節奏精修前快照｜2026-11-22.md
+notes: "R2 prose & rhythm refinement across Ch2-Ch8: (1) Ch2 anchors Pastor Belen's name in narration after the maid calls for him; (2) Ch3 unifies '以前看輕小說' -> '以前讀過的輕小說裡' (matching Ch2 T18) and removes a leftover duplicate action beat '手又伸出去一半。' at chapter end; (3) Ch4 weaves the dangling clause '雖然這個玩具真的會魔法。' into the preceding sentence and replaces '說真的，' (STYLE-08 opening filler) with '這種教法聽起來很像…' (zero lexicon hits in fantasy chapters); (4) Ch5 connects the packed training tools explicitly to Ch4's '黑圓板和透明珠子' and clarifies the temple throb at the village hut as residual morning training fatigue; (5) Ch7 fixes two question marks; (6) consolidates mechanical one-sentence-per-line fragments across Ch2-Ch8 without altering any plot beat, dialogue meaning, Knowledge, or chapter-end state (short_para drops from 80.8% to 63.7%, longest_run from 9 to 6, clearing RHYTHM-04 and RHYTHM-05); (7) fixes prose_rhythm.py closing-quote sentence split bug."
