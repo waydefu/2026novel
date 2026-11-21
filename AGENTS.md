@@ -30,7 +30,7 @@ STATUS：ACTIVE｜更新：2026-10-22（瘦身版；細節下沉到 `governance/
 4. `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（衍生狀態，不創造 Canon）
 5. `10_現行創作資料/小說正文第三版.md`（**唯一施工稿**）[CANONICAL-DRAFT]
 
-治理層（ADR、DoD、QA 清單、證據政策、去 AI 味證據、Skill 路由、品質驗證、規則體量、研究彙整）索引見 `governance/README.md`。禁止當施工來源：`99_備份/`、00A、舊 07／08／09、原型報告、`90_參考資料/`，除非作者明確要求回顧。
+治理層（ADR、DoD、QA 清單、證據政策、去 AI 味證據、Skill 路由、品質驗證、規則體量、研究彙整）索引見 `governance/README.md`。禁止當施工來源：`99_備份/`、00A、舊 07／08／09、原型報告、`90_參考資料/`，除非作者明確要求回顧。信任、授權與證據規則見 `governance/trust-and-authorization.md`；目前狀態見 `governance/status.md`。
 
 # 1｜INSTRUCTION PRIORITY ＆ PLOT RESET
 優先序由高到低：
@@ -192,6 +192,7 @@ R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUC
 - 備份採里程碑保留制，只新增不修改；永久刪除備份時必須在 00A 記錄刪除項目與保留項目。
 - `tools/`、`evals/`、`.agents/`、`.github/`、`.cursor/`、`governance/` 是操作層，不具 Canon 權威。HARD GATE 只對現行正文生效；`99_備份/`、00A、11／01–08 的 `[TBD]` 與 evals 的預期失敗樣本不適用同一把尺。
 - 變更須提交 `governance/change-manifest.yaml`（revision_level／target／canon_change／governance_sync／backup_ref）。多工具規則檔由 `governance/agent-rules-source.md` 單一來源產生（`tools/sync_agent_rules.py --check`）。
+- 受保護檔案（`AGENTS.md`、`governance/`、`tools/`、`evals/`、`.github/`、`.agents/`、`.cursor/`）只依作者本輪明確授權修改，不得為了過關而放寬檢查。細則見 `governance/trust-and-authorization.md`。
 - 使用本範本時，本文件是修稿約束來源，不是正文成品。輸出應是修後正文與必要驗證摘要，不得把整份規則複製進小說裡。
 
 # 16｜CHANGELOG
