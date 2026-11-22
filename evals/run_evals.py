@@ -540,9 +540,9 @@ def main() -> int:
     drift_bad = drift_check(fake_draft, fake_gov, fake_outline, "莉諾兒")
     expect("drift_future_chapter_red", any("Ch8" in e or "8" in e for e in drift_bad), f"{drift_bad}", failures, passed)
 
-    named_early = "# 第四章｜不能把她留在這裡\n\n莉諾兒站起來。\n# 第五章｜x\n\n"
-    drift_name = drift_check(named_early, "CUT-OFF：現行正文第六章結束。\n", "09-P08", "莉諾兒")
-    expect("drift_ch4_name_red", any("莉諾兒" in e for e in drift_name), f"{drift_name}", failures, passed)
+    named_early = "# 第五章｜不能把她留在這裡\n\n莉諾兒站起來。\n# 第六章｜x\n\n"
+    drift_name = drift_check(named_early, "CUT-OFF：現行正文第七章結束。\n", "09-P08", "莉諾兒")
+    expect("drift_ch5_name_red", any("莉諾兒" in e for e in drift_name), f"{drift_name}", failures, passed)
 
     ok_rec, rec_detail = run_recovery_drill()
     expect("recovery_drill", ok_rec, rec_detail, failures, passed)
@@ -811,7 +811,7 @@ def main() -> int:
     )
     expect(
         "compiler_includes_active_contracts_in_boundaries",
-        "[CC-001]" in p08_live["capsule"].get("HARD BOUNDARIES", "") and "[CC-017]" in p08_live["capsule"].get("HARD BOUNDARIES", ""),
+        "[CC-001]" in p08_live["capsule"].get("HARD BOUNDARIES", "") and "[CC-025]" in p08_live["capsule"].get("HARD BOUNDARIES", ""),
         f"compile_target(P08) must surface active canon contracts in HARD BOUNDARIES",
         failures,
         passed,
@@ -837,8 +837,8 @@ def main() -> int:
         synced_chs = parse_chapters(DRAFT.read_text(encoding="utf-8"))
         expect(
             "sync_google_doc_parses_live_draft",
-            len(synced_chs) == 6 and synced_chs[0].heading.startswith("第一章｜") and all(c.paragraphs for c in synced_chs),
-            f"expected 6 non-empty parsed chapters, got {[(c.number, c.heading) for c in synced_chs]}",
+            len(synced_chs) == 7 and synced_chs[0].heading.startswith("第一章｜") and all(c.paragraphs for c in synced_chs),
+            f"expected 7 non-empty parsed chapters, got {[(c.number, c.heading) for c in synced_chs]}",
             failures,
             passed,
         )
