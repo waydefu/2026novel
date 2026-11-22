@@ -65,8 +65,8 @@ def drift_check(
         missing = sorted(n for n in range(1, max_draft + 1) if n not in recorded)
         if missing:
             errors.append(f"DRIFT NEEDS_REVIEW: 正文有 Ch{max_draft}，但 11 State Diff 缺 CH{missing}")
-    if 5 in chapters and "莉諾兒" in chapters[5]:
-        errors.append("DRIFT FAIL: 莉諾兒 named in Ch5 but Knowledge says name is unknown until Ch6")
+    if 4 in chapters and "莉諾兒" in chapters[4]:
+        errors.append("DRIFT FAIL: 莉諾兒 named in Ch4 but Knowledge says name is unknown until Ch5")
     for name in UNSEEN:
         if name in draft_text:
             errors.append(f"DRIFT NEEDS_REVIEW: {name} appears in draft while 11 K015 says not yet entered")

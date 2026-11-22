@@ -50,6 +50,34 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-006
+
+DATE：2026-11-22 +08:00
+
+TYPE：CANON / GOVERNANCE / STRUCTURE / RETCON
+
+SCOPE：`governance/adr/0002-third-person-pov-western-script-and-prologue-restructure.md`、`governance/adr/README.md`、`AGENTS.md`、`governance/agent-rules-source.md`（同步至 `.cursor/rules/`、`.github/`、`CLAUDE.md`）、`governance/canon-contracts.json`（v5）、`tools/check_derived_drift.py`、`tools/continuity_probe.py`、`evals/run_evals.py`、`10_現行創作資料/01-08_小說設定總表｜角色・關係・劇情資料.md`、`10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`、`10_現行創作資料/小說正文第三版.md`、`governance/status.md`、`governance/change-manifest.yaml`、`99_備份/01_正文備份/2026-11-22_R4全架構重寫前完整快照/`。
+
+BEFORE：
+1. 原前八章混用亞德里安第一人稱（Ch1–4）、亞德里安第三人稱（Ch5, 8）與莉諾兒第一人稱（Ch6–7）。
+2. 原 Ch8 出現漢字部首教學（「汀」「澤」）、筷子／碗筷／切蔥，Ch2 出現鉛筆線，且 Ch8 廚房共餐與 Ch3 僕役禮儀相牴觸。
+3. 亞德里安七歲醒後三年雙親完全缺席，且前世犯罪心理「區分事實與推論」習慣未延續至屠村與昏迷疑點觀察。
+4. 前八章全數停留在宅邸與日常，全員語調偏單一冷淡，節奏尚未接往學院主線。
+
+AFTER：
+1. 依據 ADR-0002，全書統一改採**第三人稱限知多視角**（亞德里安「他」、莉諾兒「她」），同步更新 `AGENTS.md` 及衍生規則檔。
+2. 執行西幻書寫與器具一致化 Retcon：廢止漢字部首與筷子穿幫（舊 `CC-002`、`CC-004`～`011` 標記 `superseded`，追加 `CC-012`～`018`），改為貝倫牧師教導辛古拉提通用語二十六個字母與地形詞根、木碗木匙與小刀身高刻痕，以及錯開僕從正餐時段的小廚房燉湯。
+3. 確立梵恩伯爵夫婦長駐王都與北疆防線（透過火漆家書聯絡查爾曼）、延續亞德里安「只記事實不急下結論」的觀察習慣於 Ch4 發現糧袋／車轍異常並於 Ch6 封存卷宗待日後進王都查證。
+4. 將序章重構為緊湊六章（Ch1–Ch6，約一萬零四百字，收尾於王都學院提前四年預備生登錄通知）＋兩章 P07／P08 `[PLANNED]`，並拉開查爾曼、羅德里克、貝倫與廚娘瑪莎的群像語調差異。
+
+REASON：回應外部作品評估指出的五項結構硬傷，並依作者「以上全修」明確授權執行 R4 全架構重構。
+
+AUTHORITY：作者 2026-11-22 明確指示「以上全修」及 ADR-0002。
+
+COMPATIBILITY：BREAKING / R4 CANON & STRUCTURAL REVISION（附完整里程碑備份快照 `99_備份/01_正文備份/2026-11-22_R4全架構重寫前完整快照/`）
+
+VALIDATION：`py -3 tools/sync_agent_rules.py --check`、`py -3 tools/check_rule_budget.py`、`py -3 tools/check_core_invariants.py`、`py -3 tools/write_provenance.py`、`py -3 evals/ci_suite.py --git-base origin/main` 與手動冷讀全六章。
+
 ## CHG-2026-11-22-005
 
 DATE：2026-11-22 +08:00

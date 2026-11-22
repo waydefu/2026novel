@@ -539,9 +539,9 @@ def main() -> int:
     drift_bad = drift_check(fake_draft, fake_gov, fake_outline, "莉諾兒")
     expect("drift_future_chapter_red", any("Ch8" in e or "8" in e for e in drift_bad), f"{drift_bad}", failures, passed)
 
-    named_early = "# 第五章｜不能把她留在這裡\n\n莉諾兒站起來。\n# 第六章｜x\n\n"
-    drift_name = drift_check(named_early, "CUT-OFF：現行正文第七章結束。\n", "09-P08", "莉諾兒")
-    expect("drift_ch5_name_red", any("莉諾兒" in e for e in drift_name), f"{drift_name}", failures, passed)
+    named_early = "# 第四章｜不能把她留在這裡\n\n莉諾兒站起來。\n# 第五章｜x\n\n"
+    drift_name = drift_check(named_early, "CUT-OFF：現行正文第六章結束。\n", "09-P08", "莉諾兒")
+    expect("drift_ch4_name_red", any("莉諾兒" in e for e in drift_name), f"{drift_name}", failures, passed)
 
     ok_rec, rec_detail = run_recovery_drill()
     expect("recovery_drill", ok_rec, rec_detail, failures, passed)
@@ -802,15 +802,15 @@ def main() -> int:
     p08_live = compile_target(ROOT, "P08")
     p08_knows = p08_live["capsule"].get("KNOWS", "")
     expect(
-        "compiler_keeps_k_prefix_and_k016",
-        "K016｜" in p08_knows and "K014｜" in p08_knows,
-        f"compile_target(P08) must retain K-prefixed ids and include K016 (Ch8): got {p08_knows[:120]!r}",
+        "compiler_keeps_k_prefix_and_p08",
+        "K011｜" in p08_knows and "K013｜" in p08_knows,
+        f"compile_target(P08) must retain K-prefixed ids and include K011/K013 (Ch6/P08): got {p08_knows[:120]!r}",
         failures,
         passed,
     )
     expect(
         "compiler_includes_active_contracts_in_boundaries",
-        "[CC-001]" in p08_live["capsule"].get("HARD BOUNDARIES", "") and "[CC-011]" in p08_live["capsule"].get("HARD BOUNDARIES", ""),
+        "[CC-001]" in p08_live["capsule"].get("HARD BOUNDARIES", "") and "[CC-017]" in p08_live["capsule"].get("HARD BOUNDARIES", ""),
         f"compile_target(P08) must surface active canon contracts in HARD BOUNDARIES",
         failures,
         passed,

@@ -50,3 +50,4 @@ DECIDERS：<誰決定>
 | ADR | 標題 | Status | 日期 |
 |---|---|---|---|
 | [0001](0001-canon-direction.md) | 設定與正文的權威方向 | accepted | 2026-10-22 |
+| [0002](0002-third-person-pov-western-script-and-prologue-restructure.md) | 全面改採第三人稱限知多視角、西幻語文器具一致化與序章六章壓縮重構 | accepted | 2026-11-22 |
