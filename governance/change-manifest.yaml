@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R1
-target: chapters-01-06
+revision_level: R4
+target: prologue-01-07
 canon_change: false
-governance_sync: false
-state_change: none
-backup_ref: none
-notes: "R1 natural prose polish across Ch1-Ch6 per author feedback: remove awkward collocations ('乾巴巴的事實', '未退燒清的邏輯', '珍稀俘虜'), restore organic Ch1 opening beats ('刻意隱瞞' -> '兩份口供的時間對不上，原因還不知道', light-novel anime update, chest shortness-of-breath without painkiller/acid-reflux padding), strip meta-novel narrator comments ('沒有像小說裡那麼浪漫', '這盤棋怎麼下'), and fix typos ('俐落', '看起來')."
+governance_sync: true
+state_change: r4-causal-7ch-reconstruction
+backup_ref: 99_備份/01_正文備份/2026-11-22_R4七章因果重建前快照/小說正文第三版.md
+notes: "R4 causal & pacing reconstruction of Prologue Ch1-Ch7 per author feedback ('主要是形容事實不會用乾巴巴 / 前因後果呢？先別改，先看規則 / 先寫看看寫完再對一次規則'): (1) split modern death (Ch1) and 7yo waking (Ch2) cleanly preserving original living dialogue and scene breathing room without summary prose or meta-novel remarks; (2) enforce strict in-scene information provenance and causal order (maid calls '亞德里安少爺' -> fragmented memory -> Belen performs pale healing light with wooden holy emblem on-page before '這是魔法？' -> maid names Charmant & explains capital/border dispatch; Ch3 opens wax-sealed letter); (3) retain Ch4-Ch7 complete causal progression, universal third-person limited POV, Western script/utensils/small kitchen consistency, non-bandit clues, and advance Royal Academy notice; (4) upgrade canon-contracts.json v6 (superseding CC-012..018 cleanly with CC-019..026), align 09, 11, check_derived_drift.py, continuity_probe.py, evals/run_evals.py, 00A, status.md."

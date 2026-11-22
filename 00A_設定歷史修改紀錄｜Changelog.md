@@ -50,6 +50,29 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-008
+
+DATE：2026-11-22 +08:00
+
+TYPE：STRUCTURE / FIX / CAUSALITY
+
+SCOPE：`10_現行創作資料/小說正文第三版.md`（Ch1–Ch7）、`10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`、`governance/canon-contracts.json`（v6）、`tools/check_derived_drift.py`、`tools/continuity_probe.py`、`evals/run_evals.py`、`governance/change-manifest.yaml`、`governance/status.md`、`99_備份/01_正文備份/2026-11-22_R4七章因果重建前快照/`。
+
+BEFORE：前版 Ch1 將「現代猝死」與「七歲甦醒」壓入 1,561 字短章，造成開篇用詞生硬（「乾巴巴的事實」「日式動畫手遊簽到」「胃跟著泛酸」），且醒來段跳過貝倫牧師拿出木質聖徽施放治療光暈卻後補「剛才的清涼」、沒人喚管家姓名主角卻直呼查爾曼，並讓旁白與七歲主角背誦雙親王都／邊境設定（違背 `AGENTS.md` §6／§8 及 `11` §02 B／C／G／K）。
+
+AFTER：
+1. 將現代猝死與七歲甦醒重新拆為「第一章｜明天再去」與「第二章｜醒來以後」，恢復原稿自然對話節奏與呼吸感（保留紅字「刻意隱瞞」爭論、頁碼吐槽與追動畫更新情節，全書維持統一第三人稱限知）。
+2. 第二章嚴格依因果與知識邊界演出：侍女喊出「亞德里安少爺／快請貝倫牧師」→ 碎片記憶只接得上名字與七歲、家人仍模糊 → 貝倫當場取出木質聖徽並亮起暖白治療微光後才說出「……這是魔法？」→ 由侍女與貝倫自然轉述管家「查爾曼」及昨夜已往王都送信，絕不讓七歲主角自己背設定。
+3. 序章其餘章別順推整理為 Ch3〈這座宅邸的規矩〉、Ch4〈只是多試一次〉、Ch5〈不能把她留在這裡〉、Ch6〈門外一直有人〉、Ch7〈門一直開著，與遠方的通知〉，並保留西幻通用語字母教學、西式燉湯／小廚房錯開正餐時間與王都學院預先通知；契約升版至 v6（append-only `CC-019`～`CC-026`）並對齊探針與評測。
+
+REASON：依作者點出的開篇語病與因果斷裂（「前因後果呢？先別改，先看規則」「先寫看看寫完再對一次規則」）重新對齊規則與作品手感。
+
+AUTHORITY：作者 2026-11-22 明確回饋與《AGENTS.md》／《11》§02 Acceptance Tests。
+
+COMPATIBILITY：BREAKING / R4 7-CHAPTER CAUSAL RECONSTRUCTION（附快照 `99_備份/01_正文備份/2026-11-22_R4七章因果重建前快照/`）
+
+VALIDATION：`py -3 evals/ci_suite.py --git-base origin/main`（97 cases PASS）、`tools/count_chapter.py --all` 與逐條對照 `AGENTS.md`／`11` §02 規則驗收。
+
 ## CHG-2026-11-22-007
 
 DATE：2026-11-22 +08:00

@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-22｜基準：`origin/main` @ `3bc30fb`（PR #43 合併後）＋本輪 R4 全架構重構分支 `refactor/r4-prologue-pov-world-rewrite`
+Snapshot：2026-11-22｜基準：`origin/main` @ `be7bfd9`（PR #45 合併後）＋ `refactor/r4-causal-7ch-prologue`（7 章因果重建）
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -8,10 +8,10 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `3bc30fb`（PR #43 合併後）
 
 | 項目 | 狀態 | 依據 |
 | --- | --- | --- |
-| 正文第一至六章（R4 重構版） | 已寫定稿（統一第三人稱限知、西幻語文器具一致化、父母火漆通信與學院預先通知接軌，詞庫 0 命中、Hard Gate 0 命中） | `10_現行創作資料/小說正文第三版.md`；`governance/adr/0002-...md`；`00A`（`CHG-2026-11-22-006`） |
-| 09-P07 / 09-P08（入學前多年日常與啟程） | PLANNED，事件骨架已更新至 09，待作者啟動後續章節 | 11 NEXT；09 §2（09-P07 / 09-P08） |
-| 群像設定、大綱與衍生治理層（01-08 / 09 / 11） | 已同步 ADR-0002 R4 全架構定稿，TBD-004 已解（酒莊巡行順路） | `01-08` §十、`09`、`11` |
-| 治理契約、探針與評測（v5） | `canon-contracts.json` 升級 v5（舊八章契約標 `superseded`，新增 `CC-012`～`CC-018`）；同步 `continuity_probe.py`、`check_derived_drift.py`、`evals/run_evals.py` | `governance/canon-contracts.json`、`governance/adr/0002-...md` |
+| 正文第一至七章（R4 因果重建版） | 已寫定稿（將現代死亡與七歲甦醒拆為 Ch1–Ch2，恢復原稿對話節奏並補齊魔法施放／人名進場／父母去向的場內因果來源，全第三人稱限知） | `10_現行創作資料/小說正文第三版.md`；`09`、`11`、`00A`（`CHG-2026-11-22-008`） |
+| 09-P08（入學前多年日常與啟程） | PLANNED，事件骨架已對齊至 09，待作者啟動後續章節 | 11 NEXT；09 §2（09-P08） |
+| 群像設定、大綱與衍生治理層（01-08 / 09 / 11） | 已同步 R4 因果重建 7 章版，TBD-004 生效章別對應 Ch5 | `01-08` §十、`09`、`11` |
+| 治理契約、探針與評測（v6） | `canon-contracts.json` 升級 v6（`CC-012`～`CC-018` 標 `superseded`，新增 `CC-019`～`CC-026`）；同步 `continuity_probe.py`、`check_derived_drift.py`、`evals/run_evals.py` | `governance/canon-contracts.json` |
 
 ## 2. 作者授權紀錄
 
@@ -26,6 +26,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `3bc30fb`（PR #43 合併後）
 | 2026-11-22 | 「可以，然後依你看正文須重構與補強的地方全改」 | R2 正文跨章接縫、資訊前提與碎句節奏精修（Ch2–Ch8）、同步 `11` 標頭日期與 `00A`、建立里程碑備份與溯源紀錄、修正 `tools/prose_rhythm.py` 右引號切句 bug | 角色／世界新 Canon、TBD 答案、新第九章 |
 | 2026-11-22 | 「以上全修」 | R4 全架構重構（ADR-0002）：統一第三人稱限知視角（`AGENTS.md`＋多工具規則同步）、作廢漢字／筷子／鉛筆線等穿幫並改採通用語字母拼讀、補齊梵恩雙親王都／邊境火漆家書與非流寇疑點線、壓縮序章為 Ch1–Ch6＋P07/P08 `[PLANNED]`、升級 `canon-contracts.json` v5 與評測／探針、更新 `01-08`、`09`、`11`、`00A` 與重寫正文 Ch1–Ch6 | 第一篇正文與各家族未決姓氏 |
 | 2026-11-22 | 「開始設定GOOGLE文件自動同步」 | 新增 `.github/workflows/sync-google-doc.yml`、`tools/sync_google_doc.py`、`tools/google_apps_script_sync.gs`、`governance/google-doc-sync.md` 與 `evals` 測試，並以本機 `gdocs` CLI 同步 Ch1–Ch6 至 Google 文件（第 7、8 分頁保留為 `[預留]` 不刪除） | 需作者於 Google 文件部署 Apps Script 並填入 GitHub Secrets 後完成 Webhook 遠端觸發 |
+| 2026-11-22 | 「主要是形容事實不會用乾巴巴」「前因後果呢？先別改，先看規則」「先寫看看寫完再對一次規則」 | 依因果順序與資訊邊界重建序章 7 章（Ch1 現代死亡與 Ch2 七歲甦醒拆章，補齊聖徽施法與人名／去向在場來源，恢復原稿對話呼吸），同步 `09`、`11`、`canon-contracts.json` v6、探針與評測 | 第一篇正文與各家族未決姓氏 |
 
 ## 3. 未決缺口
 
