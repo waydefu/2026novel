@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R1
+target: chapters-01-06
 canon_change: false
 governance_sync: false
 state_change: none
 backup_ref: none
-notes: "Add GitHub Actions one-way Google Doc Tabs auto-sync workflow (.github/workflows/sync-google-doc.yml), chapter sync CLI (tools/sync_google_doc.py), Google Apps Script Docs API receiver (tools/google_apps_script_sync.gs), setup guide (governance/google-doc-sync.md), and unit tests in evals/run_evals.py per user authorization ('開始設定GOOGLE文件自動同步', Issue #40)."
+notes: "R1 natural prose polish across Ch1-Ch6 per author feedback: remove awkward collocations ('乾巴巴的事實', '未退燒清的邏輯', '珍稀俘虜'), restore organic Ch1 opening beats ('刻意隱瞞' -> '兩份口供的時間對不上，原因還不知道', light-novel anime update, chest shortness-of-breath without painkiller/acid-reflux padding), strip meta-novel narrator comments ('沒有像小說裡那麼浪漫', '這盤棋怎麼下'), and fix typos ('俐落', '看起來')."
