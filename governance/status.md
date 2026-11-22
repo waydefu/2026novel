@@ -25,6 +25,7 @@ Snapshot：2026-11-22｜基準：`origin/main` @ `3bc30fb`（PR #43 合併後）
 | 2026-11-22 | 「合，然後第二輪」 | 第二輪深層重構：修復 `compile_context.py` 的 `K016` 索引切片 bug 與自動注入 active Canon 契約至 `HARD BOUNDARIES`、清除 `11` 與 `09` 內部 9 處殘留之 Ch7 過時描述（含 K001「手機掉到床邊」與補齊 `RK013`）、升級 `check_derived_drift.py` 攔截過時「截至第N章」、升級 `prose_rhythm.py` 顯示最長短句串原文預覽、升級 `count_chapter.py` 支援全書統計、新增 3 項 evals（共 95 項） | 正文內容、角色 Canon、TBD 答案、新第九章 |
 | 2026-11-22 | 「可以，然後依你看正文須重構與補強的地方全改」 | R2 正文跨章接縫、資訊前提與碎句節奏精修（Ch2–Ch8）、同步 `11` 標頭日期與 `00A`、建立里程碑備份與溯源紀錄、修正 `tools/prose_rhythm.py` 右引號切句 bug | 角色／世界新 Canon、TBD 答案、新第九章 |
 | 2026-11-22 | 「以上全修」 | R4 全架構重構（ADR-0002）：統一第三人稱限知視角（`AGENTS.md`＋多工具規則同步）、作廢漢字／筷子／鉛筆線等穿幫並改採通用語字母拼讀、補齊梵恩雙親王都／邊境火漆家書與非流寇疑點線、壓縮序章為 Ch1–Ch6＋P07/P08 `[PLANNED]`、升級 `canon-contracts.json` v5 與評測／探針、更新 `01-08`、`09`、`11`、`00A` 與重寫正文 Ch1–Ch6 | 第一篇正文與各家族未決姓氏 |
+| 2026-11-22 | 「開始設定GOOGLE文件自動同步」 | 新增 `.github/workflows/sync-google-doc.yml`、`tools/sync_google_doc.py`、`tools/google_apps_script_sync.gs`、`governance/google-doc-sync.md` 與 `evals` 測試，並以本機 `gdocs` CLI 同步 Ch1–Ch6 至 Google 文件（第 7、8 分頁保留為 `[預留]` 不刪除） | 需作者於 Google 文件部署 Apps Script 並填入 GitHub Secrets 後完成 Webhook 遠端觸發 |
 
 ## 3. 未決缺口
 

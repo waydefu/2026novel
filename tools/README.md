@@ -25,5 +25,7 @@
 | `count_chapter.py --chapter N` | 章內漢字字數統計 | 工具查詢，不設硬門檻 |
 | `write_provenance.py` | 產出逐章修稿溯源紀錄（三件套雜湊與備份比對）至 `governance/provenance/` | 修稿交付工具 |
 | `write_evidence.py` | 產出 SHA-bound CI evidence JSON 至 `governance/evidence/` | CI artifact |
+| `sync_google_doc.py` | 依 `# 第N章｜章名` 切分正文並單向同步至 Google 文件原生分頁（支援 GitHub Actions Webhook 與本機 `gdocs` CLI） | 發布同步（`.github/workflows/sync-google-doc.yml`） |
+| `google_apps_script_sync.gs` | 貼於目標 Google 文件的 Apps Script 接收端程式碼，呼叫內建 Docs API 更新原生分頁 | Google 文件端腳本 |
 
 PATTERN RISK 與詞庫／節奏的命中必須人工依 `AGENTS.md` 判定。不要把本目錄的正則當成自動死刑表。

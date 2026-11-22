@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R4
-target: prologue-01-06
-canon_change: true
-governance_sync: true
-state_change: r4-restructure-ch1-ch6
-backup_ref: 99_備份/01_正文備份/2026-11-22_R4全架構重寫前完整快照/小說正文第三版.md
-notes: "R4 full-architecture rewrite per explicit author authorization ('以上全修', ADR-0002): (1) unify entire work to third-person limited multi-POV in AGENTS.md, agent-rules-source.md (synced), 01-08, 09, 11, and Ch1-Ch6 prose; (2) retcon Ch8 Chinese character/radical teaching (T17/CC-011) and Chinese dining utensils/pencil anachronisms into Simgulati common alphabet spelling & topographic roots, wooden bowls/spoons, knife height notches, and off-hour small kitchen meals with cook Martha; (3) introduce Vane parents stationed in royal capital and northern border via sealed wax letters and carry Adrian's criminology facts-vs-inference habit into Ch3/Ch4 non-bandit clues; (4) condense 8-chapter prologue into 6 core chapters (Ch1-Ch6 ending with advance Royal Academy notice + sealed dossier) + 2 [PLANNED] P07/P08 bridge arcs; (5) diversify NPC voices (Charmant, Roderick, Belen, Martha, Ita); (6) append-only upgrade canon-contracts.json to v5 (CC-002, CC-004..CC-011 superseded by CC-012..CC-018) and align check_derived_drift.py, continuity_probe.py, evals/run_evals.py, 00A, status.md."
+revision_level: R0
+target: ops-runtime
+canon_change: false
+governance_sync: false
+state_change: none
+backup_ref: none
+notes: "Add GitHub Actions one-way Google Doc Tabs auto-sync workflow (.github/workflows/sync-google-doc.yml), chapter sync CLI (tools/sync_google_doc.py), Google Apps Script Docs API receiver (tools/google_apps_script_sync.gs), setup guide (governance/google-doc-sync.md), and unit tests in evals/run_evals.py per user authorization ('開始設定GOOGLE文件自動同步', Issue #40)."

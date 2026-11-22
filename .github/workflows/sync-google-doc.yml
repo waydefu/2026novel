@@ -1,0 +1,46 @@
+name: Sync Draft to Google Doc
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "10_現行創作資料/小說正文第三版.md"
+      - "tools/sync_google_doc.py"
+      - ".github/workflows/sync-google-doc.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "僅驗證章節切分而不實際推送到 Google 文件"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  sync-google-doc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify chapter parsing (dry-run)
+        run: python tools/sync_google_doc.py --dry-run
+
+      - name: Push chapters to Google Doc Tabs
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+        env:
+          GDOC_WEBHOOK_URL: ${{ secrets.GDOC_WEBHOOK_URL }}
+          GDOC_WEBHOOK_SECRET: ${{ secrets.GDOC_WEBHOOK_SECRET }}
+          GDOC_ID: "1Qg63ffCy3DlLNpmr1mBz-_yjHDgRBY-QbFxRNI5jOt4"
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$GDOC_WEBHOOK_URL" ] || [ -z "$GDOC_WEBHOOK_SECRET" ]; then
+            echo "::notice title=Google Doc 自動同步尚未啟用::請先依 governance/google-doc-sync.md 完成 Apps Script 部署並設定 Repository Secrets (GDOC_WEBHOOK_URL, GDOC_WEBHOOK_SECRET)。"
+            exit 0
+          fi
+          python tools/sync_google_doc.py --mode webhook --strict
