@@ -50,6 +50,29 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-22-007
+
+DATE：2026-11-22 +08:00
+
+TYPE：GOVERNANCE / OPS / AUTOMATION
+
+SCOPE：`.github/workflows/sync-google-doc.yml`、`tools/sync_google_doc.py`、`tools/google_apps_script_sync.gs`、`tools/README.md`、`governance/google-doc-sync.md`、`evals/run_evals.py`、`governance/change-manifest.yaml`、`governance/status.md`（對應 GitHub Issue #40）。
+
+BEFORE：正文合併至 `main` 後僅靠本機人工執行 `gdocs` 同步至目標 Google 文件（`1Qg63ffCy3DlLNpmr1mBz-_yjHDgRBY-QbFxRNI5jOt4`），尚無 GitHub Actions 自動單向發布機制，Google 文件也仍停在舊版八章分頁內容。
+
+AFTER：
+1. 新增 `.github/workflows/sync-google-doc.yml`：當 `main` 的 `10_現行創作資料/小說正文第三版.md` 更新或手動觸發時，自動依 `# 第N章｜章名` 切分章節並推送至 Google Apps Script Web App Webhook（若 Secrets 尚未配置則安全跳過並於 Actions 輸出設定提示，不造成錯誤阻擋）。
+2. 新增 `tools/sync_google_doc.py`（支援 `--dry-run`、`--mode webhook`、`--mode gdocs` 本機 `gdocs` CLI 直接同步）與 `tools/google_apps_script_sync.gs`（透過內建 `Docs` 進階服務操作原生分頁、保留超出章數之 `[預留]` 分頁且不自動刪除）。
+3. 新增 `governance/google-doc-sync.md` 一頁式部署指南，並於 `evals/run_evals.py` 補上章節切分與重複章號拒收回歸測試。
+
+REASON：作者指示「開始設定GOOGLE文件自動同步」並解決 Issue #40。
+
+AUTHORITY：作者 2026-11-22 明確指示與 `AGENTS.md` §2 單向發布規定。
+
+COMPATIBILITY：NON-BREAKING / R0 OPS AUTOMATION
+
+VALIDATION：`py -3 tools/sync_google_doc.py --dry-run`、`py -3 tools/sync_google_doc.py --mode gdocs`（同步最新第一至六章並將第 7、8 分頁轉為 `[預留]`）、`py -3 evals/ci_suite.py --git-base origin/main`（97 cases PASS）。
+
 ## CHG-2026-11-22-006
 
 DATE：2026-11-22 +08:00

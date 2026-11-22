@@ -31,6 +31,7 @@ from compile_context import compile_target  # noqa: E402
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
 from prose_rhythm import analyze  # noqa: E402
 from style_profile import NOT_EVIDENCE  # noqa: E402
+from sync_google_doc import parse_chapters  # noqa: E402
 from sync_agent_rules import SOURCE as RULES_SOURCE  # noqa: E402
 from sync_agent_rules import TARGETS as RULE_TARGETS  # noqa: E402
 from sync_agent_rules import parse_source, render  # noqa: E402
@@ -828,6 +829,28 @@ def main() -> int:
         "drift_catches_stale_chapter_cutoff_phrase",
         any("截至第七章" in e for e in stale_errs),
         f"drift_check must flag stale '截至第七章' when draft has Ch8: {stale_errs}",
+        failures,
+        passed,
+    )
+
+    if DRAFT.is_file():
+        synced_chs = parse_chapters(DRAFT.read_text(encoding="utf-8"))
+        expect(
+            "sync_google_doc_parses_live_draft",
+            len(synced_chs) == 6 and synced_chs[0].heading.startswith("第一章｜") and all(c.paragraphs for c in synced_chs),
+            f"expected 6 non-empty parsed chapters, got {[(c.number, c.heading) for c in synced_chs]}",
+            failures,
+            passed,
+        )
+    dup_error = False
+    try:
+        parse_chapters("# 第一章｜甲\n\n內容一。\n\n# 第一章｜乙\n\n內容二。\n")
+    except ValueError:
+        dup_error = True
+    expect(
+        "sync_google_doc_rejects_duplicate_chapter",
+        dup_error,
+        "parse_chapters must reject duplicate chapter numbers",
         failures,
         passed,
     )
