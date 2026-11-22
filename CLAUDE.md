@@ -34,7 +34,7 @@
 1. 讀 `governance/change-manifest.yaml` 的 `revision_level`（R0–R4）。[REVISION-LEVEL]
 2. R2 以上先備份，正文快照放 `99_備份/01_正文備份/`。
 3. 改正文後同步 11 的 Knowledge／State／Dependency（`governance_sync: true`）。
-4. 一場一種人稱、一名焦點角色，只寫該角色能取得的資訊。[POV-LIMITED]
+4. 全書統一第三人稱限知多視角，一場一名焦點角色，只寫該角色能取得的資訊，並保持西幻書寫、飲食與器具一致。[POV-LIMITED]
 5. 跑 `py -3 evals/ci_suite.py`；PR 需通過 `gate-proven`。
 
 ## 交付要求
