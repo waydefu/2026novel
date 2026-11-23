@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+import io
 import json
 import subprocess
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
@@ -31,7 +33,7 @@ from compile_context import compile_target, extract_style_anchors, scene_fields 
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
 from prose_rhythm import analyze  # noqa: E402
 from style_profile import NOT_EVIDENCE  # noqa: E402
-from sync_google_doc import parse_chapters  # noqa: E402
+from sync_google_doc import ChapterPayload, parse_chapters, push_webhook, push_gdocs_cli  # noqa: E402
 from sync_agent_rules import SOURCE as RULES_SOURCE  # noqa: E402
 from sync_agent_rules import TARGETS as RULE_TARGETS  # noqa: E402
 from sync_agent_rules import parse_source, render  # noqa: E402
@@ -851,6 +853,66 @@ def main() -> int:
         "sync_google_doc_rejects_duplicate_chapter",
         dup_error,
         "parse_chapters must reject duplicate chapter numbers",
+        failures,
+        passed,
+    )
+
+    # The old receiver returned ok=true even after failed tab renames.
+    # A webhook now needs a readback-verified chapter count, doc ID and SHA.
+    synced = [ChapterPayload(number=1, heading="第一章｜測試", paragraphs=["測試正文。"])]
+    good_ack = {
+        "ok": True, "verified": True, "verifiedChapters": 1,
+        "verifiedTabs": 1, "docId": "doc-test", "sourceSha": "sha-test",
+        "warnings": [],
+    }
+    for name, delta, should_pass in (
+        ("verified", {}, True),
+        ("legacy_ok_only", {"verified": None}, False),
+        ("missing_chapter", {"verifiedChapters": 0}, False),
+        ("wrong_doc", {"docId": "other"}, False),
+        ("wrong_sha", {"sourceSha": "stale"}, False),
+        ("rename_warning", {"warnings": ["old tab title"]}, False),
+        ("receiver_error", {"ok": False}, False),
+    ):
+        ack = {**good_ack, **delta}
+        with patch("sync_google_doc.urllib.request.urlopen") as urlopen:
+            urlopen.return_value.__enter__.return_value.read.return_value = (
+                json.dumps(ack).encode("utf-8")
+            )
+            raised = False
+            try:
+                push_webhook(
+                    synced, "doc-test", "https://example.invalid/sync",
+                    "test-secret", "sha-test",
+                )
+            except RuntimeError:
+                raised = True
+        expect(
+            f"sync_webhook_ack_{name}",
+            raised != should_pass,
+            f"ack should {'pass' if should_pass else 'fail'}: {ack}",
+            failures,
+            passed,
+        )
+
+    # A local gdocs CLI rename error must not disappear behind a green result.
+    def fake_gdocs_command(args: list[str]) -> str:
+        if args[:2] == ["readonly", "list-tabs"]:
+            return json.dumps([{"tabId": "t.0", "title": "舊標題", "index": 0}])
+        if args[:2] == ["mutate", "rename-tab"]:
+            raise RuntimeError("rename failed")
+        raise AssertionError(f"unexpected command: {args}")
+
+    rename_failed = False
+    with patch("sync_google_doc._run_gdocs", side_effect=fake_gdocs_command):
+        try:
+            push_gdocs_cli(synced, "doc-test")
+        except RuntimeError:
+            rename_failed = True
+    expect(
+        "sync_gdocs_cli_rename_failure_is_fatal",
+        rename_failed,
+        "CLI must fail when rename-tab fails",
         failures,
         passed,
     )
