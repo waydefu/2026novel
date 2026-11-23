@@ -12,7 +12,7 @@ Snapshot：2026-11-24｜基準：`origin/main` @ `8ac3ceb`（PR #48 已合併）
 | 09-P08（入學前多年日常與啟程） | PLANNED，事件骨架已對齊至 09，待作者啟動後續章節 | 11 NEXT；09 §2（09-P08） |
 | 群像設定、大綱與衍生治理層（01-08 / 09 / 11） | 已同步 R4 因果重建 7 章版，TBD-004 生效章別對應 Ch5 | `01-08` §十、`09`、`11` |
 | 治理契約、探針與評測（v6） | `canon-contracts.json` 升級 v6（`CC-012`～`CC-018` 標 `superseded`，新增 `CC-019`～`CC-026`）；同步 `continuity_probe.py`、`check_derived_drift.py`、`evals/run_evals.py` | `governance/canon-contracts.json` |
-| 寫作工程系統 v3.0（三階段工作流＋FACS＋Style Anchor＋Deep POV 手術；PR #48 已合併） | 新增 `style-anchors.md`、`facs-body-lexicon.md`、`scene-beat-director.md`；升級 `compile_context.py`、`prose_lexicon.py`（重算 `lexicon.lock`）、`11`（`VOICE-WORDS`＋同步 Ch7 `CURRENT HANDOFF`）、4 項核心 Skills、`AGENTS.md`／多工具規則檔與 `evals`（106 項） | `governance/`、`tools/`、`.agents/skills/`、`evals/` |
+| 寫作工程系統 v3.0（三階段工作流＋FACS＋Style Anchor＋Deep POV 手術；PR #48 已合併） | 新增 `style-anchors.md`、`facs-body-lexicon.md`、`scene-beat-director.md`；升級 `compile_context.py`、`prose_lexicon.py`（重算 `lexicon.lock`）、`11`（`VOICE-WORDS`＋同步 Ch7 `CURRENT HANDOFF`）、4 項核心 Skills、`AGENTS.md`／多工具規則檔與 `evals`（114 項，含 Google Docs 發布回應驗收） | `governance/`、`tools/`、`.agents/skills/`、`evals/` |
 
 ## 2. 作者授權紀錄
 
