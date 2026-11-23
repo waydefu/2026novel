@@ -44,6 +44,9 @@ function doPost(e) {
     }
 
     var doc = Docs.Documents.get(docId, { includeTabsContent: true });
+    if (!doc.revisionId) {
+      throw new Error('missing_document_revision');
+    }
     var rootTabs = getRootTabs_(doc);
 
     // Add missing tabs, then re-read IDs; never change old tab IDs or delete tabs.
@@ -54,8 +57,12 @@ function doPost(e) {
           addDocumentTab: { tabProperties: { title: chapters[i].heading, index: i } }
         });
       }
-      Docs.Documents.batchUpdate({ requests: addReqs }, docId);
+      Docs.Documents.batchUpdate({
+        requests: addReqs,
+        writeControl: { requiredRevisionId: doc.revisionId }
+      }, docId);
       doc = Docs.Documents.get(docId, { includeTabsContent: true });
+      if (!doc.revisionId) throw new Error('missing_document_revision_after_tab_creation');
       rootTabs = getRootTabs_(doc);
     }
 
@@ -63,6 +70,7 @@ function doPost(e) {
     var renameRequests = [];
     var expectedTabs = [];
     var updated = [];
+    var skippedContentWrites = [];
     var reserved = [];
 
     for (var idx = 0; idx < chapters.length; idx++) {
@@ -80,7 +88,9 @@ function doPost(e) {
           }
         });
       }
-      pushTabOverwriteRequests_(requests, tab, ch.heading, ch.paragraphs);
+      if (!pushTabMinimalTextRequests_(requests, tab, ch.heading, ch.paragraphs)) {
+        skippedContentWrites.push(ch.heading);
+      }
       expectedTabs.push({
         id: tabId, title: ch.heading,
         text: ch.heading + '\n\n' + ch.paragraphs.join('\n\n')
@@ -105,15 +115,25 @@ function doPost(e) {
             }
           });
         }
-        pushTabOverwriteRequests_(requests, rTab, rTitle, [rParagraph]);
+        if (!pushTabMinimalTextRequests_(requests, rTab, rTitle, [rParagraph])) {
+          skippedContentWrites.push(rTitle);
+        }
         expectedTabs.push({ id: rTabId, title: rTitle, text: rTitle + '\n\n' + rParagraph });
         reserved.push(rTitle);
       }
     }
 
-    // Content and tab titles must succeed together. Never swallow rename failures.
-    // This also means a failed title update cannot leave a newly published body.
-    Docs.Documents.batchUpdate({ requests: requests.concat(renameRequests) }, docId);
+    // Apply changes against the exact version that was read. If a collaborator
+    // edited anything in the meantime, fail rather than clobber their revision.
+    // The body is untouched when already equal; this preserves live annotations,
+    // comments and paragraph formatting for those unchanged tabs.
+    var changes = requests.concat(renameRequests);
+    if (changes.length) {
+      Docs.Documents.batchUpdate({
+        requests: changes,
+        writeControl: { requiredRevisionId: doc.revisionId }
+      }, docId);
+    }
 
     // A successful API call is not publication evidence. Read back every tab.
     var after = Docs.Documents.get(docId, { includeTabsContent: true });
@@ -127,6 +147,7 @@ function doPost(e) {
       docId: docId,
       sourceSha: payload.sourceSha || '',
       updated: updated,
+      unchangedContent: skippedContentWrites,
       reserved: reserved,
       warnings: []
     });
@@ -210,58 +231,71 @@ function verifyTabs_(tabs, expectedTabs) {
   }
 }
 
-function pushTabOverwriteRequests_(requests, tab, heading, paragraphs) {
-  var tabId = tab.tabProperties.tabId;
-  var content = (tab.documentTab && tab.documentTab.body && tab.documentTab.body.content) || [];
-  var endIndex = content.length ? content[content.length - 1].endIndex : 1;
+function pushTabMinimalTextRequests_(requests, tab, heading, paragraphs) {
+  // No mutation means no churn to existing comments, formatting or suggestions.
+  var previous = getTabText_(tab);
+  var target = heading + '\n\n' + paragraphs.join('\n\n');
+  if (previous === target) return false;
 
-  if (endIndex > 2) {
+  // Keep the longest stable prefix and suffix. This only deletes the changed
+  // span; unlike the previous delete-all, unchanged text/annotations survive.
+  // Google Docs indices and JavaScript strings are both UTF-16 code units.
+  var prefix = 0;
+  var limit = Math.min(previous.length, target.length);
+  while (prefix < limit && previous.charAt(prefix) === target.charAt(prefix)) {
+    prefix++;
+  }
+  var suffix = 0;
+  var maxSuffix = Math.min(previous.length - prefix, target.length - prefix);
+  while (suffix < maxSuffix &&
+         previous.charAt(previous.length - 1 - suffix) ===
+         target.charAt(target.length - 1 - suffix)) {
+    suffix++;
+  }
+
+  // Never split a Unicode surrogate pair inside a Google Docs delete range.
+  var isHigh = function (u) { return u >= 0xD800 && u <= 0xDBFF; };
+  var isLow = function (u) { return u >= 0xDC00 && u <= 0xDFFF; };
+  if (prefix > 0 && prefix < previous.length &&
+      isHigh(previous.charCodeAt(prefix - 1)) && isLow(previous.charCodeAt(prefix))) {
+    prefix--;
+  }
+  if (suffix > 0 && suffix < previous.length &&
+      isHigh(previous.charCodeAt(previous.length - suffix - 1)) &&
+      isLow(previous.charCodeAt(previous.length - suffix))) {
+    suffix--;
+  }
+
+  var oldEnd = previous.length - suffix;
+  var newEnd = target.length - suffix;
+  var index = 1 + prefix;
+  if (oldEnd > prefix) {
     requests.push({
       deleteContentRange: {
-        range: {
-          tabId: tabId,
-          startIndex: 1,
-          endIndex: endIndex - 1
-        }
+        range: { tabId: tab.tabProperties.tabId, startIndex: index, endIndex: 1 + oldEnd }
+      }
+    });
+  }
+  if (newEnd > prefix) {
+    requests.push({
+      insertText: {
+        location: { tabId: tab.tabProperties.tabId, index: index },
+        text: target.substring(prefix, newEnd)
       }
     });
   }
 
-  var joinedBody = paragraphs.join('\n\n');
-  var fullText = heading + '\n\n' + joinedBody;
-  requests.push({
-    insertText: {
-      location: { tabId: tabId, index: 1 },
-      text: fullText
-    }
-  });
-
-  // JavaScript String length matches UTF-16 code units used by Google Docs API
-  requests.push({
-    updateParagraphStyle: {
-      range: {
-        tabId: tabId,
-        startIndex: 1,
-        endIndex: 1 + heading.length + 1
-      },
-      paragraphStyle: { namedStyleType: 'HEADING_2' },
-      fields: 'namedStyleType'
-    }
-  });
-
-  if (joinedBody.length > 0) {
+  // Refresh the first paragraph's heading style only when it was touched.
+  if (prefix <= heading.length) {
     requests.push({
       updateParagraphStyle: {
-        range: {
-          tabId: tabId,
-          startIndex: 1 + heading.length + 1,
-          endIndex: 1 + fullText.length
-        },
-        paragraphStyle: { namedStyleType: 'NORMAL_TEXT' },
+        range: { tabId: tab.tabProperties.tabId, startIndex: 1, endIndex: 1 + heading.length + 1 },
+        paragraphStyle: { namedStyleType: 'HEADING_2' },
         fields: 'namedStyleType'
       }
     });
   }
+  return true;
 }
 
 function jsonOut(obj) {
