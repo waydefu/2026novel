@@ -1,8 +1,8 @@
 schema: governance-change-manifest/v1
-revision_level: R4
-target: prologue-01-07
+revision_level: R0
+target: ops-runtime
 canon_change: false
-governance_sync: true
+governance_sync: false
 state_change: none
-backup_ref: 99_備份/01_正文備份/2026-11-22_R4七章因果重建前快照/小說正文第三版.md
-notes: "Engineering system v3.0 upgrade (layered on R4 7-chapter causal prologue): (1) add governance/style-anchors.md (verbatim Pass 2 Style Anchors combating Pink Elephant Effect), governance/facs-body-lexicon.md (FACS muscle-to-prose translation + sensory/imperfection craft), and governance/scene-beat-director.md (optional Scene/Sequel & 7-stage high-tension director with anti-overcompliance guard); (2) upgrade tools/compile_context.py to auto-inject STYLE ANCHOR, 14-line VOICE (+VOICE-WORDS), and optional DIRECTOR fields while failing gracefully in minimal test sandboxes; (3) upgrade tools/prose_lexicon.py (corpus-safe high-frequency webnovel slop patterns preserving --not-evidence) and re-lock governance/lexicon.lock; (4) upgrade 11 (§03 VOICE-WORDS + clean Ch7 CURRENT HANDOFF), 4 core writing/audit skills (.agents/skills/), AGENTS.md, governance/agent-rules-source.md, rule-budget.json (HB-028..030), qa-checklists.md, ai-flavor-evidence.md, evals/run_evals.py, status.md, and 00A."
+backup_ref: ""
+notes: "PR #49: Google Doc one-way publication reliability only. Update Apps Script receiver to apply tab names and body atomically, serialize requests, pin destination and verify every affected tab via readback; Python webhook/CLI now fail closed when not verified; serialize GitHub Actions and skip stale main commits; add mocked JS/Python regressions and record existing public-edit permission risk without altering sharing. No novel prose, canon, scene state, document permissions or credentials changed."
