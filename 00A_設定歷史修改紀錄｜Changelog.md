@@ -50,6 +50,27 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-24-001
+
+DATE：2026-11-24 +08:00
+
+TYPE：GOVERNANCE / OPS / FIX
+
+SCOPE：`tools/google_apps_script_sync.gs`、`tools/sync_google_doc.py`、`.github/workflows/sync-google-doc.yml`、`.github/workflows/governance-ci.yml`、`evals/run_evals.py`、`evals/google_doc_sync_receiver.test.cjs`、`governance/google-doc-sync.md`、`governance/change-manifest.yaml`、`governance/status.md`、本紀錄。
+
+BEFORE：Webhook 同步時先寫入正文再嘗試更新 Google 文件原生分頁標題；改名錯誤被吞成 warnings，回應仍為 ok=true。2026-11-24 實讀正式文件發現 Ch2、Ch3、Ch7 分頁名稱與已同步之七章正文不一致，且發送端只驗證 ok，不核對標題或全文。
+
+AFTER：Google Apps Script 單批次原子提交正文與改名，寫後重新讀回核對分頁名稱及全文，必要條件不符則回傳 ok=false；固定唯一目標文件並使用 LockService 避免接收端同時寫入。Python 發送端要求 verified、章數、文件 ID、SHA 一致；本地 CLI 改名失敗也不能顯示成功。GitHub 工作流序列化並跳過過時的 main SHA，缺少 Secrets 則失敗；加入模擬 Google Docs API 回歸測試。Google 文件的「知道連結者可編輯」現況已記錄，作者指示暫緩權限處理，**沒有更改任何共享設定或實際密鑰**。
+
+REASON：作者於 2026-11-24 指示修復同步缺陷、權限問題只記錄；防止部分同步成功被誤判為發布成功。
+
+AUTHORITY：作者「可以，權限暫時不用管，記錄即可」。
+
+COMPATIBILITY：OPS-ONLY；新發送端需要重新部署更新後的 Apps Script Web App 才能完成端對端驗證；不變更正文、人物 Canon、章綱或已部署 Google Web App。
+
+VALIDATION：CI 執行 Python 回應負例與模擬 Apps Script 改名／全文回讀測試；實際 Google 文件更新須在作者重新部署後另行驗收，不以 CI 通過冒充部署完成。
+
+
 ## CHG-2026-11-23-001
 
 DATE：2026-11-23 +08:00
