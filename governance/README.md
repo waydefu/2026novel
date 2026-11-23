@@ -13,6 +13,9 @@
 | `quality-evaluation.md` | 作品品質驗證：可機檢／盲讀比較／誠實的誤報率指標 |
 | `evidence-policy.md` | 三件套（原稿／對話過程／首版輸出）與可稽核性 |
 | `ai-flavor-evidence.md` | 哪些中文特徵真的判別 AI 味、哪些不成立（本專案裁決） |
+| `style-anchors.md` | Pass 2 正向風格錨點節錄（由 Compiler 注入 Capsule，對抗粉紅大象效應） |
+| `facs-body-lexicon.md` | FACS 面部肌肉×軀體代償自然語言轉譯庫＋不完美細節原則（禁止輸出 AU 編號） |
+| `scene-beat-director.md` | 高張力衝突／情緒場選配八維導演腳本（Scene/Sequel＋七階段洩漏） |
 | `canon-contracts.json` | 可執行的 Canon 契約（已寫正文的既存事實不得被矛盾） |
 | `lexicon.lock` | 詞庫雜湊鎖檔：尺子不得私下放寬 |
 | `rhythm-thresholds.json` | 節奏量測門檻（只作冷讀定位，不作改寫依據） |

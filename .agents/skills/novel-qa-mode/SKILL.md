@@ -36,7 +36,7 @@ py -3 evals/run_evals.py
 ```
 
 3. HARD GATE：Canon、POV 越界、Knowledge、資訊前提、術語、明確 OOC、格式。成立就改。
-4. PATTERN RISK：只有形成模式、角色同質、或真的變難讀才 Fail。不得為了消滅關鍵字把文字洗成動作報告。
+4. PATTERN RISK 與 Pass 3 手術：只有形成模式、角色同質、或真的變難讀才 Fail。不得為了消滅關鍵字把文字洗成動作報告。執行修辭去 AI 味、濾鏡詞檢測或結尾去昇華時，建議交由獨立新視窗／子代理依 `novel-prose-audit` 進行 Pass 3 審校，避免替初稿辯護。
 5. 需要同步 11 時才跑 `novel-state-sync`。純行文不改 Knowledge／State／Dependency。
 6. 自由冷讀：不問有沒有守規則，只問哪裡怪、假、卡、像模板。
 7. 規則全過但不好讀＝未完成。

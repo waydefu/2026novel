@@ -16,22 +16,22 @@ allowed-tools: Read Grep Glob Edit Write Bash
 
 主筆模式。先讓場景成立，再修句子。不要把治理表寫進正文。
 
-## 進場
+## 進場（Pass 1 導演封裝 → Pass 2 正向起稿）
 
-1. 若還沒有本場 Capsule，先跑 `novel-canon-pack`。
+1. 若還沒有本場 Capsule，先跑 `novel-canon-pack`（取得 `STYLE ANCHOR`、`VOICE-WORDS` 與本場邊界）。
 2. 施工稿只有 `10_現行創作資料/小說正文第三版.md`。
-3. 主筆只讀：Capsule、必要 Voice、最近必要正文、作者本輪指示。規則細節以 `AGENTS.md` 為準，不要把 §11 全文載入主筆上下文。
-4. R2 以上或整章重寫前，先跑 `novel-backup`，並把路徑寫進 `governance/change-manifest.yaml` 的 `backup_ref`。
-5. 施工前確認 manifest：`revision_level`、`target`、`canon_change`、`governance_sync`。R1 禁止改 01–06。
+3. **正向風格參考**：主筆只讀 Capsule（含依場景與 POV 選出的一組 `STYLE ANCHOR` 與該角 `VOICE`）、最近必要正文、作者本輪指示。不把整份 §11 負向禁用表塞進起稿上下文；範例只借節奏，不複製其他角色的言行或情節。
+4. **高張力衝突／情緒場（完全選配）**：可參考 `governance/scene-beat-director.md` 與 `governance/facs-body-lexicon.md`，但**七種情緒節點可跳過、合併或不用；不強制小失誤、道具代償或每段兩種感官配額**。日常場不套公式；正文不輸出 AU 編號。
+5. R2 以上或整章重寫前，先跑 `novel-backup`，並把路徑寫進 `governance/change-manifest.yaml` 的 `backup_ref`。
+6. 施工前確認 manifest：`revision_level`、`target`、`canon_change`、`governance_sync`。R1 禁止改 01–06。
 
 ## 寫的時候
 
 - 一場一種人稱、一名焦點角色；只寫焦點角色能感知、記得、推測或取得的資訊。
-- 繁體中文白話。能講清楚就不要寫深。
-- 異世界一般診療者用「牧師」；「神官」只給高階聖職。現代段可用醫生／醫院。
-- 人名用「亞德里安・梵恩」（全形中點）。
-- 讀者可見章名：`第N章｜章名`。P01／P02 只留給大綱與施工索引。
-- 正文不放 TBD、規則說明、勾選、字數表或工作筆記。
+- **Deep POV 與自然對白**：可用動作、停頓、直接心理敘述或平實的情緒詞承載內容；允許對話打斷、答非所問或長句說明，視角色和情境而定。只刪除確實無功能的填充動作，不要求每個動作必須達成固定三選一。
+- **防同質化（羅生門視角）**：嚴格依角色 `VOICE`（注意力焦點＋`VOICE-WORDS`＋誤判方式）選取當下細節與句長。
+- 繁體中文白話。能講清楚就不要寫深；異世界一般診療者用「牧師」，人名用「亞德里安・梵恩」（全形中點）。
+- 讀者可見章名：`第N章｜章名`。P01／P02 只留給大綱與施工索引；正文不放 TBD、規則說明、勾選、字數表或工作筆記。
 - 對象與約束以 `governance/canon-contracts.json` 為準（已寫正文的既存事實不得矛盾）。
 
 ## Windows 主控台編碼

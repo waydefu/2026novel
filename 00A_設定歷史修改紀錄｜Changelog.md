@@ -50,6 +50,32 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-23-001
+
+DATE：2026-11-23 +08:00
+
+TYPE：GOVERNANCE / OPS / WORKFLOW-UPGRADE
+
+SCOPE：`AGENTS.md`、`governance/agent-rules-source.md`、`.cursor/rules/novel-project.mdc`、`.github/copilot-instructions.md`、`CLAUDE.md`、`governance/style-anchors.md`、`governance/facs-body-lexicon.md`、`governance/scene-beat-director.md`、`governance/qa-checklists.md`、`governance/ai-flavor-evidence.md`、`governance/rule-budget.json`（新增 `HB-028`～`HB-030`）、`governance/lexicon.lock`、`governance/README.md`、`governance/status.md`、`governance/change-manifest.yaml`、`tools/compile_context.py`、`tools/prose_lexicon.py`、`.agents/skills/`（`novel-canon-pack`、`novel-draft-mode`、`novel-prose-audit`、`novel-qa-mode` 及 `.claude/skills/` 鏡像）、`10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（補入 `VOICE-WORDS` 範例並更新過時 `CURRENT HANDOFF`）、`evals/run_evals.py`。
+
+BEFORE：專案雖已有 Draft Capsule、實證去 AI 味規則與雙模式分離，但起稿時只載入大量負向禁令而缺正向正文風格錨點與角色代表台詞範例（易受粉紅大象效應影響）；FACS 肌肉與高張力節拍缺正向轉譯庫；Deep POV 缺一秒濾鏡詞檢測與獨立新對話窗口執行的 Pass 3 手術規範；詞庫尚未納入部分高頻網文套語。
+
+AFTER：
+1. 新增 `governance/style-anchors.md`（摘自 Ch1／Ch2／Ch7 定稿作為 Pass 2 正向節奏範例），並升級 `tools/compile_context.py` 自動將 `STYLE ANCHOR`、14 行 `VOICE`（含 `11` §03 新增的 `VOICE-WORDS`）與可選高張力導演欄位注入 Draft Capsule，且修正 `11` 內殘留的「第八章」過時交接標示。
+2. 新增 `governance/facs-body-lexicon.md`（FACS 肌群→自然動作＋道具代償＋微小不完美原則，禁輸出 AU 代號且避開喉結套詞）與 `governance/scene-beat-director.md`（高張力衝突／情緒防線場選配 Scene-Sequel＋七階段洩漏，明確禁止套用至日常場景以防 `AI-04`）。
+3. 升級 `tools/prose_lexicon.py` 與 `governance/lexicon.lock`（補充「一絲／一抹＋神態」、意味深長、難以言喻、不由得／不禁、眼眶微紅、深吸一口氣、攥緊拳頭等候選，刻意保留實物比喻如「一絲一線」與不碰「幾乎／似乎」及句長均勻度非判據紅線）。
+4. 升級四個核心創作／審校 Skills（`.agents/skills/` 並同步 `.claude/skills/`）、`AGENTS.md`（175 行＜200 行上限）、`qa-checklists.md` 與 `evals/run_evals.py`（新增 4 項回歸測試至 101 cases）。
+
+REASON：依作者指令「工程系統全面升級」，吸收 Fiction Prompt Engineering 五大底層模組與三階段分離工作流之優勢，同時對齊本專案 283 萬字中文語料實證裁決與規則體量限制。
+
+AUTHORITY：作者 2026-11-23 明確授權「工程系統全面升級」。
+
+COMPATIBILITY：NON-BREAKING / OPS & GOVERNANCE UPGRADE（`state_change: none`，不動正文與角色／世界 Canon）
+
+VALIDATION：`py -3 tools/sync_agent_rules.py --check`、`py -3 tools/sync_skills.py --check`、`py -3 tools/check_rule_budget.py`、`py -3 evals/ci_suite.py --git-base origin/main`（初版 101 cases PASS）及遠端 GitHub Actions CI。
+
+REVIEW CORRECTION（2026-11-23）：PR #48 依審查意見修復固定取前兩組 Style Anchor 的缺陷：Compiler 改依場景類型與 POV 選擇一組範例，並增加五項相關回歸測試（合計 106 cases）。將 FACS 小失誤、感官數量與高張力七節點改成純選配，節點可省略／合併／跳過，允許直接寫情緒、內心或對白收尾；同步更新兩項寫作 Skills、QA 文件與規則預算。PR 的 base 自已合併之 R4 工作分支重新建構至 `main`，僅保留 24 個原目標檔案的 v3.0 差異；不改正文或 Canon。
+
 ## CHG-2026-11-22-008
 
 DATE：2026-11-22 +08:00

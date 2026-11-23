@@ -62,9 +62,10 @@ STATUS：ACTIVE｜更新：2026-11-22（統一第三人稱限知多視角＋西�
 章長不足或超出目標時，先檢查場景是否缺事件、選擇、因果或必要反應。只能靠裝飾性景物、重複解釋或空泛內心戲補足的字數，不算完成。
 
 # 3｜DRAFT CAPSULE ＆ NARRATIVE FIREWALL
-正式起稿前只保留最小 Draft Capsule：POV、時間／地點、此刻想做什麼、必要 Knowledge、2～4 個不可違反的 Canon 邊界、Voice 重點與場景大致終點。
+正式起稿前只保留最小 Draft Capsule：POV、時間／地點、此刻想做什麼、必要 Knowledge、2～4 個不可違反的 Canon 邊界、Voice 重點、依場景類型／POV 選出的一組 `STYLE ANCHOR` 與場景大致終點。
 
-- 先跑 `py -3 tools/compile_context.py --target P08 --check-only`，保留 provenance。
+- 先跑 `py -3 tools/compile_context.py --target P08 --check-only`，保留 provenance；Capsule 會載入 `governance/style-anchors.md` 正向錨點與 `VOICE-WORDS` 對抗粉紅大象效應。
+- 高張力衝突／情緒防線場可選配 `governance/scene-beat-director.md` 與 `governance/facs-body-lexicon.md`；節點可跳過，不強制小失誤、感官配額或道具動作（正文不輸出 AU 編號）。
 - 主筆只讀 Capsule、必要 Voice 與最近必要正文，不直接載入完整 Acceptance Tests／State Diff／Dependency Graph。
 - Knowledge Ledger、State Diff、Dependency、Acceptance Tests 只供後台核對，不得按欄位順序逐項寫進正文。
 - 「A 是 B 的前提」不代表角色必須在當場說明「因為 A，所以 B」；只需讓因果回頭可成立。
@@ -136,7 +137,7 @@ STATUS：ACTIVE｜更新：2026-11-22（統一第三人稱限知多視角＋西�
 詳細 Voice Fingerprints 與關係矩陣見 `11` §03 與 `01-08` §06。
 
 # 10｜EDITING WORKFLOW
-固定施工分 **DRAFT MODE**（READ → 壓縮成 Draft Capsule → 起稿／重寫，先讓場景成立再修句子）與 **QA MODE**（重讀修後正文 → Hard Gate → 人工判定 Pattern Risk → 自由冷讀）；兩模式不把完整治理表混在同一個主筆上下文。
+固定施工分 **Pass 1/2 DRAFT MODE**（READ → 壓縮成含 `STYLE ANCHOR` 的 Draft Capsule → 正向起稿／重寫，先讓場景成立再修句子）與 **Pass 3 QA MODE**（獨立新上下文重讀正文 → Hard Gate → 一秒濾鏡詞檢測＋人工判定 Pattern Risk → 自由冷讀）；兩模式不把完整治理表混在同一個主筆上下文。
 
 - QA 機械掃描（順序見 `governance/qa-checklists.md`）：`scan_hard_gate.py`、`canon_contract.py`（阻擋式）→ `scan_pattern_risk.py`、`prose_lexicon.py`、`prose_rhythm.py`、`style_profile.py`、`continuity_probe.py`、`timeline_probe.py`（候選／報告）。工具只找候選，每個命中按上下文人工判斷；關鍵字零命中不等於全文通過。
 - 審稿時不替初稿辯護：先看人物是否真有事要做，再找最影響閱讀的問題；不用同義詞替換做「人味化」，場景聲音從根上不對就回場景卡重寫。自我檢查每個 Fail 須指出原句／段落與失敗原因；作者指出「怪、看不出來、太 AI」時先找它代表的生成模式再掃全文同類問題。

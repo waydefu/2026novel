@@ -27,7 +27,7 @@ from check_revision_gate import (  # noqa: E402
 )
 from canon_contract import load_contracts, run_contracts  # noqa: E402
 from check_rule_budget import check as rule_budget_check  # noqa: E402
-from compile_context import compile_target  # noqa: E402
+from compile_context import compile_target, extract_style_anchors, scene_fields  # noqa: E402
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
 from prose_rhythm import analyze  # noqa: E402
 from style_profile import NOT_EVIDENCE  # noqa: E402
@@ -851,6 +851,67 @@ def main() -> int:
         "sync_google_doc_rejects_duplicate_chapter",
         dup_error,
         "parse_chapters must reject duplicate chapter numbers",
+        failures,
+        passed,
+    )
+
+    expect(
+        "compiler_includes_style_anchor",
+        "ANCHOR-" in p08_live["capsule"].get("STYLE ANCHOR", "")
+        and any(s["id"] == "STYLE-ANCHOR" for s in p08_live["sources"]),
+        f"compile_target(P08) must inject STYLE ANCHOR from governance/style-anchors.md",
+        failures,
+        passed,
+    )
+    expect(
+        "compiler_includes_voice_words",
+        "VOICE-WORDS：" in p08_live["capsule"].get("VOICE", ""),
+        f"VOICE fingerprint slice must retain VOICE-WORDS examples: {p08_live['capsule'].get('VOICE', '')!r}",
+        failures,
+        passed,
+    )
+    # Selection must react to actual scene and POV rather than always slicing
+    # the first two examples. These tests probe all three distinct anchors.
+    for kind, scene, expected in (
+        ("dialogue", {"POV": "林恩", "場景類型": "同學互虧對話"}, "ANCHOR-DIALOGUE"),
+        ("healing", {"POV": "亞德里安", "定位": "牧師施法治療"}, "ANCHOR-ACTION"),
+        ("ensemble", {"POV": "莉諾兒", "主要場景": "廚房裡的日常群像"}, "ANCHOR-ENSEMBLE"),
+        ("pov_only", {"POV": "莉諾兒"}, "ANCHOR-ENSEMBLE"),
+    ):
+        picked = extract_style_anchors(ROOT, fields=scene)
+        expect(
+            f"style_anchor_select_{kind}",
+            picked.startswith(f"[{expected}｜") and picked.count("[ANCHOR-") == 1,
+            f"wrong scene-specific anchor: {picked[:90]!r}",
+            failures,
+            passed,
+        )
+    expect(
+        "style_anchor_no_missing_source",
+        extract_style_anchors(SANDBOX, fields={"場景類型": "對話"}) == "",
+        "missing style-anchors.md must be optional in minimal compiler sandboxes",
+        failures,
+        passed,
+    )
+    dir_fields = scene_fields(
+        "SCENE STRUCTURE：Sequel\nTRIGGER：信箋被攤開\nSUBTEXT：怕再次被趕出去\nFORBIDDEN REACTIONS：禁止落淚\n"
+    )
+    expect(
+        "compiler_parses_optional_director_fields",
+        dir_fields.get("SCENE STRUCTURE") == "Sequel"
+        and dir_fields.get("SUBTEXT") == "怕再次被趕出去"
+        and dir_fields.get("FORBIDDEN REACTIONS") == "禁止落淚",
+        f"director fields parsed incorrectly: {dir_fields}",
+        failures,
+        passed,
+    )
+    slop_hits = scan_lexicon(FIXTURES / "pass_clean.md", text="她嘴角勾起一絲笑意，不由得眼眶微紅。\n")
+    slop_groups = {h.group for h in slop_hits}
+    literal_hits = scan_lexicon(FIXTURES / "pass_clean.md", text="這幾年以前，便已經一絲一線往王都接過去了。\n")
+    expect(
+        "lexicon_detects_webnovel_slop_and_spares_literal",
+        "STYLE-01 空泛評價形容" in slop_groups and "AI-01 固定微表情" in slop_groups and literal_hits == [],
+        f"slop_groups={slop_groups} literal_hits={literal_hits}",
         failures,
         passed,
     )
