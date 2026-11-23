@@ -40,11 +40,12 @@ py -3 tools/compile_context.py --target P08 --check-only
 ## 步驟
 
 1. 讀 `governance/change-manifest.yaml` 的 `revision_level`。R4 沒有作者決定且 `canon_change: true` 就停。
-2. 跑 Compiler，保留 provenance。
-3. Capsule 欄位以 11 的 DRAFT CAPSULE TEMPLATE 為準。若已能看出整章流水線，刪欄位。
-4. 補上本場會碰到的契約條目（`governance/canon-contracts.json`），讓主筆知道哪些既存事實不能矛盾。
-5. TBD 標籤不得進正文。
+2. 跑 Compiler，保留 provenance（Compiler 會一併注入 `STYLE ANCHOR` 與 `VOICE`；若 `09` 場卡含 `SCENE STRUCTURE / TRIGGER / SUBTEXT / PROTECTIVE STRATEGY / FORBIDDEN REACTIONS` 亦會納入 `DIRECTOR` 區）。
+3. Capsule 欄位以 11 的 DRAFT CAPSULE TEMPLATE 為準。若已能看出整章流水線，刪欄位；日常場勿硬塞高張力七階段節拍。
+4. 高張力衝突或克制情緒場，可隨包附上 `governance/scene-beat-director.md` 與 `governance/facs-body-lexicon.md` 作為選配參考（不具 Canon 權威）。
+5. 補上本場會碰到的契約條目（`governance/canon-contracts.json`），讓主筆知道哪些既存事實不能矛盾。
+6. TBD 標籤不得進正文。
 
 ## 交付
 
-Capsule ＋ provenance ＋ 正文路徑。不要交完整 State Diff／Dependency／Acceptance Tests。
+Capsule（含 `STYLE ANCHOR` 與選配 `DIRECTOR`）＋ provenance ＋ 正文路徑。不要交完整 State Diff／Dependency／Acceptance Tests。

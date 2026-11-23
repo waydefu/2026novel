@@ -54,6 +54,8 @@ SCENE_FIELDS = (
     "章節目的", "定位", "施工進度", "POV", "時間／地點", "WANT", "OBSTACLE", "KNOWLEDGE",
     "KNOWLEDGE BOUNDARY", "HARD OUTCOME", "RELATIONSHIP BOUNDARY", "CREATIVE FREEDOM", "EXIT",
     "DRAFT WARNING", "禁止寫法", "主要場景", "CHANGE", "RELATIONSHIP", "篇幅感", "序章完成狀態",
+    "SCENE STRUCTURE", "TRIGGER", "SUBTEXT", "PROTECTIVE STRATEGY", "FORBIDDEN REACTIONS",
+    "場景類型", "STYLE TYPE",
 )
 
 
@@ -148,10 +150,60 @@ def extract_voice_for(gov_text: str, pov_text: str, plot_text: str) -> tuple[str
                     if not ln_s or ln_s.startswith("CURRENT TEXT") or ln_s.startswith("TEXT-FACT"):
                         continue
                     keep_lines.append(ln_s)
-                snippets.append("\n".join(keep_lines[:10]))
+                snippets.append("\n".join(keep_lines[:14]))
     if not snippets:
         return "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。", []
     return "\n\n".join(snippets), matched_names
+
+
+# Scores are editorial cues, not canon or automatic prose-quality judgments.
+# Explicit scene-type words outweigh POV affinity; one relevant example is enough.
+STYLE_ANCHOR_SCENE_CUES = {
+    "ANCHOR-DIALOGUE": ("對話", "交談", "閒聊", "互虧", "問答", "談話", "商量", "聊天", "討論"),
+    "ANCHOR-ACTION": ("神術", "施法", "魔法", "治療", "受傷", "急救", "危機", "感官", "查探", "頭痛"),
+    "ANCHOR-ENSEMBLE": ("群像", "多人", "廚房", "僕從", "侍女", "共餐", "日常", "相處", "家務", "生活"),
+}
+STYLE_ANCHOR_POV_HINTS = {
+    "林恩": "ANCHOR-DIALOGUE",
+    "亞德里安": "ANCHOR-ACTION",
+    "莉諾兒": "ANCHOR-ENSEMBLE",
+}
+
+
+def extract_style_anchors(
+    root: Path,
+    anchor_rel: str = "governance/style-anchors.md",
+    fields: dict[str, str] | None = None,
+    limit: int = 1,
+) -> str:
+    """Choose a concise positive example by scene cues first, POV second.
+
+    Do not use the full chapter or draft to select an anchor: that can introduce
+    another character's future knowledge and a misleading narrative voice.
+    Unspecified scenes fall back to the first general-purpose example.
+    """
+    path = root / anchor_rel
+    if not path.is_file() or limit <= 0:
+        return ""
+    text = read_allowed(root, anchor_rel)
+    blocks = re.findall(r"^##\s+(ANCHOR-[^\n]+)\n.*?```text\n(.*?)\n```", text, flags=re.M | re.S)
+    info = fields or {}
+    scene_text = "\n".join(
+        info.get(key, "")[:400]
+        for key in ("場景類型", "STYLE TYPE", "定位", "主要場景", "SCENE STRUCTURE", "WANT", "OBSTACLE")
+    )
+    pov_text = info.get("POV", "")
+    ranked = []
+    for index, (title, body) in enumerate(blocks):
+        anchor_id = title.split("｜", 1)[0].strip()
+        score = sum(3 for cue in STYLE_ANCHOR_SCENE_CUES.get(anchor_id, ()) if cue in scene_text)
+        score += sum(1 for pov, preferred in STYLE_ANCHOR_POV_HINTS.items() if pov in pov_text and preferred == anchor_id)
+        ranked.append((-score, index, title, body))
+    ranked.sort()
+    return "\n\n".join(
+        f"[{title.strip()}]\n{body.strip()}"
+        for _, _, title, body in ranked[:limit]
+    )
 
 
 def normalize_target(target: str) -> str:
@@ -280,6 +332,24 @@ def compile_target(root: Path, target: str) -> dict:
     capsule["DESTINATION"] = fields.get("EXIT") or "本場結束於場景自然出口，不要求 State Diff 式過關。"
     capsule["FREEDOM"] = fields.get("CREATIVE FREEDOM") or "生活細節、誤解、停滯與無大結果的小事可自由處理。"
 
+    director_keys = ("SCENE STRUCTURE", "TRIGGER", "PROTECTIVE STRATEGY", "SUBTEXT", "FORBIDDEN REACTIONS")
+    director_lines = [f"- {k}：{fields[k].strip()}" for k in director_keys if fields.get(k, "").strip()]
+    if director_lines:
+        capsule["DIRECTOR"] = "\n".join(director_lines)
+
+    anchor_rel = "governance/style-anchors.md"
+    anchor_text = extract_style_anchors(root, anchor_rel, fields=fields)
+    if anchor_text:
+        capsule["STYLE ANCHOR"] = anchor_text
+        sources.append(
+            {
+                "id": "STYLE-ANCHOR",
+                "cite": "governance/style-anchors.md (Pass 2 Positive Cadence)",
+                "path": anchor_rel,
+                "anchor": "STYLE ANCHORS",
+            }
+        )
+
     _ = draft  # presence-checked; compiler does not dump whole draft into capsule
 
     loaded = sorted({s["path"] for s in sources})
@@ -300,18 +370,25 @@ def compile_target(root: Path, target: str) -> dict:
     }
 
 
+def _capsule_keys(capsule: dict) -> tuple[str, ...]:
+    base = ("POV", "NOW", "WANT", "KNOWS", "HARD BOUNDARIES", "VOICE", "DESTINATION", "FREEDOM")
+    extra = tuple(k for k in ("DIRECTOR", "STYLE ANCHOR") if capsule.get(k))
+    return base + extra
+
+
 def render_capsule_body(capsule: dict) -> str:
     parts = []
-    for key in ("POV", "NOW", "WANT", "KNOWS", "HARD BOUNDARIES", "VOICE", "DESTINATION", "FREEDOM"):
+    for key in _capsule_keys(capsule):
         parts.append(f"## {key}\n\n{str(capsule.get(key, '')).strip()}")
     return "\n\n".join(parts) + "\n"
 
 
 def render_capsule(payload: dict) -> str:
     lines = [f"# Draft Capsule｜{payload['target']}", ""]
-    for key in ("POV", "NOW", "WANT", "KNOWS", "HARD BOUNDARIES", "VOICE", "DESTINATION", "FREEDOM"):
+    capsule = payload["capsule"]
+    for key in _capsule_keys(capsule):
         lines.append(f"## {key}")
-        lines.append(str(payload["capsule"].get(key, "")).strip() or "（來源不足，保持 TBD 於工作記錄）")
+        lines.append(str(capsule.get(key, "")).strip() or "（來源不足，保持 TBD 於工作記錄）")
         lines.append("")
     lines.append("## Provenance")
     for src in payload["sources"]:

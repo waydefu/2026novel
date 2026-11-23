@@ -20,7 +20,10 @@
     "governance/style-profile.json",
     "governance/agent-rules-source.md",
     "governance/trust-and-authorization.md",
-    "governance/status.md"
+    "governance/status.md",
+    "governance/style-anchors.md",
+    "governance/facs-body-lexicon.md",
+    "governance/scene-beat-director.md"
   ],
   "retired_rules": [],
   "hoisted_rules": [
@@ -243,6 +246,35 @@
       "enforcement": "machine-enforced",
       "enforced_by": "tools/scan_hard_gate.py",
       "docs": []
+    },
+    {
+      "id": "HB-028",
+      "statement": "Pass 2 依 POV 與場景類型選取單一風格錨點並注入 VOICE-WORDS；高張力場景腳本選配，情緒節點可以跳過或全不使用",
+      "enforcement": "machine-assisted",
+      "enforced_by": "tools/compile_context.py",
+      "docs": [
+        "governance/style-anchors.md",
+        "governance/scene-beat-director.md"
+      ]
+    },
+    {
+      "id": "HB-029",
+      "statement": "FACS 生理肌群轉譯與微小失誤都是可不使用的素材；濾鏡詞檢測由獨立上下文 Pass 3 人工判讀，不能機械刪詞",
+      "enforcement": "manual-review",
+      "enforced_by": "tools/scan_pattern_risk.py",
+      "docs": [
+        "governance/facs-body-lexicon.md",
+        "governance/qa-checklists.md"
+      ]
+    },
+    {
+      "id": "HB-030",
+      "statement": "網文高頻套詞擴充（一絲／一抹＋神態、意味深長、難以言喻、不由得／不禁、眼眶微紅等）列為候選線索，不打破實證非判據紅線",
+      "enforcement": "machine-assisted",
+      "enforced_by": "tools/prose_lexicon.py",
+      "docs": [
+        "governance/ai-flavor-evidence.md"
+      ]
     }
   ]
 }
