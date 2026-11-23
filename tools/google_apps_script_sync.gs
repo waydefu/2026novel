@@ -17,6 +17,7 @@
 var DEFAULT_DOC_ID = '1Qg63ffCy3DlLNpmr1mBz-_yjHDgRBY-QbFxRNI5jOt4';
 
 function doPost(e) {
+  var lock = null;
   try {
     if (!e || !e.postData || !e.postData.contents) {
       return jsonOut({ ok: false, error: 'missing_body' });
@@ -27,43 +28,49 @@ function doPost(e) {
       return jsonOut({ ok: false, error: 'unauthorized' });
     }
 
-    var docId = payload.docId || DEFAULT_DOC_ID;
-    var chapters = payload.chapters || [];
-    if (!chapters.length) {
-      return jsonOut({ ok: false, error: 'empty_chapters' });
+    // Never let a caller choose a different Google Doc, even with a valid secret.
+    if (payload.docId && payload.docId !== DEFAULT_DOC_ID) {
+      return jsonOut({ ok: false, error: 'unexpected_doc_id' });
     }
+    var docId = DEFAULT_DOC_ID;
+    var chapters = payload.chapters;
+    validateChapters_(chapters);
     var reserveExcess = payload.reserveExcessTabs !== false;
 
-    var doc = Docs.Documents.get(docId, { includeTabsContent: true });
-    var rootTabs = doc.tabs || [];
+    // Serialize all sync requests for this deployment so their writes cannot overlap.
+    lock = LockService.getScriptLock();
+    if (!lock.tryLock(30000)) {
+      return jsonOut({ ok: false, error: 'sync_busy' });
+    }
 
-    // 第一階段：若章數增加，先補建不足的原生分頁，再重新讀取分頁清單與邊界
+    var doc = Docs.Documents.get(docId, { includeTabsContent: true });
+    var rootTabs = getRootTabs_(doc);
+
+    // Add missing tabs, then re-read IDs; never change old tab IDs or delete tabs.
     if (chapters.length > rootTabs.length) {
       var addReqs = [];
       for (var i = rootTabs.length; i < chapters.length; i++) {
         addReqs.push({
-          addDocumentTab: {
-            tabProperties: {
-              title: chapters[i].heading,
-              index: i
-            }
-          }
+          addDocumentTab: { tabProperties: { title: chapters[i].heading, index: i } }
         });
       }
       Docs.Documents.batchUpdate({ requests: addReqs }, docId);
       doc = Docs.Documents.get(docId, { includeTabsContent: true });
-      rootTabs = doc.tabs || [];
+      rootTabs = getRootTabs_(doc);
     }
 
     var requests = [];
     var renameRequests = [];
+    var expectedTabs = [];
     var updated = [];
     var reserved = [];
-    var warnings = [];
 
     for (var idx = 0; idx < chapters.length; idx++) {
       var ch = chapters[idx];
       var tab = rootTabs[idx];
+      if (!tab) {
+        throw new Error('missing_tab_' + (idx + 1));
+      }
       var tabId = tab.tabProperties.tabId;
       if (tab.tabProperties.title !== ch.heading) {
         renameRequests.push({
@@ -74,6 +81,10 @@ function doPost(e) {
         });
       }
       pushTabOverwriteRequests_(requests, tab, ch.heading, ch.paragraphs);
+      expectedTabs.push({
+        id: tabId, title: ch.heading,
+        text: ch.heading + '\n\n' + ch.paragraphs.join('\n\n')
+      });
       updated.push(ch.heading);
     }
 
@@ -85,6 +96,7 @@ function doPost(e) {
         var label = (rIdx + 1 < cnNums.length) ? ('第' + cnNums[rIdx + 1] + '章') : ('第' + (rIdx + 1) + '章');
         var curLabel = (chapters.length < cnNums.length) ? ('第' + cnNums[chapters.length] + '章') : ('第' + chapters.length + '章');
         var rTitle = '[預留] ' + label + '（PLANNED）';
+        var rParagraph = '本分頁保留給後續 [PLANNED] 章節；現行正文已同步至' + curLabel + '。';
         if (rTab.tabProperties.title !== rTitle) {
           renameRequests.push({
             updateDocumentTabProperties: {
@@ -93,34 +105,108 @@ function doPost(e) {
             }
           });
         }
-        pushTabOverwriteRequests_(requests, rTab, rTitle, [
-          '本分頁保留給後續 [PLANNED] 章節；現行正文已同步至' + curLabel + '。'
-        ]);
+        pushTabOverwriteRequests_(requests, rTab, rTitle, [rParagraph]);
+        expectedTabs.push({ id: rTabId, title: rTitle, text: rTitle + '\n\n' + rParagraph });
         reserved.push(rTitle);
       }
     }
 
-    if (requests.length > 0) {
-      Docs.Documents.batchUpdate({ requests: requests }, docId);
-    }
-    if (renameRequests.length > 0) {
-      try {
-        Docs.Documents.batchUpdate({ requests: renameRequests }, docId);
-      } catch (renameErr) {
-        warnings.push('tab rename skipped: ' + String(renameErr));
-      }
-    }
+    // Content and tab titles must succeed together. Never swallow rename failures.
+    // This also means a failed title update cannot leave a newly published body.
+    Docs.Documents.batchUpdate({ requests: requests.concat(renameRequests) }, docId);
+
+    // A successful API call is not publication evidence. Read back every tab.
+    var after = Docs.Documents.get(docId, { includeTabsContent: true });
+    verifyTabs_(getRootTabs_(after), expectedTabs);
 
     return jsonOut({
       ok: true,
+      verified: true,
+      verifiedChapters: chapters.length,
+      verifiedTabs: expectedTabs.length,
       docId: docId,
       sourceSha: payload.sourceSha || '',
       updated: updated,
       reserved: reserved,
-      warnings: warnings
+      warnings: []
     });
   } catch (err) {
     return jsonOut({ ok: false, error: String(err) });
+  } finally {
+    if (lock && lock.hasLock()) {
+      lock.releaseLock();
+    }
+  }
+}
+
+function validateChapters_(chapters) {
+  if (!Array.isArray(chapters) || chapters.length === 0) {
+    throw new Error('empty_chapters');
+  }
+  for (var i = 0; i < chapters.length; i++) {
+    var ch = chapters[i];
+    if (!ch || ch.number !== i + 1 || typeof ch.heading !== 'string' ||
+        !ch.heading.trim() || !Array.isArray(ch.paragraphs) || ch.paragraphs.length === 0) {
+      throw new Error('invalid_chapter_' + (i + 1));
+    }
+    for (var j = 0; j < ch.paragraphs.length; j++) {
+      if (typeof ch.paragraphs[j] !== 'string' || !ch.paragraphs[j].trim()) {
+        throw new Error('invalid_paragraph_' + (i + 1));
+      }
+    }
+  }
+}
+
+function getRootTabs_(doc) {
+  if (!doc || !Array.isArray(doc.tabs) || doc.tabs.length === 0) {
+    throw new Error('missing_document_tabs');
+  }
+  for (var i = 0; i < doc.tabs.length; i++) {
+    if (!doc.tabs[i].tabProperties || !doc.tabs[i].tabProperties.tabId ||
+        (doc.tabs[i].childTabs && doc.tabs[i].childTabs.length)) {
+      throw new Error('unsupported_tab_structure_' + (i + 1));
+    }
+  }
+  return doc.tabs;
+}
+
+function getTabText_(tab) {
+  var body = tab.documentTab && tab.documentTab.body;
+  if (!body || !Array.isArray(body.content)) {
+    throw new Error('missing_tab_body');
+  }
+  var text = '';
+  for (var i = 0; i < body.content.length; i++) {
+    var item = body.content[i];
+    if (item.sectionBreak) continue;
+    if (!item.paragraph || !Array.isArray(item.paragraph.elements)) {
+      throw new Error('unsupported_tab_content');
+    }
+    for (var j = 0; j < item.paragraph.elements.length; j++) {
+      var run = item.paragraph.elements[j].textRun;
+      if (!run || typeof run.content !== 'string') {
+        throw new Error('unsupported_tab_element');
+      }
+      text += run.content;
+    }
+  }
+  return text.replace(/\n+$/, '');
+}
+
+function verifyTabs_(tabs, expectedTabs) {
+  if (tabs.length < expectedTabs.length) {
+    throw new Error('tab_count_mismatch');
+  }
+  for (var i = 0; i < expectedTabs.length; i++) {
+    var expected = expectedTabs[i];
+    var actual = tabs[i];
+    if (actual.tabProperties.tabId !== expected.id ||
+        actual.tabProperties.title !== expected.title) {
+      throw new Error('tab_title_mismatch_' + (i + 1));
+    }
+    if (getTabText_(actual) !== expected.text.replace(/\n+$/, '')) {
+      throw new Error('tab_body_mismatch_' + (i + 1));
+    }
   }
 }
 
