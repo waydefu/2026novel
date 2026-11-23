@@ -7,6 +7,7 @@ on:
     paths:
       - "10_現行創作資料/小說正文第三版.md"
       - "tools/sync_google_doc.py"
+      - "tools/google_apps_script_sync.gs"
       - ".github/workflows/sync-google-doc.yml"
   workflow_dispatch:
     inputs:
@@ -16,6 +17,11 @@ on:
         default: false
         type: boolean
 
+# Serialize releases, and skip snapshots that are no longer the main HEAD.
+concurrency:
+  group: sync-google-doc-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
   sync-google-doc:
     runs-on: ubuntu-latest
@@ -23,16 +29,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check current main version
+        id: latest
+        shell: bash
+        run: |
+          git fetch --no-tags origin main
+          if [ "$GITHUB_SHA" = "$(git rev-parse origin/main)" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Skip superseded publish::This run is not the current main commit."
+          fi
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Verify chapter parsing (dry-run)
+        if: ${{ steps.latest.outputs.current == 'true' }}
         run: python tools/sync_google_doc.py --dry-run
 
       - name: Push chapters to Google Doc Tabs
-        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
+        if: ${{ steps.latest.outputs.current == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.dry_run) }}
         env:
           GDOC_WEBHOOK_URL: ${{ secrets.GDOC_WEBHOOK_URL }}
           GDOC_WEBHOOK_SECRET: ${{ secrets.GDOC_WEBHOOK_SECRET }}
@@ -40,7 +59,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           if [ -z "$GDOC_WEBHOOK_URL" ] || [ -z "$GDOC_WEBHOOK_SECRET" ]; then
-            echo "::notice title=Google Doc 自動同步尚未啟用::請先依 governance/google-doc-sync.md 完成 Apps Script 部署並設定 Repository Secrets (GDOC_WEBHOOK_URL, GDOC_WEBHOOK_SECRET)。"
-            exit 0
+            echo "::error title=Google Doc 發布失敗::尚未設定 Webhook URL 或 Secret，無法驗證 Google 文件已更新。"
+            exit 1
           fi
           python tools/sync_google_doc.py --mode webhook --strict

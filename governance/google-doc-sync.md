@@ -13,7 +13,9 @@
 
 1. 依 `# 第N章｜章名` 自動切分正文各章節與段落，拒絕空章或重複章號。
 2. 透過加密 HTTPS POST 將章節 JSON 傳送至綁定在目標 Google 文件內的 **Google Apps Script Web App**（[`tools/google_apps_script_sync.gs`](../tools/google_apps_script_sync.gs)）。
-3. 接收端驗證 `SYNC_SECRET` 後，呼叫內建 `Google Docs API` 更新各原生分頁標題與內文；若有新章自動新增分頁，若多出舊分頁則改標為 `[預留] 第N章（PLANNED）` 而不直接刪除。
+3. 接收端驗證 `SYNC_SECRET` 並限制目標只可為指定 Google 文件，使用同一批 Google Docs API 請求更新原生分頁的**標題與正文**；若有新章自動新增分頁，若多出舊分頁則改標為 `[預留] 第N章（PLANNED）` 而不直接刪除。
+4. 接收端重新讀取所有受影響分頁，逐章比對**分頁 ID、標題與全文文字**，全部一致才回傳 `verified: true`；呼叫端再次確認章數、文件 ID 與來源 SHA。任一步失敗（包含改名、重新讀取或驗證失敗）都使同步工作顯示失敗，不能只靠 `ok: true` 或 GitHub Actions 綠燈宣稱 Google 文件已同步。
+5. GitHub Actions 會序列化發布作業，較舊的 `main` 提交不再執行同步；未設定 Secrets 不再以成功略過。
 
 > 本機已登入 `gdocs` CLI 時，亦可手動執行 `py -3 tools/sync_google_doc.py --mode gdocs` 直接由本機同步。
 
@@ -46,3 +48,31 @@
    - `GDOC_WEBHOOK_SECRET`：步驟 2 設定的 `SYNC_SECRET` 字串
 
 設定完成後，可到 GitHub **Actions → Sync Draft to Google Doc → Run workflow** 按一次手動觸發驗證自動同步。
+
+
+---
+
+## 三、更新接收器與驗收（修正分頁名稱不一致）
+
+2026-11-24 審查發現：原 Webhook 能成功更新七章內文，但第二、第三、第七分頁仍保留舊標題。原因是舊接收器把改名失敗降為警告，又未讀回比對，造成「部分成功卻顯示成功」。
+
+**本次修復需要同時更新 GitHub 程式與 Google Apps Script 部署；只合併 GitHub PR 不會自動替換已部署的 Web App。**
+
+1. 在綁定目標文件的 Apps Script 編輯器中，更新為最新版 `tools/google_apps_script_sync.gs`。
+2. 到 **部署 → 管理部署作業 → 編輯（鉛筆）→ 版本：新增版本 → 部署**。務必使用既有 Web App 部署，避免更換 URL；保留原 `SYNC_SECRET`，不要把密鑰寫進 GitHub 或對話。
+3. 合併修正 PR 後，於 GitHub **Actions → Sync Draft to Google Doc → Run workflow** 執行正式同步（`dry_run=false`）。
+4. 查看 `OK webhook-sync-verified chapters=N` 與成功的 Actions 結果，再開啟文件核對分頁名稱。若接收器仍是舊版、改名失敗、正文不一致或 Secret 缺失，工作應變紅，屬於**未完成同步**；請勿宣稱已成功。
+5. `evals/google_doc_sync_receiver.test.cjs` 是使用模擬 Docs API 的測試，不會寫入真實 Google 文件。CI 綠燈僅證明程式契約與模擬案例通過，**不代表已部署或已完成實際文件驗收**。
+
+## 四、已知共享權限風險（作者決定暫緩）
+
+- **2026-11-24 實測：** 目標 Google 文件設為「知道連結的任何人＝編輯者（writer）」，連結不會透過搜尋公開列出（`allowFileDiscovery: false`）；另有特定共同編輯者。
+- **風險：** 持有連結的人可能修改或覆寫發布中的小說內容；此模式也不適合把綁定文件的 Apps Script 與存放密鑰的指令碼屬性視為只對作者可控的環境。
+- **作者決定：**「權限暫時不用管，記錄即可」。本次 PR **不變更分享連結、不移除共同編輯者、不輪替密鑰**，不把權限調整當作 CI 或同步修復的前置條件；待作者另行授權再處理。
+
+
+## 五、Google Docs API 已知分頁改名相容性問題（待實機確認）
+
+Google 官方 Issue Tracker [561660144](https://issuetracker.google.com/issues/561660144) 記載：某些已刪除原始 `t.0` 分頁的文件，呼叫 `updateDocumentTabProperties` 可能得到 HTTP 500。**目前目標文件所見八個分頁 ID 均非 `t.0`，因此存在相容性風險，但此 PR 尚未對線上接收器做真正的改名測試，不能宣稱已確認發生相同錯誤。**
+
+新版程式遇到此類錯誤會**讓整次同步標記失敗**，不會把正文已更新、標題仍舊的情況當成成功。若重新部署後改名仍失敗，可在 Google 文件介面手動將舊分頁標題與目前正文一致，再重新執行正式同步驗收；若日後章名再改，仍可能需要人工處理。無作者另行決定，不重建或更換既有 Google 文件，也不刪除分頁以迴避 API 問題。
