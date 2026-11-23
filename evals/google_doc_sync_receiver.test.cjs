@@ -44,6 +44,7 @@ function receiver(opts = {}) {
   let acquired = false;
   let released = false;
   let batches = 0;
+  const history = [];
   const sandbox = {
     JSON, Array, String,
     PropertiesService: {
@@ -70,6 +71,7 @@ function receiver(opts = {}) {
       batchUpdate: ({ requests, writeControl }, docId) => {
         assert.equal(docId, DOC);
         batches++;
+        history.push(clone(requests));
         assert.equal(writeControl?.requiredRevisionId, state.revisionId,
           "writes must be guarded by the observed revision");
         if (opts.concurrentBeforeBatch) throw Error("revision conflict: collaborator wrote first");
@@ -135,6 +137,7 @@ function receiver(opts = {}) {
     }).getContent()),
     tabs: () => state.tabs,
     batches: () => batches,
+    requests: () => history,
     released: () => released,
   };
 }
@@ -175,6 +178,29 @@ check("localized_edit_does_not_replace_whole_chapter", () => {
   assert.equal(result.ok, true);
   assert.equal(r.batches(), 1);
   assert.equal(result.unchangedContent.length, 1);
+  const changed = r.requests()[0];
+  const del = changed.filter(q => q.deleteContentRange);
+  const ins = changed.filter(q => q.insertText);
+  assert.equal(del.length, 1);
+  assert.equal(ins.length, 1);
+  assert.equal(del[0].deleteContentRange.range.endIndex - del[0].deleteContentRange.range.startIndex, 1,
+    "single-character typo must not cause whole-chapter deletion");
+  assert.equal(ins[0].insertText.text.length, 1);
+  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+});
+
+check("utf16_surrogate_pairs_remain_intact", () => {
+  const original = chapters.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+  const before = original.slice();
+  before[0] = original[0] + "🚀";
+  const r = receiver({ titles: chapters.map(c => c.heading), contents: before });
+  // The old trailing emoji is deleted as a complete surrogate pair.
+  const res = r.post();
+  assert.equal(res.ok, true);
+  const deletes = r.requests().flat().filter(q => q.deleteContentRange);
+  assert.equal(deletes.length, 1);
+  assert.equal(deletes[0].deleteContentRange.range.endIndex -
+    deletes[0].deleteContentRange.range.startIndex, 2);
   assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
 });
 
@@ -241,4 +267,4 @@ check("invalid_chapters_and_lock_contention_fail_closed", () => {
   assert.equal(busy.batches(), 0);
 });
 
-process.stdout.write("OK google_doc_sync_receiver: 11 tests\n");
+process.stdout.write("OK google_doc_sync_receiver: 12 tests\n");
