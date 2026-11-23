@@ -293,7 +293,7 @@ def main() -> int:
         print(msg, file=sys.stderr if args.strict else sys.stdout)
         return 1 if args.strict else 0
 
-    source_sha = os.environ.get("GITHUB_SHA", "local")
+    source_sha = os.environ.get("SOURCE_SHA") or os.environ.get("GITHUB_SHA", "local")
     res = push_webhook(
         chapters,
         doc_id=args.doc_id,
