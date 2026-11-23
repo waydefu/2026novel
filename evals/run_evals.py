@@ -862,12 +862,15 @@ def main() -> int:
     good_ack = {
         "ok": True, "verified": True, "verifiedChapters": 1,
         "verifiedTabs": 1, "docId": "doc-test", "sourceSha": "sha-test",
-        "warnings": [],
+        "updated": ["第一章｜測試"], "warnings": [],
     }
     for name, delta, should_pass in (
         ("verified", {}, True),
         ("legacy_ok_only", {"verified": None}, False),
         ("missing_chapter", {"verifiedChapters": 0}, False),
+        ("missing_tab_verification", {"verifiedTabs": 0}, False),
+        ("invalid_tab_count", {"verifiedTabs": "1"}, False),
+        ("wrong_updated_chapter", {"updated": ["第二章｜別的"]}, False),
         ("wrong_doc", {"docId": "other"}, False),
         ("wrong_sha", {"sourceSha": "stale"}, False),
         ("rename_warning", {"warnings": ["old tab title"]}, False),

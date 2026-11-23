@@ -50,6 +50,26 @@ VALIDATION：如何確認已正確落地
 
 # 3｜歷史紀錄
 
+## CHG-2026-11-24-002
+
+DATE：2026-11-24 +08:00
+
+TYPE：GOVERNANCE / OPS / FIX
+
+SCOPE：`tools/google_apps_script_sync.gs`、`tools/sync_google_doc.py`、`.github/workflows/sync-google-doc.yml`、`evals/google_doc_sync_receiver.test.cjs`、`governance/google-doc-sync.md`、`governance/status.md`、`governance/change-manifest.yaml`、本紀錄。
+
+BEFORE：PR #49 雖已合併且模擬 CI 通過，2026-11-24 正式同步 workflow run 45223235356 仍報 `Webhook response is not verified`；七章正文與 main 完全一致，但舊的分頁標題與預留分頁名稱仍未更新。全章刪除重建的同步策略會對註解、共同編輯產生非必要風險；僅用 SHA 比對觸發提交，可能因 main 後續提交非正文改動而跳過最後一次同步。
+
+AFTER：接收器使用 Google Docs API `writeControl.requiredRevisionId` 保障建立分頁與正文更新的併發安全。未變動的章節不執行文字寫入，文字變動只操作最短差異區間並避免拆開 UTF-16 代理對；標題變更則只送必要改名請求。GitHub Actions `queue: max` 序列化同步，並在每次執行時重新抓取最新 main 正文與 commit SHA。補上 no-op、最小差異、修訂衝突等模擬回歸測試；紀錄仍需升級線上 Google Apps Script 並驗證 Google Docs API 舊分頁改名相容性。**未變更 Google 文件分享權限、正文、Canon、實際文件或已部署 Web App。**
+
+REASON：作者指示「先研究然後全方位審查」後核准「開始優化」，針對發布失敗及避免編輯內容和註解受損進行 R0 技術補強。
+
+AUTHORITY：作者 2026-11-24 「開始優化」。
+
+COMPATIBILITY：NON-BREAKING / OPS-ONLY；已部署 Web App 需作者依文件另行升級，不能把 CI 成功視為正式端對端成功。
+
+VALIDATION：GitHub Actions Governance CI 的回歸測試與接收器 mock 測試，以及 Google 文件保持唯讀的逐章核對；正式部署與人工分頁修正後再完成真實驗收。
+
 ## CHG-2026-11-24-001
 
 DATE：2026-11-24 +08:00

@@ -140,6 +140,9 @@ def push_webhook(
         raise RuntimeError(f"Webhook returned error: {parsed}")
     if (parsed.get("verified") is not True
             or parsed.get("verifiedChapters") != len(chapters)
+            or type(parsed.get("verifiedTabs")) is not int
+            or parsed["verifiedTabs"] < len(chapters)
+            or parsed.get("updated") != [ch.heading for ch in chapters]
             or parsed.get("docId") != doc_id
             or parsed.get("sourceSha") != source_sha
             or parsed.get("warnings")):
@@ -249,7 +252,7 @@ def push_gdocs_cli(
         )
     if [t.get("title") for t in root_after[:len(expected_titles)]] != expected_titles:
         raise RuntimeError("gdocs tab title readback mismatch")
-    return {"ok": True, "updated": updated, "created": created, "reserved": reserved, "verifiedTitles": True, "warnings": []}
+    return {"ok": True, "updated": updated, "created": created, "reserved": reserved, "verifiedTitles": True, "verifiedContent": False, "warnings": []}
 
 
 def main() -> int:
@@ -283,7 +286,7 @@ def main() -> int:
 
     if args.mode == "gdocs":
         res = push_gdocs_cli(chapters, args.doc_id, reserve_excess_tabs=not args.no_reserve_excess)
-        print(json.dumps(res, ensure_ascii=False, indent=2) if args.json else f"OK\tgdocs-sync\tupdated={len(res['updated'])}\tcreated={len(res['created'])}\treserved={len(res['reserved'])}")
+        print(json.dumps(res, ensure_ascii=False, indent=2) if args.json else f"OK\tgdocs-sync-title-only\tupdated={len(res['updated'])}\tcreated={len(res['created'])}\treserved={len(res['reserved'])}")
         return 0
 
     webhook_url = os.environ.get("GDOC_WEBHOOK_URL", "").strip()
@@ -293,7 +296,7 @@ def main() -> int:
         print(msg, file=sys.stderr if args.strict else sys.stdout)
         return 1 if args.strict else 0
 
-    source_sha = os.environ.get("GITHUB_SHA", "local")
+    source_sha = os.environ.get("SOURCE_SHA") or os.environ.get("GITHUB_SHA", "local")
     res = push_webhook(
         chapters,
         doc_id=args.doc_id,

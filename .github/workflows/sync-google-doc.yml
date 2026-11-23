@@ -17,10 +17,11 @@ on:
         default: false
         type: boolean
 
-# Serialize releases, and skip snapshots that are no longer the main HEAD.
+# Queue publication requests; each run refreshes from canonical main before writing.
 concurrency:
   group: sync-google-doc-${{ github.repository }}
   cancel-in-progress: false
+  queue: max
 
 jobs:
   sync-google-doc:
@@ -29,17 +30,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check current main version
+      # Publish the current canonical draft, not the historical commit that
+      # happened to trigger this run. A non-draft commit can advance main too.
+      - name: Refresh canonical main before publishing
         id: latest
         shell: bash
         run: |
           git fetch --no-tags origin main
-          if [ "$GITHUB_SHA" = "$(git rev-parse origin/main)" ]; then
-            echo "current=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "current=false" >> "$GITHUB_OUTPUT"
-            echo "::notice title=Skip superseded publish::This run is not the current main commit."
-          fi
+          git reset --hard origin/main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "Publishing canonical main at $(git rev-parse --short HEAD)"
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -47,16 +47,15 @@ jobs:
           python-version: "3.12"
 
       - name: Verify chapter parsing (dry-run)
-        if: ${{ steps.latest.outputs.current == 'true' }}
         run: python tools/sync_google_doc.py --dry-run
 
       - name: Push chapters to Google Doc Tabs
-        if: ${{ steps.latest.outputs.current == 'true' && (github.event_name != 'workflow_dispatch' || !inputs.dry_run) }}
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
         env:
           GDOC_WEBHOOK_URL: ${{ secrets.GDOC_WEBHOOK_URL }}
           GDOC_WEBHOOK_SECRET: ${{ secrets.GDOC_WEBHOOK_SECRET }}
           GDOC_ID: "1Qg63ffCy3DlLNpmr1mBz-_yjHDgRBY-QbFxRNI5jOt4"
-          GITHUB_SHA: ${{ github.sha }}
+          SOURCE_SHA: ${{ steps.latest.outputs.sha }}
         run: |
           if [ -z "$GDOC_WEBHOOK_URL" ] || [ -z "$GDOC_WEBHOOK_SECRET" ]; then
             echo "::error title=Google Doc 發布失敗::尚未設定 Webhook URL 或 Secret，無法驗證 Google 文件已更新。"
