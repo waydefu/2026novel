@@ -17,7 +17,7 @@ on:
         default: false
         type: boolean
 
-# Serialize releases, and skip snapshots that are no longer the main HEAD.
+# Queue publication requests; each run refreshes from canonical main before writing.
 concurrency:
   group: sync-google-doc-${{ github.repository }}
   cancel-in-progress: false
