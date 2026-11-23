@@ -29,7 +29,17 @@ function makeTab(i, title = "舊標題") {
 }
 
 function receiver(opts = {}) {
-  let state = { tabs: (opts.titles || ["舊一", "舊二"]).map((x, i) => makeTab(i, x)) };
+  let state = { revisionId: "revision-1", tabs: (opts.titles || ["舊一", "舊二"]).map((x, i) => makeTab(i, x)) };
+  if (opts.contents) {
+    state.tabs.forEach((t, i) => {
+      if (opts.contents[i] !== undefined) {
+        const value = opts.contents[i] + "\n";
+        t.documentTab.body.content = [
+          { endIndex: 1 + value.length, paragraph: { elements: [{ textRun: { content: value } }] } }
+        ];
+      }
+    });
+  }
   if (opts.nested) state.tabs[0].childTabs = [makeTab(10, "子分頁")];
   let acquired = false;
   let released = false;
@@ -57,9 +67,12 @@ function receiver(opts = {}) {
         assert.equal(docId, DOC);
         return clone(state);
       },
-      batchUpdate: ({ requests }, docId) => {
+      batchUpdate: ({ requests, writeControl }, docId) => {
         assert.equal(docId, DOC);
         batches++;
+        assert.equal(writeControl?.requiredRevisionId, state.revisionId,
+          "writes must be guarded by the observed revision");
+        if (opts.concurrentBeforeBatch) throw Error("revision conflict: collaborator wrote first");
         const next = clone(state);
         const findTab = id => {
           const tab = next.tabs.find(t => t.tabProperties.tabId === id);
@@ -76,15 +89,26 @@ function receiver(opts = {}) {
               const p = req.updateDocumentTabProperties.tabProperties;
               findTab(p.tabId).tabProperties.title = p.title;
             }
-          } else if (req.deleteContentRange) {
-            const id = req.deleteContentRange.range.tabId;
-            findTab(id).documentTab.body.content = [];
-          } else if (req.insertText) {
-            const id = req.insertText.location.tabId;
-            const text = req.insertText.text + "\n";
-            findTab(id).documentTab.body.content = [
-              { endIndex: 1 + text.length, paragraph: {
-                elements: [{ textRun: { content: text } }]
+          } else if (req.deleteContentRange || req.insertText) {
+            const id = req.deleteContentRange?.range.tabId || req.insertText.location.tabId;
+            const tab = findTab(id);
+            const before = tab.documentTab.body.content
+              .flatMap(x => (x.paragraph?.elements || []).map(y => y.textRun?.content || "")).join("");
+            let after;
+            if (req.deleteContentRange) {
+              const start = req.deleteContentRange.range.startIndex - 1;
+              const end = req.deleteContentRange.range.endIndex - 1;
+              assert.ok(start >= 0 && end <= before.length - 1, "must not delete final newline");
+              assert.ok(end > start, "non-empty deletion");
+              after = before.slice(0, start) + before.slice(end);
+            } else {
+              const index = req.insertText.location.index - 1;
+              assert.ok(index >= 0 && index < before.length, "insert before final newline");
+              after = before.slice(0, index) + req.insertText.text + before.slice(index);
+            }
+            tab.documentTab.body.content = [
+              { endIndex: 1 + after.length, paragraph: {
+                elements: [{ textRun: { content: after } }]
               } }
             ];
           } else if (req.updateParagraphStyle) {
@@ -96,8 +120,9 @@ function receiver(opts = {}) {
         if (opts.truncateBody) {
           next.tabs[0].documentTab.body.content[0].paragraph.elements[0].textRun.content = "內容被截斷\n";
         }
+        next.revisionId = "revision-" + (Number(state.revisionId.split("-")[1]) + 1);
         state = next;
-        return { replies: requests.map(() => ({})) };
+        return { replies: requests.map(() => ({})), writeControl: { requiredRevisionId: state.revisionId } };
       }
     } }
   };
@@ -130,6 +155,34 @@ check("renames_and_full_content_are_verified", () => {
   assert.deepEqual(r.tabs().map(t => t.tabProperties.title), chapters.map(c => c.heading));
   assert.ok(r.released());
   assert.equal(r.batches(), 1);
+});
+
+check("unchanged_chapters_are_not_rewritten", () => {
+  const original = chapters.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+  const r = receiver({ titles: chapters.map(c => c.heading), contents: original });
+  const result = r.post();
+  assert.equal(result.ok, true);
+  assert.equal(r.batches(), 0);
+  assert.equal(result.unchangedContent.length, 2);
+});
+
+check("localized_edit_does_not_replace_whole_chapter", () => {
+  const original = chapters.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+  const slightlyWrong = original.slice();
+  slightlyWrong[0] = slightlyWrong[0].replace("內容乙。", "內容異。");
+  const r = receiver({ titles: chapters.map(c => c.heading), contents: slightlyWrong });
+  const result = r.post();
+  assert.equal(result.ok, true);
+  assert.equal(r.batches(), 1);
+  assert.equal(result.unchangedContent.length, 1);
+  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+});
+
+check("revision_conflict_blocks_all_writes", () => {
+  const r = receiver({ concurrentBeforeBatch: true });
+  assert.equal(r.post().ok, false);
+  assert.equal(r.batches(), 1);
+  assert.ok(r.released());
 });
 
 check("failed_rename_is_a_hard_error_and_body_is_atomic", () => {
@@ -188,4 +241,4 @@ check("invalid_chapters_and_lock_contention_fail_closed", () => {
   assert.equal(busy.batches(), 0);
 });
 
-process.stdout.write("OK google_doc_sync_receiver: 8 tests\n");
+process.stdout.write("OK google_doc_sync_receiver: 11 tests\n");
