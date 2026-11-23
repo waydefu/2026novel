@@ -136,8 +136,17 @@ def push_webhook(
         parsed = json.loads(raw)
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"Webhook returned non-JSON response: {raw[:300]!r}") from exc
-    if not parsed.get("ok"):
+    if not isinstance(parsed, dict) or parsed.get("ok") is not True:
         raise RuntimeError(f"Webhook returned error: {parsed}")
+    if (parsed.get("verified") is not True
+            or parsed.get("verifiedChapters") != len(chapters)
+            or parsed.get("docId") != doc_id
+            or parsed.get("sourceSha") != source_sha
+            or parsed.get("warnings")):
+        raise RuntimeError(
+            "Webhook response is not verified: tab titles and full chapter text "
+            "must be read back successfully (redeploy the current Apps Script receiver)"
+        )
     return parsed
 
 
@@ -173,13 +182,9 @@ def push_gdocs_cli(
     updated: list[str] = []
     created: list[str] = []
     reserved: list[str] = []
-    warnings: list[str] = []
-
-    def try_rename(tab_id: str, new_title: str) -> None:
-        try:
-            _run_gdocs(["mutate", "rename-tab", doc_id, tab_id, new_title])
-        except RuntimeError as exc:
-            warnings.append(f"rename-tab skipped ({tab_id} -> {new_title}): {exc}")
+    def rename_tab(tab_id: str, new_title: str) -> None:
+        # A failed rename is a sync failure; do not call the result successful.
+        _run_gdocs(["mutate", "rename-tab", doc_id, tab_id, new_title])
 
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
@@ -188,7 +193,7 @@ def push_gdocs_cli(
                 tab_id = root_tabs[idx]["tabId"]
                 cur_title = root_tabs[idx].get("title", "")
                 if cur_title != ch.heading:
-                    try_rename(tab_id, ch.heading)
+                    rename_tab(tab_id, ch.heading)
             else:
                 out = _run_gdocs(
                     ["mutate", "create-tab", doc_id, "--title", ch.heading, "--index", str(idx), "--json"]
@@ -213,7 +218,7 @@ def push_gdocs_cli(
                 tab_id = root_tabs[idx]["tabId"]
                 reserve_title = f"[預留] {cn_chapter_label(idx + 1)}（PLANNED）"
                 if root_tabs[idx].get("title", "") != reserve_title:
-                    try_rename(tab_id, reserve_title)
+                    rename_tab(tab_id, reserve_title)
                 ops = [
                     {"op": "heading", "text": reserve_title, "level": "2"},
                     {
@@ -228,7 +233,23 @@ def push_gdocs_cli(
                 )
                 reserved.append(f"{reserve_title} ({tab_id})")
 
-    return {"ok": True, "updated": updated, "created": created, "reserved": reserved, "warnings": warnings}
+    # The CLI's batch exit status alone does not prove tab renaming worked.
+    after = json.loads(_run_gdocs(["readonly", "list-tabs", doc_id, "--json"]))
+    if not isinstance(after, list):
+        raise RuntimeError("gdocs list-tabs readback is not a list")
+    root_after = sorted(
+        [t for t in after if t.get("nestingLevel", t.get("nesting", 0)) == 0],
+        key=lambda t: t.get("index", 0),
+    )
+    expected_titles = [ch.heading for ch in chapters]
+    if reserve_excess_tabs:
+        expected_titles.extend(
+            f"[預留] {cn_chapter_label(i + 1)}（PLANNED）"
+            for i in range(len(chapters), len(root_tabs))
+        )
+    if [t.get("title") for t in root_after[:len(expected_titles)]] != expected_titles:
+        raise RuntimeError("gdocs tab title readback mismatch")
+    return {"ok": True, "updated": updated, "created": created, "reserved": reserved, "verifiedTitles": True, "warnings": []}
 
 
 def main() -> int:
@@ -281,7 +302,7 @@ def main() -> int:
         source_sha=source_sha,
         reserve_excess_tabs=not args.no_reserve_excess,
     )
-    print(json.dumps(res, ensure_ascii=False, indent=2) if args.json else f"OK\twebhook-sync\tchapters={len(chapters)}\tdoc={args.doc_id}")
+    print(json.dumps(res, ensure_ascii=False, indent=2) if args.json else f"OK\twebhook-sync-verified\tchapters={res['verifiedChapters']}\tdoc={args.doc_id}")
     return 0
 
 
