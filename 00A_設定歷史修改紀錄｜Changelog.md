@@ -72,7 +72,9 @@ AUTHORITY：作者 2026-11-23 明確授權「工程系統全面升級」。
 
 COMPATIBILITY：NON-BREAKING / OPS & GOVERNANCE UPGRADE（`state_change: none`，不動正文與角色／世界 Canon）
 
-VALIDATION：`py -3 tools/sync_agent_rules.py --check`、`py -3 tools/sync_skills.py --check`、`py -3 tools/check_rule_budget.py`、`py -3 evals/ci_suite.py --git-base origin/main`（101 cases PASS）及遠端 GitHub Actions CI。
+VALIDATION：`py -3 tools/sync_agent_rules.py --check`、`py -3 tools/sync_skills.py --check`、`py -3 tools/check_rule_budget.py`、`py -3 evals/ci_suite.py --git-base origin/main`（初版 101 cases PASS）及遠端 GitHub Actions CI。
+
+REVIEW CORRECTION（2026-11-23）：PR #48 依審查意見修復固定取前兩組 Style Anchor 的缺陷：Compiler 改依場景類型與 POV 選擇一組範例，並增加五項相關回歸測試（合計 106 cases）。將 FACS 小失誤、感官數量與高張力七節點改成純選配，節點可省略／合併／跳過，允許直接寫情緒、內心或對白收尾；同步更新兩項寫作 Skills、QA 文件與規則預算。PR 的 base 自已合併之 R4 工作分支重新建構至 `main`，僅保留 24 個原目標檔案的 v3.0 差異；不改正文或 Canon。
 
 ## CHG-2026-11-22-008
 
