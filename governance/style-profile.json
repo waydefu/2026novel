@@ -1,6 +1,6 @@
 {
   "updated": "2026-10-22",
-  "note": "以本專案自己的正負樣本校準；不使用通用門檻。R 值參考 lieflat-less-ai-tone（283 萬字 / 629 篇）研究。",
+  "note": "以本專案自己的正負樣本校準；不使用通用門檻。R 值參考 lieflat-less-ai-tone（283 萬字 / 629 篇）研究。 2026-11-25：原 samples 由舊版計量產出，不得與新版代理詞統計直接比較；bands 原值保持不變。",
   "not_evidence": {
     "metaphor": {
       "label": "比喻",
@@ -37,19 +37,19 @@
   },
   "samples": {
     "positive_clean": {
-      "dash": 0.0,
+      "dash": 0,
       "colon": 2.98,
-      "enumeration": 0.0,
-      "exclamation": 0.0,
+      "enumeration": 0,
+      "exclamation": 0,
       "rhetorical_question": 2.98,
-      "metaphor": 0.0,
-      "passive": 0.0,
-      "contrast": 0.0,
-      "explain": 0.0,
+      "metaphor": 0,
+      "passive": 0,
+      "contrast": 0,
+      "explain": 0,
       "ordinal": 2.98,
-      "abstract_noun": 0.0,
-      "eval_adj": 0.0,
-      "self_comment": 0.0,
+      "abstract_noun": 0,
+      "eval_adj": 0,
+      "self_comment": 0,
       "sentences": 30,
       "avg_sentence_len": 11.2,
       "sentence_cv": 0.634,
@@ -57,15 +57,15 @@
       "dialogue_ratio": 0.067
     },
     "negative_ai_flavor": {
-      "dash": 0.0,
+      "dash": 0,
       "colon": 6.12,
-      "enumeration": 0.0,
-      "exclamation": 0.0,
-      "rhetorical_question": 0.0,
+      "enumeration": 0,
+      "exclamation": 0,
+      "rhetorical_question": 0,
       "metaphor": 3.06,
-      "passive": 0.0,
-      "contrast": 0.0,
-      "explain": 0.0,
+      "passive": 0,
+      "contrast": 0,
+      "explain": 0,
       "ordinal": 9.17,
       "abstract_noun": 3.06,
       "eval_adj": 12.23,
@@ -79,10 +79,12 @@
   },
   "bands": {
     "contrast_per_1k": 1.5,
-    "explain_per_1k": 1.0,
-    "eval_adj_per_1k": 1.0,
+    "explain_per_1k": 1,
+    "eval_adj_per_1k": 1,
     "self_comment_per_1k": 0.5,
-    "ordinal_per_1k": 2.0
+    "ordinal_per_1k": 2
   },
-  "band_note": "bands 只對『有實證差異』的訊號設限；比喻、設問、排比、被動、句長均勻度不設限。"
+  "band_note": "bands 只對『有實證差異』的訊號設限；比喻、設問、排比、被動、句長均勻度不設限。",
+  "measurement_version": 1,
+  "calibration_status": "historical_snapshot_recalibration_required"
 }

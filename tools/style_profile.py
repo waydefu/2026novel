@@ -26,8 +26,9 @@ Consequences this tool encodes:
 * Metaphor, rhetorical questions, parallelism and passive voice are **not**
   defect signals at all. They are reported under "not evidence" so nobody
   deletes good prose to satisfy a checker.
-* Every band is derived from *this project's own* two specimens (the live
-  draft and the retired 第二版), not from generic thresholds.
+* Calibration samples are project fixtures, not a representative corpus.
+  The recorded bands are advisory settings, not empirically fitted cutoffs.
+  Question marks and comparison words are lexical proxies, not semantic labels.
 
 Usage:
     py -3 tools/style_profile.py <file> [--compare <baseline>]
@@ -66,8 +67,10 @@ SIGNALS = {
     "colon": ("冒號", re.compile(r"：")),
     "enumeration": ("頓號", re.compile(r"、")),
     "exclamation": ("驚嘆號", re.compile(r"！")),
-    "rhetorical_question": ("設問句", re.compile(r"？")),
-    "metaphor": ("比喻", re.compile(r"像|彷彿|如同|彷若|猶如|宛如|好像")),
+    # Legacy keys remain for consumers, but these are punctuation/lexical
+    # proxies, not rhetorical-question or metaphor recognition.
+    "rhetorical_question": ("問號（非設問判定）", re.compile(r"[？?]")),
+    "metaphor": ("比喻候選詞（非語義判定）", re.compile(r"彷彿|如同|彷若|猶如|宛如|好像|(?<![雕想肖畫圖塑影])像(?![素片貌])")),
     "passive": ("被動句", re.compile(r"被[^。！？]{1,8}(?:了|著|過)")),
     "contrast": ("不是X而是Y", re.compile(r"不是[^。！？]{1,20}而是")),
     "explain": ("解說導引", re.compile(r"這意味著|某種程度|說到底|歸根究柢|真正的(?:原因|問題)")),
@@ -102,7 +105,7 @@ def profile(text: str) -> dict:
 
 
 def render(label: str, p: dict) -> list[str]:
-    lines = [f"--- {label} ---"]
+    lines = [f"--- {label} ---", "  問號與比喻候選詞為表面量測，不代表已辨識設問或比喻。"]
     for key, (name, _) in SIGNALS.items():
         flag = "  (非判據)" if key in NOT_EVIDENCE else ""
         lines.append(f"  {name:<12} {p[key]:>7.2f} /千字{flag}")
@@ -121,7 +124,8 @@ def main() -> int:
         pos = FIXTURES / "pass_human_prose.md"
         neg = FIXTURES / "pattern_ai_flavor.md"
         payload = {
-            "updated": "2026-10-22",
+            "updated": "2026-11-25",
+            "measurement_version": 2,
             "note": "以本專案自己的正負樣本校準；不使用通用門檻。R 值參考 lieflat-less-ai-tone（283 萬字 / 629 篇）研究。",
             "not_evidence": {k: {"label": v[0], "why": v[1]} for k, v in NOT_EVIDENCE.items()},
             "samples": {
