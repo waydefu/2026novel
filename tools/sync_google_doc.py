@@ -82,6 +82,8 @@ def parse_chapters(text: str) -> list[ChapterPayload]:
             raise ValueError(f"無法解析章號：{raw_num!r}")
         if ch_num in seen_numbers:
             raise ValueError(f"重複章號：{ch_num}")
+        if ch_num != idx + 1:
+            raise ValueError(f"章號不連續：預期 {idx + 1}，實際 {ch_num}")
         seen_numbers.add(ch_num)
 
         heading = f"第{raw_num}章｜{m.group(2).strip()}"
@@ -139,6 +141,7 @@ def push_webhook(
     if not isinstance(parsed, dict) or parsed.get("ok") is not True:
         raise RuntimeError(f"Webhook returned error: {parsed}")
     if (parsed.get("verified") is not True
+            or type(parsed.get("verifiedChapters")) is not int
             or parsed.get("verifiedChapters") != len(chapters)
             or type(parsed.get("verifiedTabs")) is not int
             or parsed["verifiedTabs"] < len(chapters)
@@ -173,13 +176,18 @@ def push_gdocs_cli(
     chapters: list[ChapterPayload],
     doc_id: str,
     reserve_excess_tabs: bool = True,
+    *, allow_destructive_replace: bool = False,
 ) -> dict:
+    if not allow_destructive_replace:
+        raise RuntimeError("gdocs --replace-all may destroy annotations; require --allow-destructive-replace")
     raw_tabs = _run_gdocs(["readonly", "list-tabs", doc_id, "--json"])
     tabs = json.loads(raw_tabs)
     if not isinstance(tabs, list):
         raise RuntimeError(f"Unexpected list-tabs JSON: {raw_tabs[:200]}")
 
-    root_tabs = [t for t in tabs if t.get("nestingLevel", t.get("nesting", 0)) == 0]
+    if any(t.get("nestingLevel", t.get("nesting", 0)) != 0 for t in tabs):
+        raise RuntimeError("gdocs nested tabs unsupported; refusing destructive replacement")
+    root_tabs = list(tabs)
     root_tabs.sort(key=lambda t: t.get("index", 0))
 
     updated: list[str] = []
@@ -264,6 +272,7 @@ def main() -> int:
     parser.add_argument("--strict", action="store_true", help="Fail if webhook credentials are unset")
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--no-reserve-excess", action="store_true")
+    parser.add_argument("--allow-destructive-replace", action="store_true", help="Explicitly authorize gdocs whole-tab replacement (annotation loss risk)")
     args = parser.parse_args()
 
     draft_path = Path(args.draft)
@@ -285,7 +294,9 @@ def main() -> int:
         return 0
 
     if args.mode == "gdocs":
-        res = push_gdocs_cli(chapters, args.doc_id, reserve_excess_tabs=not args.no_reserve_excess)
+        if not args.allow_destructive_replace:
+            parser.error("--mode gdocs requires --allow-destructive-replace; prefer revision-guarded webhook")
+        res = push_gdocs_cli(chapters, args.doc_id, reserve_excess_tabs=not args.no_reserve_excess, allow_destructive_replace=True)
         print(json.dumps(res, ensure_ascii=False, indent=2) if args.json else f"OK\tgdocs-sync-title-only\tupdated={len(res['updated'])}\tcreated={len(res['created'])}\treserved={len(res['reserved'])}")
         return 0
 

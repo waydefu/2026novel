@@ -11,14 +11,14 @@
 
 當以下檔案合併進 `main`（或從 GitHub Actions 手動觸發 `Sync Draft to Google Doc`）時，[`.github/workflows/sync-google-doc.yml`](../.github/workflows/sync-google-doc.yml) 會執行 [`tools/sync_google_doc.py`](../tools/sync_google_doc.py)：
 
-1. 依 `# 第N章｜章名` 自動切分正文各章節與段落，拒絕空章或重複章號。
+1. 依 `# 第N章｜章名` 自動切分正文各章節與段落，拒絕空章、重複或不連續章號。
 2. 透過加密 HTTPS POST 將章節 JSON 傳送至綁定在目標 Google 文件內的 **Google Apps Script Web App**（[`tools/google_apps_script_sync.gs`](../tools/google_apps_script_sync.gs)）。
 3. 接收端驗證 `SYNC_SECRET` 並限制目標只可為指定 Google 文件，使用同一批 Google Docs API 請求更新原生分頁的**標題與正文**；若有新章自動新增分頁，若多出舊分頁則改標為 `[預留] 第N章（PLANNED）` 而不直接刪除。
 4. 接收端重新讀取所有受影響分頁，逐章比對**分頁 ID、標題與全文文字**，全部一致才回傳 `verified: true`；呼叫端再次確認章數、文件 ID 與來源 SHA。任一步失敗（包含改名、重新讀取或驗證失敗）都使同步工作顯示失敗，不能只靠 `ok: true` 或 GitHub Actions 綠燈宣稱 Google 文件已同步。
 5. GitHub Actions 使用 `queue: max` 排隊，**每一個排隊的執行在發布前都先抓取最新 `main`**（包括只有治理檔變動的提交）；因此不會因「觸發時的 SHA 不再是最新」而直接跳過最後一次可用的同步。發送端使用重新取得的來源 SHA，而非舊事件 SHA。未設定 Secrets 不再以成功略過。
 6. 發布端讀取 Google 文件 `revisionId` 並在更新中使用 `writeControl.requiredRevisionId`；共同編輯者若在讀取後修改，請求必須失敗而不能用過期索引覆寫。**原文已相同的分頁不送任何正文變更**；其他分頁只修改必要的文字範圍，不再整章刪除重建，減少註解／格式受影響的範圍。
 
-> 本機已登入 `gdocs` CLI 時，亦可手動執行 `py -3 tools/sync_google_doc.py --mode gdocs` 直接由本機同步。
+> 優先使用 revision-guarded webhook。本機 CLI 的整頁替換沒有相同的修訂鎖，可能破壞註解錨點；僅限備份或隔離副本，且必須明確加上 `--mode gdocs --allow-destructive-replace`。它只驗證標題，不能當作正式發布成功證據。
 
 ---
 
@@ -87,3 +87,10 @@ Google 官方 Issue Tracker [561660144](https://issuetracker.google.com/issues/5
 本輪修改：新增 `requiredRevisionId` 避免共同編輯時覆寫、將未變更分頁設為 no-op、對變更內容只更新最小差異字串；若需建立分頁，仍是「先建立再讀取新修訂」的兩階段流程，已在兩個 API 呼叫中各自校驗 revision，**不能宣稱所有步驟為單一原子交易**。GitHub 同步工作佇列改用 `queue: max`，每次從 `origin/main` 取得目前正文，再送出其真實 SHA，解決非正文提交造成的跳過風險。新增模擬「共同編輯造成版本衝突」、「內容未變更完全不寫入」與「微小字串差異不全章重建」的測試。
 
 **上線限制：** 在 Google Apps Script Web App 升版前，GitHub 端仍會拒絕舊接收器不帶 `verified` 的回應，不能透過重跑工作冒充同步成功。Google Docs API 的舊分頁改名 500 問題仍需實際驗證；若觸發，先保留正文與既有分頁，必要時在 Google 文件介面人工改名，不能為了顯示全綠而刪除文件或註解。正式部署操作需保留分頁、註解及原分享權限。
+
+## 七、PR #51 稽核修補
+
+- 寫入前核對各分頁 UTF-16 結構索引；只容許起始分節符，中間分節符或索引異常拒絕寫入。
+- 建立分頁後使用 batchUpdate 回應的新 revision，再讀取文件；若共同編輯者在兩階段之間修改文件，拒絕後續正文寫入。建立分頁已發生，不宣稱兩階段原子。
+- 手動 dry-run 保留所選分支，正式寫入才取 main；queue: max 最多排隊 100 個執行，非無限容量。
+- 新版接收器、Mock 與程式碼測試不等於線上部署。先以另行核准的副本進行 E2E，不在正式文件上試錯。

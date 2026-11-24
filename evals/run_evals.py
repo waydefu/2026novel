@@ -26,9 +26,9 @@ from check_revision_gate import (  # noqa: E402
     posix,
     unescape_git_quoted,
 )
-from canon_contract import load_contracts, run_contracts  # noqa: E402
+from canon_contract import check_immutability, load_contracts, run_contracts, validate_schema  # noqa: E402
 from check_rule_budget import check as rule_budget_check  # noqa: E402
-from compile_context import compile_target, extract_style_anchors, scene_fields  # noqa: E402
+from compile_context import compile_target, extract_style_anchors, scene_fields, extract_voice_for, knowledge_blocks, knowledge_ids_for  # noqa: E402
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
 from prose_rhythm import analyze  # noqa: E402
 from style_profile import NOT_EVIDENCE  # noqa: E402
@@ -250,6 +250,7 @@ def main() -> int:
             "canon_change": False,
             "governance_sync": False,
             "state_change": "none",
+            "state_change_reason": "測試：僅行文修訂，既定狀態不變",
             "backup_ref": "99_備份/01_正文備份/r2.md",
         },
         [PROSE],
@@ -276,6 +277,7 @@ def main() -> int:
             "canon_change: false\n"
             "governance_sync: false\n"
             "state_change: none\n"
+            "state_change_reason: 僅行文修訂\n"
             "backup_ref: 99_備份/01_正文備份/r2.md\n",
             encoding="utf-8",
         )
@@ -368,6 +370,7 @@ def main() -> int:
             "canon_change": False,
             "governance_sync": True,
             "state_change": "none",
+            "state_change_reason": "測試：僅行文修訂，既定狀態不變",
             "backup_ref": "99_備份/01_正文備份/snapshot.md",
         },
         [PROSE],
@@ -766,7 +769,7 @@ def main() -> int:
     )
 
     r0_derived_header = check_revision(
-        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": True, "state_change": "none"},
+        {"revision_level": "R0", "target": "ops-runtime", "canon_change": False, "governance_sync": True, "state_change": "none", "state_change_reason": "僅標頭同步"},
         [GOV11],
         [],
     )
@@ -908,7 +911,7 @@ def main() -> int:
     rename_failed = False
     with patch("sync_google_doc._run_gdocs", side_effect=fake_gdocs_command):
         try:
-            push_gdocs_cli(synced, "doc-test")
+            push_gdocs_cli(synced, "doc-test", allow_destructive_replace=True)
         except RuntimeError:
             rename_failed = True
     expect(
@@ -980,6 +983,39 @@ def main() -> int:
         passed,
     )
 
+    # Audit regressions: assert both legitimate and rejected paths.
+    test_draft = "# 第一章｜起點\n\n正文。\n"
+    test_gov = "CUT-OFF：現行正文第一章結束。\nCH01｜第一章\n"
+    expect("audit_planned_range_not_fact", drift_check(test_draft, test_gov + "[PLANNED] Ch8–9\n", "", "莉諾兒") == [], "planned range must not become TEXT-FACT", failures, passed)
+    expect("audit_multiple_fact_chapters", any("8" in e for e in drift_check(test_draft, test_gov + "[TEXT-FACT Ch1 / Ch8]\n", "", "莉諾兒")), "all fact chapter references must be checked", failures, passed)
+    expect("audit_empty_state_diff_rejected", any("State Diff" in e for e in drift_check(test_draft, "CUT-OFF：現行正文第一章結束。", "", "莉諾兒")), "empty State Diff must not pass", failures, passed)
+    expect("audit_future_state_diff_rejected", any("多出" in e for e in drift_check(test_draft, test_gov + "CH08｜未寫\n", "", "莉諾兒")), "future State Diff must not pass", failures, passed)
+    expect("audit_invalid_contract_base_rejected", bool(check_immutability("invalid-ref-for-regression-test")), "unreadable base must fail closed", failures, passed)
+    bad_chain = {"contracts": [{"id": "X", "status": "superseded", "superseded_by": "X", "scope": {"all": True}, "require": ["x"]}]}
+    expect("audit_contract_cycle_rejected", any(h.kind == "schema" for h in validate_schema(bad_chain)), "cyclic supersession must fail", failures, passed)
+    missing_reason = {"revision_level": "R2", "target": "chapter-01", "state_change": "none", "backup_ref": "99_備份/x.md"}
+    expect("audit_state_change_reason_required", bool(check_revision(missing_reason, [PROSE], ["99_備份/x.md"])), "state bypass needs a reason", failures, passed)
+    expect("audit_backup_must_be_new", bool(check_revision({**missing_reason, "state_change_reason": "wording only"}, [PROSE], [])), "previous backup cannot be reused", failures, passed)
+    expect("audit_r0_outline_rejected", bool(check_revision({"revision_level": "R0", "target": "ops-runtime", "governance_sync": True, "state_change": "none"}, ["10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md"], [])), "R0 must not edit narrative outline", failures, passed)
+    vg = "# 03｜Voice Fingerprints\n亞德里安・梵恩\n甲聲線\n莉諾兒\n乙聲線\n# 04｜"
+    expect("audit_pov_not_plot_character", extract_voice_for(vg, "莉諾兒", "亞德里安經過")[1] == ["莉諾兒"], "plot mention cannot inject another POV", failures, passed)
+    with patch("sync_google_doc._run_gdocs") as mocked_cli:
+        blocked = False
+        try:
+            push_gdocs_cli([ChapterPayload(1, "第一章｜測試", ["內文。"])], "doc-test")
+        except RuntimeError:
+            blocked = True
+        expect("audit_cli_requires_destructive_opt_in", blocked and not mocked_cli.called, "no CLI access without explicit consent", failures, passed)
+    gap_rejected = False
+    try:
+        parse_chapters("# 第一章｜甲\n內容。\n# 第三章｜乙\n內容。\n")
+    except ValueError:
+        gap_rejected = True
+    expect("audit_sync_chapter_gap_rejected", gap_rejected, "chapter numbers must be consecutive", failures, passed)
+
+    kb = "K001｜甲\nCh1\nK003｜乙\nCh10\n# 05｜Reader Knowledge\n"
+    expect("audit_knowledge_gap_and_exact_chapter", "Ch10" not in knowledge_blocks(kb)["K001"] and knowledge_ids_for(kb, "P01") == ["K001"], "entry gap and chapter substring must not contaminate selection", failures, passed)
+    expect("audit_contract_provenance", any(s["id"] == "CONTRACT-CC-025" for s in p08_live["sources"]) and "[CC-019]" not in p08_live["capsule"]["HARD BOUNDARIES"], "relevant contract must have provenance; unrelated Ch1 constraint excluded", failures, passed)
     total = len(passed) + len(failures)
     if failures:
         print("EVAL FAIL")

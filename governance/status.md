@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-24｜基準：`origin/main` @ `7dea206`（PR #49 已合併）＋ `fix/google-doc-sync-hardening-v2`（同步可靠性深層修正 PR，待審）
+Snapshot：2026-11-24｜基準：`origin/main` @ `9d969a3`（PR #50 已合併）；PR #51 為稽核修補草稿，尚未合併。
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -52,3 +52,7 @@ Snapshot：2026-11-24｜基準：`origin/main` @ `7dea206`（PR #49 已合併）
 
 - 每次更新本頁時同步改掉「快照日期」與「基準 SHA」，不得只改其中一半。
 - 本頁不取代 00A。重大 Canon、治理或版本結構變更仍寫進 00A。
+
+## PR #51 稽核處置
+
+依作者 2026-11-24「開始優化」，本輪為 R0 工程修補：Docs 同步安全、治理閘門、CI 證據、上下文編譯、Skills 與工具契約。PR50 稽核提出的正文、Canon 與歷史 ADR 變更未在此輪修改；Apps Script 正式部署與實機端對端驗收仍未完成。參考：[PR #51](https://github.com/waydefu/2026novel/pull/51)。

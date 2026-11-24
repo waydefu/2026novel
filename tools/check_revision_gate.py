@@ -151,9 +151,7 @@ def check_revision(
             if not ref.startswith("99_備份/"):
                 errors.append("R-GATE: backup_ref must live under 99_備份/")
             elif ref not in added_n:
-                disk = ROOT / ref
-                if not disk.is_file():
-                    errors.append(f"R-GATE: backup_ref missing from added files and not on disk: {ref}")
+                errors.append(f"R-GATE: backup_ref must be added by this revision: {ref}")
 
     if any(k == "derived" for k in kinds.values()) and not any(k == "prose" for k in kinds.values()):
         if not (governance_sync and state_change == "none"):
@@ -169,6 +167,10 @@ def check_revision(
     # state genuinely did not change (then state_change: none + a reason).
     prose_touched = any(k == "prose" for k in kinds.values())
     derived_touched = any(k == "derived" for k in kinds.values())
+    if state_change == "none" and ((level in {"R2", "R3", "R4"} and prose_touched and not derived_touched)
+                                  or (derived_touched and not prose_touched)):
+        if not str(manifest.get("state_change_reason") or "").strip():
+            errors.append("R-GATE: state_change: none requires state_change_reason when bypassing state sync")
     if level in {"R2", "R3", "R4"} and prose_touched and not derived_touched:
         if state_change != "none":
             errors.append(
@@ -203,8 +205,7 @@ def check_revision(
                 continue
             if kind == "derived" and governance_sync and state_change == "none":
                 continue
-            if kind == "outline" and governance_sync and state_change == "none":
-                continue
+            # R0 must not mutate narrative outlines; use an appropriate revision level.
             errors.append(f"R-GATE: R0 cannot change {rel} ({kind})")
 
     if level == "R4" and any(k == "canon" for k in kinds.values()) and not canon_change:
@@ -326,6 +327,9 @@ def main() -> int:
         print(f"ERROR\tmissing manifest\t{path}", file=sys.stderr)
         return 2
     manifest = load_simple_mapping(path)
+    if not args.git_base and args.modified is None and args.added is None:
+        print("ERROR\trevision-gate\tprovide --git-base or explicit --modified/--added", file=sys.stderr)
+        return 2
     if args.git_base:
         changes = git_changes(args.git_base)
         modified = [p for s, p in changes if s == "M"]

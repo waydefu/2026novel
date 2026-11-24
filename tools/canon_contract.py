@@ -112,6 +112,22 @@ def validate_schema(contracts: dict) -> list[ContractHit]:
             hits.append(ContractHit(cid, title, "schema", "require 與 forbid 皆為空，契約無作用"))
         if not isinstance(contract.get("require", []), list) or not isinstance(contract.get("forbid", []), list):
             hits.append(ContractHit(cid, title, "schema", "require／forbid 必須是陣列"))
+    by_id = {c.get("id"): c for c in contracts.get("contracts", [])}
+    for contract in contracts.get("contracts", []):
+        if contract.get("status", "active") != "superseded":
+            continue
+        cursor = contract
+        chain = {contract.get("id")}
+        while cursor.get("status", "active") == "superseded":
+            next_id = cursor.get("superseded_by")
+            if not next_id or next_id in chain or next_id not in by_id:
+                hits.append(ContractHit(str(contract.get("id")), str(contract.get("title", "")), "schema", "取代鏈缺失、循環或指向不存在契約"))
+                break
+            chain.add(next_id)
+            cursor = by_id[next_id]
+        else:
+            if cursor.get("status", "active") != "active":
+                hits.append(ContractHit(str(contract.get("id")), str(contract.get("title", "")), "schema", "取代鏈須終止於有效 active 契約"))
     return hits
 
 
@@ -166,12 +182,12 @@ def check_immutability(base: str, contract_path: Path = CONTRACT_FILE) -> list[C
             errors="replace",
             stderr=subprocess.DEVNULL,
         )
-    except subprocess.CalledProcessError:
-        return hits
+    except (OSError, subprocess.CalledProcessError, ValueError) as exc:
+        return [ContractHit("CONTRACT-FILE", "契約文件", "immutable", f"無法讀取基準 {base}: {exc}")]
     try:
         old = json.loads(raw)
-    except json.JSONDecodeError:
-        return hits
+    except json.JSONDecodeError as exc:
+        return [ContractHit("CONTRACT-FILE", "契約文件", "immutable", f"基準 JSON 無效: {exc}")]
     new = load_contracts(contract_path)
     old_map = {c.get("id"): c for c in old.get("contracts", [])}
     new_map = {c.get("id"): c for c in new.get("contracts", [])}
@@ -179,17 +195,15 @@ def check_immutability(base: str, contract_path: Path = CONTRACT_FILE) -> list[C
         if cid not in new_map:
             hits.append(ContractHit(str(cid), str(contract.get("title", "")), "immutable", "既有契約被刪除（契約為 append-only）"))
             continue
-        if contract.get("status") == "active" and new_map[cid].get("status") == "active":
-            for field in ("scope", "require", "forbid"):
-                if contract.get(field) != new_map[cid].get(field):
-                    hits.append(
-                        ContractHit(
-                            str(cid),
-                            str(contract.get("title", "")),
-                            "immutable",
-                            f"既有契約的 {field} 被改寫（要取代請新增 id 並標 superseded_by）",
-                        )
-                    )
+        # Historical contracts remain immutable after supersession as well.
+        if contract.get("status", "active") != new_map[cid].get("status", "active"):
+            if contract.get("status", "active") != "active" or new_map[cid].get("status", "active") != "superseded":
+                hits.append(ContractHit(str(cid), str(contract.get("title", "")), "immutable", "非法契約狀態轉移"))
+        if contract.get("status") == "superseded" and contract.get("superseded_by") != new_map[cid].get("superseded_by"):
+            hits.append(ContractHit(str(cid), str(contract.get("title", "")), "immutable", "既有取代鏈不得改寫"))
+        for field in ("scope", "require", "forbid"):
+            if contract.get(field) != new_map[cid].get(field):
+                hits.append(ContractHit(str(cid), str(contract.get("title", "")), "immutable", f"既有契約的 {field} 被改寫（應新增 id 並標 superseded_by）"))
     changed_docs = [
         cid
         for cid, contract in old_map.items()
@@ -255,7 +269,8 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    print("OK\tcanon-contract\t0 violations")
+    if not args.json:
+        print("OK\tcanon-contract\t0 violations")
     return 0
 
 

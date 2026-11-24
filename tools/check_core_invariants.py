@@ -61,7 +61,8 @@ def main() -> int:
     if errors:
         print("ERROR\tcore-invariants", file=sys.stderr)
         return 1
-    print("OK\tcore-invariants")
+    if not args.json:
+        print("OK\tcore-invariants")
     return 0
 
 

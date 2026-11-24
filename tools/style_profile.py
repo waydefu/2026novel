@@ -44,7 +44,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from prose_checks import ROOT, read_text  # noqa: E402
+from prose_checks import DRAFT, ROOT, read_text  # noqa: E402
 
 CALIB_FILE = ROOT / "governance" / "style-profile.json"
 FIXTURES = ROOT / "evals" / "fixtures"
@@ -112,7 +112,7 @@ def render(label: str, p: dict) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("path", nargs="?")
+    parser.add_argument("path", nargs="?", default=str(DRAFT))
     parser.add_argument("--compare", default="")
     parser.add_argument("--calibrate", action="store_true")
     args = parser.parse_args()
@@ -150,8 +150,10 @@ def main() -> int:
     lines = render(str(path), profile(read_text(path)))
     if args.compare:
         base = Path(args.compare)
-        if base.is_file():
-            lines = render(str(base), profile(read_text(base))) + lines
+        if not base.is_file():
+            print(f"ERROR\tmissing comparison\t{base}", file=sys.stderr)
+            return 2
+        lines = render(str(base), profile(read_text(base))) + lines
     print("\n".join(lines))
     print("NOTE\t以上為量測，不是判決；非判據項目不得作為改寫理由。")
     return 0

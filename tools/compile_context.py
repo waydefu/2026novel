@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from prose_checks import LURE_TOKEN, ROOT  # noqa: E402
+from prose_checks import LURE_TOKEN, ROOT, chapter_number  # noqa: E402
 
 FORBIDDEN_PREFIXES = ("99_備份/", "90_參考資料/")
 FORBIDDEN_NAMES = ("00A_設定歷史修改紀錄｜Changelog.md",)
@@ -88,6 +88,13 @@ def first_lines(text: str, n: int) -> str:
     return "\n".join(lines[:n])
 
 
+def knowledge_blocks(gov_text: str) -> dict[str, str]:
+    ledger = gov_text.split("# 05｜", 1)[0]
+    matches = list(re.finditer(r"^(K\d{3})｜", ledger, re.MULTILINE))
+    return {m.group(1): ledger[m.start():matches[i + 1].start() if i + 1 < len(matches) else len(ledger)].strip()
+            for i, m in enumerate(matches)}
+
+
 def knowledge_ids_for(gov_text: str, target: str) -> list[str]:
     """Pick the Knowledge Ledger entries that actually talk about the target.
 
@@ -96,24 +103,21 @@ def knowledge_ids_for(gov_text: str, target: str) -> list[str]:
     chapter made the compiler silently return an empty KNOWS for any target
     nobody had listed.
     """
-    ids = re.findall(r"^(K\d{3})｜", gov_text, flags=re.MULTILINE)
+    blocks = knowledge_blocks(gov_text)
+    ids = list(blocks)
     if not ids:
         return []
-    blocks: dict[str, str] = {}
-    for kid in ids:
-        nxt = f"K{int(kid[1:]) + 1:03d}"
-        block = extract_block(gov_text, f"{kid}｜", [f"{nxt}｜", "# 05｜"])
-        blocks[kid] = block
-    search_tokens = [target] if target else []
-    m_p = re.match(r"^P0?(\d+)", target or "")
-    if m_p:
-        ch_n = int(m_p.group(1))
-        search_tokens.extend([f"Ch{ch_n}", f"CH0{ch_n}", f"Ch{ch_n - 1}–{ch_n}", f"Ch{ch_n}–"])
-    targeted = [
-        kid
-        for kid in ids
-        if any(tok and tok in blocks.get(kid, "") for tok in search_tokens)
-    ]
+    m_p = re.fullmatch(r"P0?(\d+)", target or "")
+    def relevant(block: str) -> bool:
+        if target and re.search(r"(?<![A-Za-z0-9])" + re.escape(target) + r"(?![A-Za-z0-9])", block):
+            return True
+        if m_p:
+            ch_n = int(m_p.group(1))
+            for a, b in re.findall(r"(?<![A-Za-z0-9])Ch\s*(\d+)(?:\s*[–-]\s*(?:Ch)?\s*(\d+))?(?![A-Za-z0-9])", block, re.I):
+                if int(a) <= ch_n <= int(b or a):
+                    return True
+        return False
+    targeted = [kid for kid in ids if relevant(blocks[kid])]
     if targeted:
         first = ids.index(targeted[0])
         keep = ids[max(0, first - 2) : first] + targeted  # targeted entries plus two entries of context
@@ -139,8 +143,9 @@ def extract_voice_for(gov_text: str, pov_text: str, plot_text: str) -> tuple[str
         return "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。", []
     matched_names: list[str] = []
     snippets: list[str] = []
+    # Only the explicit POV may select a voice; other characters in the plot are not POV.
     for short_name, header, stop_markers in VOICE_SECTIONS:
-        if short_name in pov_text or (not matched_names and short_name in plot_text):
+        if short_name in pov_text:
             sec = extract_block(voice_block, header, stop_markers)
             if sec:
                 matched_names.append(short_name)
@@ -272,9 +277,9 @@ def compile_target(root: Path, target: str) -> dict:
     # Knowledge ids are derived from the target, not hardcoded per chapter.
     know_ids = knowledge_ids_for(gov, target_norm)
     knows = []
+    blocks = knowledge_blocks(gov)
     for kid in know_ids:
-        nxt = f"K{int(kid[1:]) + 1:03d}"
-        block = extract_block(gov, f"{kid}｜", [f"{nxt}｜", "# 05｜"])
+        block = blocks.get(kid, "")
         if block:
             knows.append(first_lines(block, 4))
             title = block.splitlines()[0]
@@ -300,7 +305,7 @@ def compile_target(root: Path, target: str) -> dict:
         if "TBD" in line and ("不得" in line or "BLOCK" in line or "保持 TBD" in line):
             hard.append(line.strip(" -#"))
 
-    capsule["POV"] = fields.get("POV") or "依 09 目標場；一場一人稱一名焦點。"
+    capsule["POV"] = fields.get("POV") or "依 09 目標場；第三人稱限知，每場一名焦點。"
     capsule["NOW"] = fields.get("時間／地點") or first_lines(plot, 3) or first_lines(handoff, 3)
     capsule["WANT"] = fields.get("WANT") or (
         "只完成作者指定的本場目標；不把 P08 整段弧一次寫完。"
@@ -312,15 +317,26 @@ def compile_target(root: Path, target: str) -> dict:
     contracts_path = root / "governance" / "canon-contracts.json"
     if contracts_path.is_file():
         try:
-            c_data = json.loads(contracts_path.read_text(encoding="utf-8"))
+            contract_rel = "governance/canon-contracts.json"
+            c_data = json.loads(read_allowed(root, contract_rel))
+            target_match = re.fullmatch(r"P0?(\d+)", target_norm)
+            target_chapter = int(target_match.group(1)) if target_match else None
             for c_item in c_data.get("contracts", []):
                 if c_item.get("status", "active") != "active":
                     continue
                 c_scope = c_item.get("scope", {})
-                if c_scope.get("all") or target_norm == "P08":
-                    hard.append(f"[{c_item.get('id')}] {c_item.get('title')}")
-        except (OSError, json.JSONDecodeError):
-            pass
+                # Carry chapter-specific constraints for the current and immediately previous chapter.
+                scope_chapters = set()
+                for label in c_scope.get("chapters", []):
+                    match = re.match(r"第([一二三四五六七八九十百零0-9]+)章", label)
+                    if match:
+                        scope_chapters.add(chapter_number(match.group(1)))
+                if c_scope.get("all") or (target_chapter is not None and scope_chapters & {target_chapter, target_chapter - 1}):
+                    cid = c_item.get("id")
+                    hard.append(f"[{cid}] {c_item.get('title')}")
+                    sources.append({"id": f"CONTRACT-{cid}", "cite": f"canon-contracts / {cid}", "path": contract_rel, "anchor": cid})
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f"compiler: invalid canon-contracts source: {exc}") from exc
 
     seen: set[str] = set()
     uniq = [x for x in hard if not (x in seen or seen.add(x))]

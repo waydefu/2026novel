@@ -7,6 +7,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { execFileSync } = require("node:child_process");
 
 const source = fs.readFileSync(
   path.join(__dirname, "..", "tools", "google_apps_script_sync.gs"), "utf8"
@@ -19,12 +20,28 @@ const chapters = [
 ];
 const clone = value => JSON.parse(JSON.stringify(value));
 
+function indexedBody(value, inheritedStyle = "NORMAL_TEXT") {
+  // Match Docs' UTF-16 ranges, including the mandatory initial section break.
+  let index = 1;
+  const content = [{ endIndex: 1, sectionBreak: {} }];
+  for (const line of value.match(/[^\n]*\n|[^\n]+$/g) || []) {
+    const startIndex = index;
+    index += line.length;
+    content.push({ startIndex, endIndex: index, paragraph: {
+      paragraphStyle: { namedStyleType: inheritedStyle },
+      elements: [{ startIndex, endIndex: index, textRun: { content: line } }]
+    } });
+  }
+  return content;
+}
+function bodyText(tab) {
+  return tab.documentTab.body.content
+    .flatMap(x => (x.paragraph?.elements || []).map(y => y.textRun?.content || "")).join("");
+}
 function makeTab(i, title = "舊標題") {
   return {
-    tabProperties: { tabId: "t." + i, title },
-    documentTab: { body: { content: [
-      { endIndex: 8, paragraph: { elements: [{ textRun: { content: "舊內文。\n" } }] } }
-    ] } }
+    tabProperties: { tabId: "t.mockid" + i + "x9", title },
+    documentTab: { body: { content: indexedBody("舊內文。\n") } }
   };
 }
 
@@ -34,12 +51,12 @@ function receiver(opts = {}) {
     state.tabs.forEach((t, i) => {
       if (opts.contents[i] !== undefined) {
         const value = opts.contents[i] + "\n";
-        t.documentTab.body.content = [
-          { endIndex: 1 + value.length, paragraph: { elements: [{ textRun: { content: value } }] } }
-        ];
+        t.documentTab.body.content = indexedBody(value);
       }
     });
   }
+  if (opts.middleSection) state.tabs[0].documentTab.body.content.splice(2, 0, { startIndex: 6, endIndex: 7, sectionBreak: {} });
+  if (opts.badIndex) state.tabs[0].documentTab.body.content[1].paragraph.elements[0].startIndex++;
   if (opts.nested) state.tabs[0].childTabs = [makeTab(10, "子分頁")];
   let acquired = false;
   let released = false;
@@ -108,23 +125,30 @@ function receiver(opts = {}) {
               assert.ok(index >= 0 && index < before.length, "insert before final newline");
               after = before.slice(0, index) + req.insertText.text + before.slice(index);
             }
-            tab.documentTab.body.content = [
-              { endIndex: 1 + after.length, paragraph: {
-                elements: [{ textRun: { content: after } }]
-              } }
-            ];
+            tab.documentTab.body.content = indexedBody(after, opts.inheritHeadingStyle ? "HEADING_2" : "NORMAL_TEXT");
           } else if (req.updateParagraphStyle) {
-            // Formatting only; no text changes.
+            const { range, paragraphStyle } = req.updateParagraphStyle;
+            const tab = findTab(range.tabId);
+            assert.ok(range.startIndex >= 1 && range.endIndex > range.startIndex);
+            for (const element of tab.documentTab.body.content) {
+              if (element.paragraph && element.startIndex < range.endIndex && element.endIndex > range.startIndex) {
+                element.paragraph.paragraphStyle = clone(paragraphStyle);
+              }
+            }
           } else {
             throw Error("Unexpected Docs API operation: " + Object.keys(req)[0]);
           }
         }
         if (opts.truncateBody) {
-          next.tabs[0].documentTab.body.content[0].paragraph.elements[0].textRun.content = "內容被截斷\n";
+          next.tabs[0].documentTab.body.content = indexedBody("內容被截斷\n");
         }
         next.revisionId = "revision-" + (Number(state.revisionId.split("-")[1]) + 1);
         state = next;
-        return { replies: requests.map(() => ({})), writeControl: { requiredRevisionId: state.revisionId } };
+        const appliedRevision = state.revisionId;
+        if (opts.concurrentAfterCreation && requests.some(q => q.addDocumentTab)) {
+          state.revisionId = "revision-99";
+        }
+        return { replies: requests.map(() => ({})), writeControl: { requiredRevisionId: appliedRevision } };
       }
     } }
   };
@@ -186,7 +210,7 @@ check("localized_edit_does_not_replace_whole_chapter", () => {
   assert.equal(del[0].deleteContentRange.range.endIndex - del[0].deleteContentRange.range.startIndex, 1,
     "single-character typo must not cause whole-chapter deletion");
   assert.equal(ins[0].insertText.text.length, 1);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+  assert.equal(bodyText(r.tabs()[0]).trim(), original[0]);
 });
 
 check("utf16_surrogate_pairs_remain_intact", () => {
@@ -201,7 +225,7 @@ check("utf16_surrogate_pairs_remain_intact", () => {
   assert.equal(deletes.length, 1);
   assert.equal(deletes[0].deleteContentRange.range.endIndex -
     deletes[0].deleteContentRange.range.startIndex, 2);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+  assert.equal(bodyText(r.tabs()[0]).trim(), original[0]);
 });
 
 check("revision_conflict_blocks_all_writes", () => {
@@ -216,7 +240,7 @@ check("failed_rename_is_a_hard_error_and_body_is_atomic", () => {
   const result = r.post();
   assert.equal(result.ok, false);
   assert.match(result.error, /rename failed/);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content, "舊內文。\n");
+  assert.equal(bodyText(r.tabs()[0]), "舊內文。\n");
 });
 
 check("silent_title_mismatch_is_detected", () => {
@@ -267,4 +291,58 @@ check("invalid_chapters_and_lock_contention_fail_closed", () => {
   assert.equal(busy.batches(), 0);
 });
 
-process.stdout.write("OK google_doc_sync_receiver: 12 tests\n");
+check("middle_section_break_rejected_before_any_write", () => {
+  const r = receiver({ titles: ["舊一"], middleSection: true });
+  assert.match(r.post().error, /unsupported_section_break/);
+  assert.equal(r.batches(), 0);
+  assert.ok(r.released());
+});
+check("malformed_utf16_index_rejected_before_any_write", () => {
+  const r = receiver({ badIndex: true });
+  assert.match(r.post().error, /tab_element_index_mismatch/);
+  assert.equal(r.batches(), 0);
+});
+check("extra_trailing_newlines_are_removed", () => {
+  const original = chapters.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+  const r = receiver({ titles: chapters.map(c => c.heading), contents: [original[0] + "\n\n", original[1]] });
+  assert.equal(r.post().ok, true);
+  assert.equal(bodyText(r.tabs()[0]), original[0] + "\n");
+});
+check("shared_surrogate_halves_are_not_split", () => {
+  for (const [before, after] of [["🚀", "🚁"], ["\u{10000}", "\u{10400}"]]) {
+    const desired = clone(chapters);
+    desired[0].paragraphs[0] += after;
+    const original = desired.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+    const r = receiver({ titles: desired.map(c => c.heading), contents: [original[0].replace(after, before), original[1]] });
+    assert.equal(r.post({chapters: desired}).ok, true);
+    const del = r.requests().flat().find(q => q.deleteContentRange).deleteContentRange.range;
+    assert.equal(del.endIndex - del.startIndex, 2);
+    assert.equal(bodyText(r.tabs()[0]), original[0] + "\n");
+  }
+});
+check("collaborator_change_between_creation_and_content_is_rejected", () => {
+  const r = receiver({ titles: ["舊一"], concurrentAfterCreation: true });
+  assert.match(r.post().error, /revision_changed_after_tab_creation/);
+  assert.equal(r.batches(), 1, "only the tab creation batch may have applied");
+  assert.equal(bodyText(r.tabs()[0]), "舊內文。\n");
+  assert.ok(r.released());
+});
+check("new_body_does_not_inherit_heading_style", () => {
+  const r = receiver({ titles: ["舊一", "舊二"], inheritHeadingStyle: true });
+  assert.equal(r.post().ok, true);
+  for (const tab of r.tabs()) {
+    const paras = tab.documentTab.body.content.filter(x => x.paragraph).map(x => x.paragraph);
+    assert.equal(paras[0].paragraphStyle.namedStyleType, "HEADING_2");
+    assert.ok(paras.slice(1).every(x => x.paragraphStyle.namedStyleType === "NORMAL_TEXT"));
+  }
+});
+check("python_payload_to_receiver_contract", () => {
+  const markdown = "# 第一章｜出發\n\n正文甲🚀。\n\n正文乙。\n\n# 第二章｜回來\n\n正文丙。\n";
+  const payload = JSON.parse(execFileSync(process.env.PYTHON || "python", ["-c",
+    "import sys,json; from dataclasses import asdict; sys.path.insert(0,'tools'); from sync_google_doc import parse_chapters; print(json.dumps([asdict(c) for c in parse_chapters(sys.stdin.read())]))"
+  ], {cwd: path.join(__dirname, ".."), input: markdown, encoding: "utf8", env: {...process.env, PYTHONIOENCODING: "utf-8"}}));
+  const r = receiver();
+  assert.equal(r.post({chapters: payload}).ok, true);
+  assert.deepEqual(r.tabs().map(bodyText), payload.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n") + "\n"));
+});
+process.stdout.write("OK google_doc_sync_receiver: 19 tests\n");

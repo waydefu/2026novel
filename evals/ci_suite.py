@@ -21,7 +21,14 @@ def run(args: list[str]) -> int:
 def main() -> int:
     git_base = ""
     if "--git-base" in sys.argv:
-        git_base = sys.argv[sys.argv.index("--git-base") + 1]
+        idx = sys.argv.index("--git-base") + 1
+        if idx >= len(sys.argv) or sys.argv[idx].startswith("--"):
+            print("ERROR\tevidence\t--git-base requires a ref", file=sys.stderr)
+            return 2
+        git_base = sys.argv[idx]
+    if os.environ.get("GITHUB_ACTIONS") == "true" and not git_base:
+        print("ERROR\tevidence\tCI requires a real git base", file=sys.stderr)
+        return 2
 
     results = {
         "hard_gate": "FAIL",
@@ -91,13 +98,15 @@ def main() -> int:
         if run([PY, str(ROOT / "tools" / "check_rule_budget.py"), "--base", git_base]) != 0:
             _evidence(results, git_base)
             return 1
-    results["append_only"] = "PASS"
+        results["append_only"] = "PASS"
 
     # Candidate scans: informational. They report, they do not judge.
-    for tool in ("scan_pattern_risk.py", "prose_lexicon.py", "prose_rhythm.py", "timeline_probe.py"):
+    candidate_codes = [
         run([PY, str(ROOT / "tools" / tool)])
-    run([PY, str(ROOT / "tools" / "style_profile.py"), str(ROOT / "10_現行創作資料" / "小說正文第三版.md")])
-    results["candidates"] = "REPORTED"
+        for tool in ("scan_pattern_risk.py", "prose_lexicon.py", "prose_rhythm.py", "timeline_probe.py")
+    ]
+    candidate_codes.append(run([PY, str(ROOT / "tools" / "style_profile.py"), str(ROOT / "10_現行創作資料" / "小說正文第三版.md")]))
+    results["candidates"] = "REPORTED" if all(code == 0 for code in candidate_codes) else "FAIL"
 
     if run([PY, str(ROOT / "tools" / "continuity_probe.py")]) != 0:
         _evidence(results, git_base)
@@ -143,9 +152,11 @@ def main() -> int:
                 str(ROOT / "tools" / "check_revision_gate.py"),
                 "--manifest",
                 str(ROOT / "governance" / "change-manifest.yaml"),
+                "--modified", "--added",
             ]
         )
-        results["revision_gate"] = "PASS" if code == 0 else "FAIL"
+        # Manifest shape was checked, but no diff was supplied; do not claim a full gate pass.
+        results["revision_gate"] = "SKIP" if code == 0 else "FAIL"
         if code != 0:
             _evidence(results, git_base)
             return 1
@@ -219,9 +230,19 @@ def _evidence(results: dict[str, str], git_base: str) -> int:
     if missing:
         print(f"ERROR\tevidence\tmissing fields {missing} in {out}", file=sys.stderr)
         return 1
-    for gate in ("hard_gate", "canon_contract", "rule_budget", "rule_sync", "lexicon_lock", "skills", "skill_mirror", "core_invariants", "regression"):
-        if payload.get(gate) not in {"PASS", "REPORTED"}:
-            print(f"ERROR\tevidence\tgate {gate}={payload.get(gate)}", file=sys.stderr)
+    # Verify every result, while keeping informational candidate scans non-blocking.
+    for gate, result in results.items():
+        if payload.get(gate) != result:
+            print(f"ERROR\tevidence\tgate {gate}={payload.get(gate)} expected {result}", file=sys.stderr)
+            return 1
+        if gate == "candidates":
+            if result not in {"REPORTED", "FAIL"}:
+                return 1
+            continue
+        if gate in {"append_only", "revision_gate"} and not git_base and result == "SKIP":
+            continue
+        if result != "PASS":
+            print(f"ERROR\tevidence\tgate {gate}={result}", file=sys.stderr)
             return 1
     expected = os.environ.get("EVIDENCE_TESTED_SHA") or os.environ.get("GITHUB_SHA")
     if expected and payload.get("tested_sha") != expected:

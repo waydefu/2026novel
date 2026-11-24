@@ -1,6 +1,6 @@
 {
   "updated": "2026-10-22",
-  "note": "核心不變條件：這幾條在任何工具的規則檔裡都必須存在。跨工具同步只保證『產物彼此一致』，不保證『產物與 AGENTS.md 一致』；本檔補上後者。三處任一缺少該標記即失敗。",
+  "note": "核心不變條件：這幾條在任何工具的規則檔裡都必須存在。跨工具同步只保證『產物彼此一致』，不保證『產物與 AGENTS.md 一致』；本檔補上後者。任一列出的規則檔缺少該標記即失敗。",
   "files": [
     "AGENTS.md",
     "governance/agent-rules-source.md",
@@ -37,7 +37,7 @@
     {
       "id": "POV-LIMITED",
       "marker": "[POV-LIMITED]",
-      "statement": "一場一種人稱、一名焦點角色，不越界讀心"
+      "statement": "全書第三人稱限知；每場一名焦點角色，不越界讀心"
     },
     {
       "id": "CANON-AUTHORITY",

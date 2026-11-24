@@ -25,12 +25,16 @@ def drift_check(
     if not chapters:
         return ["DRIFT: live draft has no chapter headings"]
     max_draft = max(chapters)
-    facts = {int(n) for n in re.findall(r"TEXT-FACT[^\n]*Ch(?:apter)?\s*(\d+)", gov_text)}
-    facts.update(int(n) for n in re.findall(r"\[TEXT-FACT Ch(\d+)", gov_text))
-    facts.update(int(n) for n in re.findall(r"TEXT-FACT Ch(\d+)", gov_text))
-    # also Ch5–7 / Ch1–2
-    for a, b in re.findall(r"Ch(\d+)[–-](\d+)", gov_text):
-        facts.update(range(int(a), int(b) + 1))
+    facts: set[int] = set()
+    # Only explicit TEXT-FACT citations are evidence; PLANNED ranges are not.
+    for line in gov_text.splitlines():
+        for citation in re.findall(r"\[TEXT-FACT\b([^\]]*)\]", line):
+            for a, b in re.findall(r"Ch(?:apter)?\s*(\d+)(?:\s*[–-]\s*(?:Ch)?\s*(\d+))?", citation):
+                start, end = int(a), int(b or a)
+                if end < start:
+                    errors.append(f"DRIFT FAIL: invalid TEXT-FACT range {start}–{end}")
+                else:
+                    facts.update(range(start, end + 1))
     extra = sorted(n for n in facts if n > max_draft)
     if extra:
         errors.append(f"DRIFT FAIL: 11 TEXT-FACT cites chapters not in draft: {extra}")
@@ -61,10 +65,12 @@ def drift_check(
     # 章數交叉檢查：正文有幾章，11 的 State Diff 就必須記到幾章。
     # 只靠 CUT-OFF 字串會在 CUT-OFF 漏字時整段靜默失效。
     recorded = {int(n) for n in re.findall(r"^CH(\d+)｜", gov_text, flags=re.MULTILINE)}
-    if recorded:
-        missing = sorted(n for n in range(1, max_draft + 1) if n not in recorded)
-        if missing:
-            errors.append(f"DRIFT NEEDS_REVIEW: 正文有 Ch{max_draft}，但 11 State Diff 缺 CH{missing}")
+    missing = sorted(set(chapters) - recorded)
+    unexpected = sorted(recorded - set(chapters))
+    if missing:
+        errors.append(f"DRIFT NEEDS_REVIEW: 11 State Diff 缺 CH{missing}")
+    if unexpected:
+        errors.append(f"DRIFT FAIL: 11 State Diff 多出未寫章節 CH{unexpected}")
     if 5 in chapters and "莉諾兒" in chapters[5]:
         errors.append("DRIFT FAIL: 莉諾兒 named in Ch5 but Knowledge says name is unknown until Ch6")
     for name in UNSEEN:

@@ -226,7 +226,8 @@ def main() -> int:
             flag = ",".join(c["code"] for c in row["candidates"]) or "-"
             snip_col = f"\trun_max={met['longest_short_run']}({met['longest_short_run_snippet'][:24]})" if met.get("longest_short_run", 0) >= 6 else ""
             print(f"CHAPTER\t{row['chapter']}\tavg={met['avg_sentence_len']}\tstdev={met['sentence_stdev']}\tshort={met['short_sentence_rate']:.2f}\t{flag}{snip_col}")
-    print("NOTE\t節奏候選需人工依 AGENTS.md §5／§11 STYLE-02／§13 冷讀判定，工具不自動判錯。")
+    if not args.json:
+        print("NOTE\t節奏候選需人工依 AGENTS.md §5／§11 STYLE-02／§13 冷讀判定，工具不自動判錯。")
     return 1 if (args.strict and (cands or any(r["candidates"] for r in chapters))) else 0
 
 
