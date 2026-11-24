@@ -1,8 +1,9 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R2
+target: chapter-02-05-06-07
 canon_change: false
-governance_sync: false
+governance_sync: true
 state_change: none
-backup_ref: ""
-notes: "Post-PR50 audit remediation: fail-closed Google Docs structural index preflight, realistic UTF-16 mock and regression coverage, truthful CI evidence, append-only contract/rule registry verification, explicit revision scope and backup checks, TEXT-FACT citation bounds, POV selection, chapter contract alignment. Second pass adds inter-batch revision binding, destructive CLI opt-in, reasoned state exceptions, regression cases and governance/skill alignment. Third pass adds exact knowledge blocks and chapter-scoped contract provenance, cross-language payload regression and heading style isolation. No prose, Canon, secrets, or live deployment changes. Production E2E remains unverified."
+state_change_reason: "既有場景事件、章末關係與 Canon 不變；11 僅校正證據取得時點與物件／時長記載。"
+backup_ref: "99_備份/01_正文備份/2026-11-25_R2限知視角稽核前快照.md"
+notes: "作者本輪「開始」依前一則收尾方案執行。PR50 audit S4-F02 and scoped S4-F05/F06: close POV leaks; align right-leg injury to current 09, correct clear derived facts, retain unresolved outline duration and all TBD. No live Google Docs writes or Canon change."

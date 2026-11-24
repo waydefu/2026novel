@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-24｜基準：`origin/main` @ `9d969a3`（PR #50 已合併）；PR #51 為稽核修補草稿，尚未合併。
+Snapshot：2026-11-25｜基準：`origin/main` @ `c98fbd6`（PR #51 已合併）。本輪後續 PR 尚待獨立驗收；快照基準指施工前的 main，而非本輪待合併 commit。
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -56,3 +56,7 @@ Snapshot：2026-11-24｜基準：`origin/main` @ `9d969a3`（PR #50 已合併）
 ## PR #51 稽核處置
 
 依作者 2026-11-24「開始優化」，本輪為 R0 工程修補：Docs 同步安全、治理閘門、CI 證據、上下文編譯、Skills 與工具契約。PR50 稽核提出的正文、Canon 與歷史 ADR 變更未在此輪修改；Apps Script 正式部署與實機端對端驗收仍未完成。參考：[PR #51](https://github.com/waydefu/2026novel/pull/51)。
+
+## 2026-11-25 後續稽核施工
+
+PR #51 已合併；主分支 [治理 CI](https://github.com/waydefu/2026novel/actions/runs/45334051422) 通過，但 [正式發布](https://github.com/waydefu/2026novel/actions/runs/45334051442) 仍因 webhook 未驗證回覆失敗。本輪 R2 修補稽核 S4-F02 的四處限知資訊邊界，統一受傷側與 11 的明確正文事實，保留所有事件、既有 Canon、TBD 與發布權限。四個原生分頁舊名、正式部署、剩餘算法與 ADR 問題未在此輪宣稱完成；Ch4 的兩週停練與 09 的數日描述差異留待大綱對齊。
