@@ -65,10 +65,12 @@ def drift_check(
     # 章數交叉檢查：正文有幾章，11 的 State Diff 就必須記到幾章。
     # 只靠 CUT-OFF 字串會在 CUT-OFF 漏字時整段靜默失效。
     recorded = {int(n) for n in re.findall(r"^CH(\d+)｜", gov_text, flags=re.MULTILINE)}
-    if recorded:
-        missing = sorted(n for n in range(1, max_draft + 1) if n not in recorded)
-        if missing:
-            errors.append(f"DRIFT NEEDS_REVIEW: 正文有 Ch{max_draft}，但 11 State Diff 缺 CH{missing}")
+    missing = sorted(set(chapters) - recorded)
+    unexpected = sorted(recorded - set(chapters))
+    if missing:
+        errors.append(f"DRIFT NEEDS_REVIEW: 11 State Diff 缺 CH{missing}")
+    if unexpected:
+        errors.append(f"DRIFT FAIL: 11 State Diff 多出未寫章節 CH{unexpected}")
     if 5 in chapters and "莉諾兒" in chapters[5]:
         errors.append("DRIFT FAIL: 莉諾兒 named in Ch5 but Knowledge says name is unknown until Ch6")
     for name in UNSEEN:

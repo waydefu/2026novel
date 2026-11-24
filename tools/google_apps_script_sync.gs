@@ -63,12 +63,14 @@ function doPost(e) {
           addDocumentTab: { tabProperties: { title: chapters[i].heading, index: i } }
         });
       }
-      Docs.Documents.batchUpdate({
+      var creationResult = Docs.Documents.batchUpdate({
         requests: addReqs,
         writeControl: { requiredRevisionId: doc.revisionId }
       }, docId);
+      var createdRevision = creationResult && creationResult.writeControl && creationResult.writeControl.requiredRevisionId;
+      if (!createdRevision) throw new Error('missing_created_revision');
       doc = Docs.Documents.get(docId, { includeTabsContent: true });
-      if (!doc.revisionId) throw new Error('missing_document_revision_after_tab_creation');
+      if (doc.revisionId !== createdRevision) throw new Error('revision_changed_after_tab_creation');
       rootTabs = getRootTabs_(doc);
     }
 

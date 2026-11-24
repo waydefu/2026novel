@@ -135,7 +135,11 @@ function receiver(opts = {}) {
         }
         next.revisionId = "revision-" + (Number(state.revisionId.split("-")[1]) + 1);
         state = next;
-        return { replies: requests.map(() => ({})), writeControl: { requiredRevisionId: state.revisionId } };
+        const appliedRevision = state.revisionId;
+        if (opts.concurrentAfterCreation && requests.some(q => q.addDocumentTab)) {
+          state.revisionId = "revision-99";
+        }
+        return { replies: requests.map(() => ({})), writeControl: { requiredRevisionId: appliedRevision } };
       }
     } }
   };
@@ -307,4 +311,11 @@ check("shared_surrogate_halves_are_not_split", () => {
     assert.equal(bodyText(r.tabs()[0]), original[0] + "\n");
   }
 });
-process.stdout.write("OK google_doc_sync_receiver: 16 tests\n");
+check("collaborator_change_between_creation_and_content_is_rejected", () => {
+  const r = receiver({ titles: ["舊一"], concurrentAfterCreation: true });
+  assert.match(r.post().error, /revision_changed_after_tab_creation/);
+  assert.equal(r.batches(), 1, "only the tab creation batch may have applied");
+  assert.equal(bodyText(r.tabs()[0]), "舊內文。\n");
+  assert.ok(r.released());
+});
+process.stdout.write("OK google_doc_sync_receiver: 17 tests\n");

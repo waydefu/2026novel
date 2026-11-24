@@ -5,4 +5,4 @@ canon_change: false
 governance_sync: false
 state_change: none
 backup_ref: ""
-notes: "Post-PR50 audit remediation: fail-closed Google Docs structural index preflight, realistic UTF-16 mock and regression coverage, truthful CI evidence, append-only contract/rule registry verification, explicit revision scope and backup checks, TEXT-FACT citation bounds, POV selection, chapter contract alignment. No prose, Canon, secrets, or live deployment changes. Production E2E remains unverified."
+notes: "Post-PR50 audit remediation: fail-closed Google Docs structural index preflight, realistic UTF-16 mock and regression coverage, truthful CI evidence, append-only contract/rule registry verification, explicit revision scope and backup checks, TEXT-FACT citation bounds, POV selection, chapter contract alignment. Second pass adds inter-batch revision binding, destructive CLI opt-in, reasoned state exceptions, regression cases and governance/skill alignment. No prose, Canon, secrets, or live deployment changes. Production E2E remains unverified."

@@ -167,6 +167,10 @@ def check_revision(
     # state genuinely did not change (then state_change: none + a reason).
     prose_touched = any(k == "prose" for k in kinds.values())
     derived_touched = any(k == "derived" for k in kinds.values())
+    if state_change == "none" and ((level in {"R2", "R3", "R4"} and prose_touched and not derived_touched)
+                                  or (derived_touched and not prose_touched)):
+        if not str(manifest.get("state_change_reason") or "").strip():
+            errors.append("R-GATE: state_change: none requires state_change_reason when bypassing state sync")
     if level in {"R2", "R3", "R4"} and prose_touched and not derived_touched:
         if state_change != "none":
             errors.append(

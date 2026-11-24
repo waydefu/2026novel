@@ -147,14 +147,14 @@ STATUS：ACTIVE｜更新：2026-11-22（統一第三人稱限知多視角＋西�
 # 11｜FAIL CODES
 - 判定原則：Canon、POV 越界、Knowledge、資訊前提、術語、明確 OOC、格式屬 **HARD GATE**；STYLE、AI、句型、微表情、碎句、解說感、場景效率與 Voice 同質化屬 **PATTERN RISK**（形成模式或降低閱讀品質才判 Fail）。不得為消滅風險詞把文字洗成動作報告。
 
-**HARD GATE**（成立即 FAIL）：`POV-01` 第一人稱指涉混亂到影響理解｜`POV-02` 同一場景跳進另一人的內心｜`POV-03` 角色知道不可能取得的資訊｜`POV-04` 場景混用人稱或假第三人稱越界｜`INFO-01` 前情詞無依據｜`ERA-01` 稱謂階級場合不合｜`ERA-02` 現代制度／網路詞穿幫或假古風｜`TERM-01` 診療用語層級、人名頭銜不符 Canon｜`CHAR-01` 人物 OOC｜`CHAR-02` 女主功能化、全知化、感情路線撞車｜`CANON-01` 從舊稿或模型常識補設定｜`FORMAT-01` 未經指示改動章名、分段、空行、標點、編碼或混入隱形字元。
+**HARD GATE**（成立即 FAIL）：`POV-01` 第三人稱限知的焦點指涉混亂到影響理解｜`POV-02` 同一場景跳進另一人的內心｜`POV-03` 角色知道不可能取得的資訊｜`POV-04` 場景混用人稱或假第三人稱越界｜`INFO-01` 前情詞無依據｜`ERA-01` 稱謂階級場合不合｜`ERA-02` 現代制度／網路詞穿幫或假古風｜`TERM-01` 診療用語層級、人名頭銜不符 Canon｜`CHAR-01` 人物 OOC｜`CHAR-02` 女主功能化、全知化、感情路線撞車｜`CANON-01` 從舊稿或模型常識補設定｜`FORMAT-01` 未經指示改動章名、分段、空行、標點、編碼或混入隱形字元。
 
 **PATTERN RISK**：`SCENE-01` 只有事件梗概｜`SCENE-02` 細節變裝飾｜`STYLE-01` 抽象情緒繞遠｜`STYLE-02` 一句一段、碎句階梯｜`STYLE-03` 作者跳出來評論角色｜`STYLE-04` 概念摘要模板｜`VOICE-01` 各 POV 聲音同質｜`DIALOG-01` 台詞一次講完主題｜`DIALOG-02` 潛台詞被解說｜`AI-01` 固定微表情與固定段尾｜`AI-02` 演出後再補抽象解釋｜`AI-03` 模糊感官比喻｜`AI-04` 過度合規（可看見場景卡順序）。
 
 # 12｜REVISION LEVELS ＆ COMPLETION
 R0 COPY／FORMAT｜R1 PROSE EDIT｜R2 SCENE EDIT｜R3 CHAPTER REWRITE｜R4 STRUCTURAL／CANON REVISION（需作者明確決定）。未指定層級時以最低層級施工；途中須升級就停下。各級完成定義見 `governance/definition-of-done.md`。[REVISION-LEVEL]
 
-- R1 禁止改 01–06、09、11。R2 以上必須附 `backup_ref`（`99_備份/` 內的新增快照）。只改 11 而不改正文＝FAIL（除非 `R0` 同步標頭／TBD 且 `state_change: none`）。
+- R1 禁止改 01–06、09、11。R2 以上必須附 `backup_ref`（`99_備份/` 內的新增快照）。只改 11 而不改正文＝FAIL（除非 `R0` 同步標頭／TBD 且 `state_change: none`＋非空 `state_change_reason`）。
 - Canon 方向（ADR-0001）：已寫正文的既存事實不得被設定矛盾；正文不得自行升格 Canon；設定只能追認或走明示 retcon。[CANON-AUTHORITY]
 
 # 13｜FINAL QA ＆ COLD READ

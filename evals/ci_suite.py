@@ -21,7 +21,14 @@ def run(args: list[str]) -> int:
 def main() -> int:
     git_base = ""
     if "--git-base" in sys.argv:
-        git_base = sys.argv[sys.argv.index("--git-base") + 1]
+        idx = sys.argv.index("--git-base") + 1
+        if idx >= len(sys.argv) or sys.argv[idx].startswith("--"):
+            print("ERROR\tevidence\t--git-base requires a ref", file=sys.stderr)
+            return 2
+        git_base = sys.argv[idx]
+    if os.environ.get("GITHUB_ACTIONS") == "true" and not git_base:
+        print("ERROR\tevidence\tCI requires a real git base", file=sys.stderr)
+        return 2
 
     results = {
         "hard_gate": "FAIL",
@@ -148,7 +155,8 @@ def main() -> int:
                 "--modified", "--added",
             ]
         )
-        results["revision_gate"] = "PASS" if code == 0 else "FAIL"
+        # Manifest shape was checked, but no diff was supplied; do not claim a full gate pass.
+        results["revision_gate"] = "SKIP" if code == 0 else "FAIL"
         if code != 0:
             _evidence(results, git_base)
             return 1
@@ -231,7 +239,7 @@ def _evidence(results: dict[str, str], git_base: str) -> int:
             if result not in {"REPORTED", "FAIL"}:
                 return 1
             continue
-        if gate == "append_only" and not git_base and result == "SKIP":
+        if gate in {"append_only", "revision_gate"} and not git_base and result == "SKIP":
             continue
         if result != "PASS":
             print(f"ERROR\tevidence\tgate {gate}={result}", file=sys.stderr)
