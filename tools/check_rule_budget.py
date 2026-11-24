@@ -140,10 +140,13 @@ def check(
     # 4) registry diff: no rule may vanish without a retirement record
     if base:
         raw = _git_show(base, BUDGET_FILE.relative_to(ROOT).as_posix())
-        if raw:
+        if not raw:
+            errors.append(f"RULE-BUDGET: 無法讀取基準 {base}")
+        else:
             try:
                 old = json.loads(raw)
             except json.JSONDecodeError:
+                errors.append(f"RULE-BUDGET: 基準 {base} JSON 無效")
                 old = {}
             old_ids = {str(e.get("id")) for e in old.get("hoisted_rules", [])}
             retired_ids = {str(e.get("id")) for e in budget.get("retired_rules", [])}
@@ -153,9 +156,9 @@ def check(
                 errors.append(
                     f"RULE-BUDGET: 規則 {rid} 從登記表消失且未列入 retired_rules（規則不得無紀錄消失）"
                 )
-            for entry in budget.get("retired_rules", []):
-                if not entry.get("reason"):
-                    errors.append(f"RULE-BUDGET: retired rule {entry.get('id')} 缺少 reason")
+    for entry in budget.get("retired_rules", []):
+        if not str(entry.get("reason") or "").strip():
+            errors.append(f"RULE-BUDGET: retired rule {entry.get('id')} 缺少 reason")
     return errors
 
 
@@ -178,7 +181,8 @@ def main() -> int:
     if errors:
         print("ERROR\trule-budget", file=sys.stderr)
         return 1
-    print("OK\trule-budget")
+    if not args.json:
+        print("OK\trule-budget")
     return 0
 
 

@@ -139,8 +139,9 @@ def extract_voice_for(gov_text: str, pov_text: str, plot_text: str) -> tuple[str
         return "只載入本場 POV 的注意偏差；不要整份 Voice Fingerprint。", []
     matched_names: list[str] = []
     snippets: list[str] = []
+    # Only the explicit POV may select a voice; other characters in the plot are not POV.
     for short_name, header, stop_markers in VOICE_SECTIONS:
-        if short_name in pov_text or (not matched_names and short_name in plot_text):
+        if short_name in pov_text:
             sec = extract_block(voice_block, header, stop_markers)
             if sec:
                 matched_names.append(short_name)

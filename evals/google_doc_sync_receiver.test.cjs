@@ -19,12 +19,27 @@ const chapters = [
 ];
 const clone = value => JSON.parse(JSON.stringify(value));
 
+function indexedBody(value) {
+  // Match Docs' UTF-16 ranges, including the mandatory initial section break.
+  let index = 1;
+  const content = [{ endIndex: 1, sectionBreak: {} }];
+  for (const line of value.match(/[^\n]*\n|[^\n]+$/g) || []) {
+    const startIndex = index;
+    index += line.length;
+    content.push({ startIndex, endIndex: index, paragraph: {
+      elements: [{ startIndex, endIndex: index, textRun: { content: line } }]
+    } });
+  }
+  return content;
+}
+function bodyText(tab) {
+  return tab.documentTab.body.content
+    .flatMap(x => (x.paragraph?.elements || []).map(y => y.textRun?.content || "")).join("");
+}
 function makeTab(i, title = "舊標題") {
   return {
-    tabProperties: { tabId: "t." + i, title },
-    documentTab: { body: { content: [
-      { endIndex: 8, paragraph: { elements: [{ textRun: { content: "舊內文。\n" } }] } }
-    ] } }
+    tabProperties: { tabId: "t.mockid" + i + "x9", title },
+    documentTab: { body: { content: indexedBody("舊內文。\n") } }
   };
 }
 
@@ -34,12 +49,12 @@ function receiver(opts = {}) {
     state.tabs.forEach((t, i) => {
       if (opts.contents[i] !== undefined) {
         const value = opts.contents[i] + "\n";
-        t.documentTab.body.content = [
-          { endIndex: 1 + value.length, paragraph: { elements: [{ textRun: { content: value } }] } }
-        ];
+        t.documentTab.body.content = indexedBody(value);
       }
     });
   }
+  if (opts.middleSection) state.tabs[0].documentTab.body.content.splice(2, 0, { startIndex: 6, endIndex: 7, sectionBreak: {} });
+  if (opts.badIndex) state.tabs[0].documentTab.body.content[1].paragraph.elements[0].startIndex++;
   if (opts.nested) state.tabs[0].childTabs = [makeTab(10, "子分頁")];
   let acquired = false;
   let released = false;
@@ -108,11 +123,7 @@ function receiver(opts = {}) {
               assert.ok(index >= 0 && index < before.length, "insert before final newline");
               after = before.slice(0, index) + req.insertText.text + before.slice(index);
             }
-            tab.documentTab.body.content = [
-              { endIndex: 1 + after.length, paragraph: {
-                elements: [{ textRun: { content: after } }]
-              } }
-            ];
+            tab.documentTab.body.content = indexedBody(after);
           } else if (req.updateParagraphStyle) {
             // Formatting only; no text changes.
           } else {
@@ -120,7 +131,7 @@ function receiver(opts = {}) {
           }
         }
         if (opts.truncateBody) {
-          next.tabs[0].documentTab.body.content[0].paragraph.elements[0].textRun.content = "內容被截斷\n";
+          next.tabs[0].documentTab.body.content = indexedBody("內容被截斷\n");
         }
         next.revisionId = "revision-" + (Number(state.revisionId.split("-")[1]) + 1);
         state = next;
@@ -186,7 +197,7 @@ check("localized_edit_does_not_replace_whole_chapter", () => {
   assert.equal(del[0].deleteContentRange.range.endIndex - del[0].deleteContentRange.range.startIndex, 1,
     "single-character typo must not cause whole-chapter deletion");
   assert.equal(ins[0].insertText.text.length, 1);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+  assert.equal(bodyText(r.tabs()[0]).trim(), original[0]);
 });
 
 check("utf16_surrogate_pairs_remain_intact", () => {
@@ -201,7 +212,7 @@ check("utf16_surrogate_pairs_remain_intact", () => {
   assert.equal(deletes.length, 1);
   assert.equal(deletes[0].deleteContentRange.range.endIndex -
     deletes[0].deleteContentRange.range.startIndex, 2);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content.trim(), original[0]);
+  assert.equal(bodyText(r.tabs()[0]).trim(), original[0]);
 });
 
 check("revision_conflict_blocks_all_writes", () => {
@@ -216,7 +227,7 @@ check("failed_rename_is_a_hard_error_and_body_is_atomic", () => {
   const result = r.post();
   assert.equal(result.ok, false);
   assert.match(result.error, /rename failed/);
-  assert.equal(r.tabs()[0].documentTab.body.content[0].paragraph.elements[0].textRun.content, "舊內文。\n");
+  assert.equal(bodyText(r.tabs()[0]), "舊內文。\n");
 });
 
 check("silent_title_mismatch_is_detected", () => {
@@ -267,4 +278,33 @@ check("invalid_chapters_and_lock_contention_fail_closed", () => {
   assert.equal(busy.batches(), 0);
 });
 
-process.stdout.write("OK google_doc_sync_receiver: 12 tests\n");
+check("middle_section_break_rejected_before_any_write", () => {
+  const r = receiver({ titles: ["舊一"], middleSection: true });
+  assert.match(r.post().error, /unsupported_section_break/);
+  assert.equal(r.batches(), 0);
+  assert.ok(r.released());
+});
+check("malformed_utf16_index_rejected_before_any_write", () => {
+  const r = receiver({ badIndex: true });
+  assert.match(r.post().error, /tab_element_index_mismatch/);
+  assert.equal(r.batches(), 0);
+});
+check("extra_trailing_newlines_are_removed", () => {
+  const original = chapters.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+  const r = receiver({ titles: chapters.map(c => c.heading), contents: [original[0] + "\n\n", original[1]] });
+  assert.equal(r.post().ok, true);
+  assert.equal(bodyText(r.tabs()[0]), original[0] + "\n");
+});
+check("shared_surrogate_halves_are_not_split", () => {
+  for (const [before, after] of [["🚀", "🚁"], ["\u{10000}", "\u{10400}"]]) {
+    const desired = clone(chapters);
+    desired[0].paragraphs[0] += after;
+    const original = desired.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n"));
+    const r = receiver({ titles: desired.map(c => c.heading), contents: [original[0].replace(after, before), original[1]] });
+    assert.equal(r.post({chapters: desired}).ok, true);
+    const del = r.requests().flat().find(q => q.deleteContentRange).deleteContentRange.range;
+    assert.equal(del.endIndex - del.startIndex, 2);
+    assert.equal(bodyText(r.tabs()[0]), original[0] + "\n");
+  }
+});
+process.stdout.write("OK google_doc_sync_receiver: 16 tests\n");

@@ -23,6 +23,9 @@ function doPost(e) {
       return jsonOut({ ok: false, error: 'missing_body' });
     }
     var payload = JSON.parse(e.postData.contents);
+    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+      return jsonOut({ ok: false, error: 'invalid_payload' });
+    }
     var expectedSecret = PropertiesService.getScriptProperties().getProperty('SYNC_SECRET');
     if (!expectedSecret || payload.secret !== expectedSecret) {
       return jsonOut({ ok: false, error: 'unauthorized' });
@@ -48,6 +51,9 @@ function doPost(e) {
       throw new Error('missing_document_revision');
     }
     var rootTabs = getRootTabs_(doc);
+    // Preflight every tab that may be edited before even creating new tabs.
+    var preflightCount = reserveExcess ? rootTabs.length : Math.min(rootTabs.length, chapters.length);
+    for (var pre = 0; pre < preflightCount; pre++) getTabText_(rootTabs[pre]);
 
     // Add missing tabs, then re-read IDs; never change old tab IDs or delete tabs.
     if (chapters.length > rootTabs.length) {
@@ -99,7 +105,7 @@ function doPost(e) {
     }
 
     if (reserveExcess && rootTabs.length > chapters.length) {
-      var cnNums = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
+      var cnNums = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十'];
       for (var rIdx = chapters.length; rIdx < rootTabs.length; rIdx++) {
         var rTab = rootTabs[rIdx];
         var rTabId = rTab.tabProperties.tabId;
@@ -199,19 +205,32 @@ function getTabText_(tab) {
   var text = '';
   for (var i = 0; i < body.content.length; i++) {
     var item = body.content[i];
-    if (item.sectionBreak) continue;
+    if (item.sectionBreak) {
+      // The initial section break is the single code unit at index zero.
+      if (i === 0 && (item.startIndex === undefined || item.startIndex === 0) && item.endIndex === 1) continue;
+      throw new Error('unsupported_section_break_' + tab.tabProperties.tabId);
+    }
+    if (item.startIndex !== 1 + text.length) {
+      throw new Error('tab_index_mismatch_' + tab.tabProperties.tabId);
+    }
     if (!item.paragraph || !Array.isArray(item.paragraph.elements)) {
       throw new Error('unsupported_tab_content');
     }
     for (var j = 0; j < item.paragraph.elements.length; j++) {
-      var run = item.paragraph.elements[j].textRun;
+      var element = item.paragraph.elements[j];
+      var run = element.textRun;
       if (!run || typeof run.content !== 'string') {
         throw new Error('unsupported_tab_element');
       }
+      if (element.startIndex !== 1 + text.length || element.endIndex !== 1 + text.length + run.content.length) {
+        throw new Error('tab_element_index_mismatch_' + tab.tabProperties.tabId);
+      }
       text += run.content;
     }
+    if (item.endIndex !== 1 + text.length) throw new Error('tab_end_index_mismatch_' + tab.tabProperties.tabId);
   }
-  return text.replace(/\n+$/, '');
+  if (!text.endsWith('\n')) throw new Error('missing_final_newline_' + tab.tabProperties.tabId);
+  return text.slice(0, -1);
 }
 
 function verifyTabs_(tabs, expectedTabs) {
@@ -225,7 +244,7 @@ function verifyTabs_(tabs, expectedTabs) {
         actual.tabProperties.title !== expected.title) {
       throw new Error('tab_title_mismatch_' + (i + 1));
     }
-    if (getTabText_(actual) !== expected.text.replace(/\n+$/, '')) {
+    if (getTabText_(actual) !== expected.text) {
       throw new Error('tab_body_mismatch_' + (i + 1));
     }
   }

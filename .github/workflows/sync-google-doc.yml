@@ -7,6 +7,7 @@ on:
     paths:
       - "10_現行創作資料/小說正文第三版.md"
       - "tools/sync_google_doc.py"
+      - "tools/prose_checks.py"
       - "tools/google_apps_script_sync.gs"
       - ".github/workflows/sync-google-doc.yml"
   workflow_dispatch:
@@ -17,6 +18,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: read
+
 # Queue publication requests; each run refreshes from canonical main before writing.
 concurrency:
   group: sync-google-doc-${{ github.repository }}
@@ -26,6 +30,7 @@ concurrency:
 jobs:
   sync-google-doc:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,6 +38,7 @@ jobs:
       # Publish the current canonical draft, not the historical commit that
       # happened to trigger this run. A non-draft commit can advance main too.
       - name: Refresh canonical main before publishing
+        if: ${{ github.event_name != 'workflow_dispatch' || !inputs.dry_run }}
         id: latest
         shell: bash
         run: |

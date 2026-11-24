@@ -82,6 +82,8 @@ def parse_chapters(text: str) -> list[ChapterPayload]:
             raise ValueError(f"無法解析章號：{raw_num!r}")
         if ch_num in seen_numbers:
             raise ValueError(f"重複章號：{ch_num}")
+        if ch_num != idx + 1:
+            raise ValueError(f"章號不連續：預期 {idx + 1}，實際 {ch_num}")
         seen_numbers.add(ch_num)
 
         heading = f"第{raw_num}章｜{m.group(2).strip()}"
@@ -139,6 +141,7 @@ def push_webhook(
     if not isinstance(parsed, dict) or parsed.get("ok") is not True:
         raise RuntimeError(f"Webhook returned error: {parsed}")
     if (parsed.get("verified") is not True
+            or type(parsed.get("verifiedChapters")) is not int
             or parsed.get("verifiedChapters") != len(chapters)
             or type(parsed.get("verifiedTabs")) is not int
             or parsed["verifiedTabs"] < len(chapters)

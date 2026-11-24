@@ -25,12 +25,16 @@ def drift_check(
     if not chapters:
         return ["DRIFT: live draft has no chapter headings"]
     max_draft = max(chapters)
-    facts = {int(n) for n in re.findall(r"TEXT-FACT[^\n]*Ch(?:apter)?\s*(\d+)", gov_text)}
-    facts.update(int(n) for n in re.findall(r"\[TEXT-FACT Ch(\d+)", gov_text))
-    facts.update(int(n) for n in re.findall(r"TEXT-FACT Ch(\d+)", gov_text))
-    # also Ch5–7 / Ch1–2
-    for a, b in re.findall(r"Ch(\d+)[–-](\d+)", gov_text):
-        facts.update(range(int(a), int(b) + 1))
+    facts: set[int] = set()
+    # Only explicit TEXT-FACT citations are evidence; PLANNED ranges are not.
+    for line in gov_text.splitlines():
+        for citation in re.findall(r"\[TEXT-FACT\b([^\]]*)\]", line):
+            for a, b in re.findall(r"Ch(?:apter)?\s*(\d+)(?:\s*[–-]\s*(?:Ch)?\s*(\d+))?", citation):
+                start, end = int(a), int(b or a)
+                if end < start:
+                    errors.append(f"DRIFT FAIL: invalid TEXT-FACT range {start}–{end}")
+                else:
+                    facts.update(range(start, end + 1))
     extra = sorted(n for n in facts if n > max_draft)
     if extra:
         errors.append(f"DRIFT FAIL: 11 TEXT-FACT cites chapters not in draft: {extra}")
