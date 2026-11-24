@@ -28,7 +28,7 @@ from check_revision_gate import (  # noqa: E402
 )
 from canon_contract import check_immutability, load_contracts, run_contracts, validate_schema  # noqa: E402
 from check_rule_budget import check as rule_budget_check  # noqa: E402
-from compile_context import compile_target, extract_style_anchors, scene_fields, extract_voice_for  # noqa: E402
+from compile_context import compile_target, extract_style_anchors, scene_fields, extract_voice_for, knowledge_blocks, knowledge_ids_for  # noqa: E402
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
 from prose_rhythm import analyze  # noqa: E402
 from style_profile import NOT_EVIDENCE  # noqa: E402
@@ -1013,6 +1013,9 @@ def main() -> int:
         gap_rejected = True
     expect("audit_sync_chapter_gap_rejected", gap_rejected, "chapter numbers must be consecutive", failures, passed)
 
+    kb = "K001｜甲\nCh1\nK003｜乙\nCh10\n# 05｜Reader Knowledge\n"
+    expect("audit_knowledge_gap_and_exact_chapter", "Ch10" not in knowledge_blocks(kb)["K001"] and knowledge_ids_for(kb, "P01") == ["K001"], "entry gap and chapter substring must not contaminate selection", failures, passed)
+    expect("audit_contract_provenance", any(s["id"] == "CONTRACT-CC-025" for s in p08_live["sources"]) and "[CC-019]" not in p08_live["capsule"]["HARD BOUNDARIES"], "relevant contract must have provenance; unrelated Ch1 constraint excluded", failures, passed)
     total = len(passed) + len(failures)
     if failures:
         print("EVAL FAIL")

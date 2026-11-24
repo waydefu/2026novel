@@ -7,6 +7,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { execFileSync } = require("node:child_process");
 
 const source = fs.readFileSync(
   path.join(__dirname, "..", "tools", "google_apps_script_sync.gs"), "utf8"
@@ -19,7 +20,7 @@ const chapters = [
 ];
 const clone = value => JSON.parse(JSON.stringify(value));
 
-function indexedBody(value) {
+function indexedBody(value, inheritedStyle = "NORMAL_TEXT") {
   // Match Docs' UTF-16 ranges, including the mandatory initial section break.
   let index = 1;
   const content = [{ endIndex: 1, sectionBreak: {} }];
@@ -27,6 +28,7 @@ function indexedBody(value) {
     const startIndex = index;
     index += line.length;
     content.push({ startIndex, endIndex: index, paragraph: {
+      paragraphStyle: { namedStyleType: inheritedStyle },
       elements: [{ startIndex, endIndex: index, textRun: { content: line } }]
     } });
   }
@@ -123,9 +125,16 @@ function receiver(opts = {}) {
               assert.ok(index >= 0 && index < before.length, "insert before final newline");
               after = before.slice(0, index) + req.insertText.text + before.slice(index);
             }
-            tab.documentTab.body.content = indexedBody(after);
+            tab.documentTab.body.content = indexedBody(after, opts.inheritHeadingStyle ? "HEADING_2" : "NORMAL_TEXT");
           } else if (req.updateParagraphStyle) {
-            // Formatting only; no text changes.
+            const { range, paragraphStyle } = req.updateParagraphStyle;
+            const tab = findTab(range.tabId);
+            assert.ok(range.startIndex >= 1 && range.endIndex > range.startIndex);
+            for (const element of tab.documentTab.body.content) {
+              if (element.paragraph && element.startIndex < range.endIndex && element.endIndex > range.startIndex) {
+                element.paragraph.paragraphStyle = clone(paragraphStyle);
+              }
+            }
           } else {
             throw Error("Unexpected Docs API operation: " + Object.keys(req)[0]);
           }
@@ -318,4 +327,22 @@ check("collaborator_change_between_creation_and_content_is_rejected", () => {
   assert.equal(bodyText(r.tabs()[0]), "舊內文。\n");
   assert.ok(r.released());
 });
-process.stdout.write("OK google_doc_sync_receiver: 17 tests\n");
+check("new_body_does_not_inherit_heading_style", () => {
+  const r = receiver({ titles: ["舊一", "舊二"], inheritHeadingStyle: true });
+  assert.equal(r.post().ok, true);
+  for (const tab of r.tabs()) {
+    const paras = tab.documentTab.body.content.filter(x => x.paragraph).map(x => x.paragraph);
+    assert.equal(paras[0].paragraphStyle.namedStyleType, "HEADING_2");
+    assert.ok(paras.slice(1).every(x => x.paragraphStyle.namedStyleType === "NORMAL_TEXT"));
+  }
+});
+check("python_payload_to_receiver_contract", () => {
+  const markdown = "# 第一章｜出發\n\n正文甲🚀。\n\n正文乙。\n\n# 第二章｜回來\n\n正文丙。\n";
+  const payload = JSON.parse(execFileSync(process.env.PYTHON || "python", ["-c",
+    "import sys,json; from dataclasses import asdict; sys.path.insert(0,'tools'); from sync_google_doc import parse_chapters; print(json.dumps([asdict(c) for c in parse_chapters(sys.stdin.read())]))"
+  ], {cwd: path.join(__dirname, ".."), input: markdown, encoding: "utf8", env: {...process.env, PYTHONIOENCODING: "utf-8"}}));
+  const r = receiver();
+  assert.equal(r.post({chapters: payload}).ok, true);
+  assert.deepEqual(r.tabs().map(bodyText), payload.map(c => c.heading + "\n\n" + c.paragraphs.join("\n\n") + "\n"));
+});
+process.stdout.write("OK google_doc_sync_receiver: 19 tests\n");

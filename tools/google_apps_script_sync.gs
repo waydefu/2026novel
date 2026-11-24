@@ -316,6 +316,17 @@ function pushTabMinimalTextRequests_(requests, tab, heading, paragraphs) {
       }
     });
   }
+  // New body paragraphs inserted at the heading boundary can inherit HEADING_2.
+  // Restrict explicit normalization to the changed body span; do not rewrite unrelated paragraphs.
+  if (prefix <= heading.length + 1 && newEnd > heading.length + 1) {
+    requests.push({
+      updateParagraphStyle: {
+        range: { tabId: tab.tabProperties.tabId, startIndex: 1 + heading.length + 1, endIndex: 1 + newEnd },
+        paragraphStyle: { namedStyleType: 'NORMAL_TEXT' },
+        fields: 'namedStyleType'
+      }
+    });
+  }
   return true;
 }
 
