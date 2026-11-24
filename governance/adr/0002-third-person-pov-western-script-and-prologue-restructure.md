@@ -1,6 +1,7 @@
 # ADR｜全面改採第三人稱限知多視角、西幻語文器具一致化與序章六章壓縮重構
 
-STATUS：accepted
+STATUS：superseded
+superseded_by：ADR-0003（僅取代六章結構與章別索引；第三人稱限知、西幻器具及已採用的規則續有效）
 DATE：2026-11-22
 DECIDERS：作者（明確授權「以上全修」）
 
