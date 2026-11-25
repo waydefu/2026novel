@@ -15,7 +15,11 @@ PY = sys.executable
 
 def run(args: list[str]) -> int:
     print("+", " ".join(args), flush=True)
-    return subprocess.call(args, cwd=ROOT)
+    try:
+        return subprocess.call(args, cwd=ROOT)
+    except OSError as exc:
+        print(f"ERROR\tcommand\t{args[0]}: {exc}", file=sys.stderr)
+        return 127
 
 
 def main() -> int:
@@ -113,6 +117,11 @@ def main() -> int:
         return 1
     results["continuity"] = "PASS"
 
+    # Same regression entry locally and in Actions. Missing Node is a real
+    # regression failure, not a silent skip or successful mocked sync.
+    if run(["node", str(ROOT / "evals" / "google_doc_sync_receiver.test.cjs")]) != 0:
+        _evidence(results, git_base)
+        return 1
     if run([PY, str(ROOT / "evals" / "run_evals.py")]) != 0:
         _evidence(results, git_base)
         return 1

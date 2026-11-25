@@ -18,8 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Verify Google Docs receiver contract (mocked, no live writes)
-        run: node evals/google_doc_sync_receiver.test.cjs
+      # The shared ci_suite.py runs the mocked receiver tests locally and here.
       - name: Determine git base
         id: base
         shell: bash

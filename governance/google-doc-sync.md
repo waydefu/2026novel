@@ -94,3 +94,7 @@ Google 官方 Issue Tracker [561660144](https://issuetracker.google.com/issues/5
 - 建立分頁後使用 batchUpdate 回應的新 revision，再讀取文件；若共同編輯者在兩階段之間修改文件，拒絕後續正文寫入。建立分頁已發生，不宣稱兩階段原子。
 - 手動 dry-run 保留所選分支，正式寫入才取 main；queue: max 最多排隊 100 個執行，非無限容量。
 - 新版接收器、Mock 與程式碼測試不等於線上部署。先以另行核准的副本進行 E2E，不在正式文件上試錯。
+
+## 八、2026-11-25 隔離副本驗證
+
+正式文件七章逐段文字（忽略空行及段落首尾空白）與 #52 後 main 一致，四個原生分頁名稱仍過時。已建立[非正式同步測試副本](https://docs.google.com/document/d/1O_3hsMaUdBidHx0xHYvga03RSbLkPptivSqbipyo1Ts/edit)，以目前 revisionId 提交四個 `updateDocumentTabProperties`，連接器回傳內部錯誤；讀回八個分頁名稱及各段文字與樣式，均保持原樣。此結果只能證明副本改名未成功，不能推定 Google HTTP 500 或認證失效，也不是 Apps Script 實機測試。正式文件、原分享權限與 Secrets 未修改；仍需作者在 Apps Script 管理部署中更新既有 Web App 版本，再進行隔離 E2E 與正式同步。

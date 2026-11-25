@@ -1,5 +1,5 @@
 {
-  "updated": "2026-10-22",
+  "updated": "2026-11-25",
   "note": "AGENTS.md 是每個代理都會讀的檔案，因此有體量上限。可機檢的規則下沉到 tools/ 與 evals/，可長讀的清單下沉到 governance/。任何從 AGENTS.md 移出的規則都必須在此登記，否則視為遺失。enforcement 欄位必須誠實：machine-enforced＝工具會擋；machine-assisted＝工具只給候選；manual-review＝沒有工具能查，必須靠人。",
   "agents_md": {
     "max_lines": 200,
@@ -23,7 +23,9 @@
     "governance/status.md",
     "governance/style-anchors.md",
     "governance/facs-body-lexicon.md",
-    "governance/scene-beat-director.md"
+    "governance/scene-beat-director.md",
+    "governance/google-doc-sync.md",
+    "governance/core-invariants.json"
   ],
   "retired_rules": [],
   "hoisted_rules": [
@@ -172,7 +174,7 @@
     {
       "id": "HB-019",
       "statement": "冷讀與驗收清單須逐項判讀，不得以零命中代替人味",
-      "enforcement": "manual-review",
+      "enforcement": "machine-assisted",
       "enforced_by": "tools/scan_pattern_risk.py",
       "docs": [
         "governance/qa-checklists.md",
@@ -260,7 +262,7 @@
     {
       "id": "HB-029",
       "statement": "FACS 生理肌群轉譯與微小失誤都是可不使用的素材；濾鏡詞檢測由獨立上下文 Pass 3 人工判讀，不能機械刪詞",
-      "enforcement": "manual-review",
+      "enforcement": "machine-assisted",
       "enforced_by": "tools/scan_pattern_risk.py",
       "docs": [
         "governance/facs-body-lexicon.md",

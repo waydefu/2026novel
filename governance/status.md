@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-25｜基準：`origin/main` @ `c98fbd6`（PR #51 已合併）。本輪後續 PR 尚待獨立驗收；快照基準指施工前的 main，而非本輪待合併 commit。
+Snapshot：2026-11-25｜基準：`origin/main` @ `f6f9269`（PR #54 已合併，含 #52 正文修補及 #53 工程修正）。快照基準指施工前 main；本輪後續 PR 須另行驗收。
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -60,3 +60,9 @@ Snapshot：2026-11-25｜基準：`origin/main` @ `c98fbd6`（PR #51 已合併）
 ## 2026-11-25 後續稽核施工
 
 PR #51 已合併；主分支 [治理 CI](https://github.com/waydefu/2026novel/actions/runs/45334051422) 通過，但 [正式發布](https://github.com/waydefu/2026novel/actions/runs/45334051442) 仍因 webhook 未驗證回覆失敗。本輪 R2 修補稽核 S4-F02 的四處限知資訊邊界，統一受傷側與 11 的明確正文事實，保留所有事件、既有 Canon、TBD 與發布權限。四個原生分頁舊名、正式部署、剩餘算法與 ADR 問題未在此輪宣稱完成；Ch4 的兩週停練與 09 的數日描述差異留待大綱對齊。
+
+## 2026-11-25 合併與稽核證據
+
+- [#52](https://github.com/waydefu/2026novel/pull/52) 已入 main；[#53](https://github.com/waydefu/2026novel/pull/53) 原合入舊分支，已由 [#54](https://github.com/waydefu/2026novel/pull/54) 完整移植。合併後 [main CI](https://github.com/waydefu/2026novel/actions/runs/45557114114) 通過。新量測樣本未重新校準。
+- 正式 Docs 七章逐段文字（去空行／首尾空白）與 #52 後 main 一致；四個原生分頁標題未同步。隔離副本改名呼叫回傳內部錯誤，讀回標題與文字均未改；原因尚未確認，不視為 GAS E2E。見 `google-doc-sync.md`。
+- 本輪 R0 補足 Canon 診斷、規則副本及統一測試入口；未改 Canon、章綱、正文、TBD 或分享權限。
