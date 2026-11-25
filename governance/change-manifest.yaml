@@ -1,9 +1,9 @@
 schema: governance-change-manifest/v1
-revision_level: R0
-target: ops-runtime
+revision_level: R2
+target: chapter-01
 canon_change: false
-governance_sync: false
-state_change: none
-backup_ref: ""
-authorization_ref: "2026-11-25 user: 繼續（PR50 remaining audit remediation）"
-notes: "R0 follow-up: S3-F13 contract diagnostics; S2-F03 shared Node regression entry; S2-F06 required docs and enforcement classification; S2-F09 agent rule consistency; S3-F14 preserve blocking budget but correct misleading label; S1-F09 HTTPS and S1-F10 diagnostics; record actual #54 and isolated Docs results. No gate weakened, no Canon/prose/TBD/live deployment change."
+governance_sync: true
+state_change: changed
+backup_ref: "99_備份/01_正文備份/2026-11-25_R2第一章逐句與AU修訂前快照.md"
+authorization_ref: "2026-11-25 user: 全修（第一章逐句與 AU 大掃）"
+notes: "Only chapter 01 prose and CH01 derived state; preserve events, knowledge reveal, original ending, no diagnosis or new Canon. Separate branch from open PR56; do not stack or merge other chapters."
