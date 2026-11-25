@@ -591,6 +591,18 @@ def main() -> int:
         passed,
     )
 
+    # Diagnostics use full-file line numbers, report every affected line,
+    # and reject malformed patterns before running any regex.
+    diag_contract = {"contracts": [{"id": "D", "scope": {"all": True}, "forbid": ["違規"]}]}
+    diag_text = "# 第一章｜甲\n\n違規甲。\n違規乙。\n# 第二章｜乙\n違規丙。\n"
+    diag = run_contracts(diag_text, diag_contract)
+    expect("contract_all_hits_absolute_lines", [(h.line, h.chapter) for h in diag] == [
+        (3, "第一章｜甲"), (4, "第一章｜甲"), (6, "第二章｜乙")], str(diag), failures, passed)
+    invalid = run_contracts(diag_text, {"contracts": [{"id": "D", "scope": {"all": True}, "forbid": ["["]}]})
+    expect("contract_invalid_regex_structured", bool(invalid) and all(h.kind == "schema" for h in invalid), str(invalid), failures, passed)
+    clean = run_contracts("# 第一章｜甲\n正常。", diag_contract)
+    expect("contract_diagnostic_clean", clean == [], str(clean), failures, passed)
+
     # --json must emit valid JSON *and* exit non-zero when violations exist.
     proc = subprocess.run(
         [sys.executable, str(ROOT / "tools" / "canon_contract.py"), str(FIXTURES / "fail_contract_violation.md"), "--json"],
@@ -998,6 +1010,13 @@ def main() -> int:
     )
 
     # Audit regressions: assert both legitimate and rejected paths.
+    with patch("sync_google_doc.urllib.request.urlopen") as mocked_http:
+        rejected_http = False
+        try:
+            push_webhook([ChapterPayload(1, "第一章｜測試", ["內文。"])], "doc-test", "http://example.invalid/sync", "secret", "sha")
+        except RuntimeError:
+            rejected_http = True
+        expect("audit_webhook_requires_https", rejected_http and not mocked_http.called, "plaintext must never receive secret", failures, passed)
     test_draft = "# 第一章｜起點\n\n正文。\n"
     test_gov = "CUT-OFF：現行正文第一章結束。\nCH01｜第一章\n"
     expect("audit_planned_range_not_fact", drift_check(test_draft, test_gov + "[PLANNED] Ch8–9\n", "", "莉諾兒") == [], "planned range must not become TEXT-FACT", failures, passed)

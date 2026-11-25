@@ -5,4 +5,5 @@ canon_change: false
 governance_sync: false
 state_change: none
 backup_ref: ""
-notes: "Author's current start instruction: restore PR #53 (S3-F11/S3-F15 partial and S2-F05) to main after it merged into the former #52 branch. Identical source/base trees verified; only manifest provenance updated. Measurement-only parser correction, old calibration marked historical; thresholds unchanged, no gate weakened. No narrative, Canon, live Docs or TBD change."
+authorization_ref: "2026-11-25 user: 繼續（PR50 remaining audit remediation）"
+notes: "R0 follow-up: S3-F13 contract diagnostics; S2-F03 shared Node regression entry; S2-F06 required docs and enforcement classification; S2-F09 agent rule consistency; S3-F14 preserve blocking budget but correct misleading label; S1-F09 HTTPS and S1-F10 diagnostics; record actual #54 and isolated Docs results. No gate weakened, no Canon/prose/TBD/live deployment change."

@@ -111,6 +111,9 @@ def push_webhook(
     source_sha: str,
     reserve_excess_tabs: bool = True,
 ) -> dict:
+    # Do not send the publication secret to a plaintext URL.
+    if not webhook_url.lower().startswith("https://"):
+        raise RuntimeError("Webhook URL must use HTTPS")
     payload = {
         "secret": webhook_secret,
         "docId": doc_id,

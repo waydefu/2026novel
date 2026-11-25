@@ -101,7 +101,7 @@ def check(
         )
     if max_modal and stats["modal_sentences"] > max_modal:
         errors.append(
-            f"RULE-BUDGET: AGENTS.md 強制語句 {stats['modal_sentences']} 句 > 上限 {max_modal}（諮詢性）"
+            f"RULE-BUDGET: AGENTS.md 強制語句 {stats['modal_sentences']} 句 > 上限 {max_modal}（現行阻擋式上限；未變更門檻）"
         )
 
     # 2) required docs

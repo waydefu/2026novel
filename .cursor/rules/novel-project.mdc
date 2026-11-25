@@ -16,9 +16,10 @@ alwaysApply: true
 1. 作者本輪明確指示
 2. `AGENTS.md`（根規則）
 3. `10_現行創作資料/01-08_小說設定總表｜角色・關係・劇情資料.md`（人物／關係 Canon）
-4. `10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（章綱）
-5. `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（衍生狀態，不創造 Canon）
-6. `10_現行創作資料/小說正文第三版.md`
+4. 已生效世界底層設定與世界大腦（僅現行 Canon；舊稿不能補設定）
+5. `10_現行創作資料/09_序章～第一篇章節大綱｜第二版.md`（章綱）
+6. `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md`（衍生狀態，不創造 Canon）
+7. `10_現行創作資料/小說正文第三版.md`（既存正文事實受 Canon 守恆約束）
 
 ## 硬性禁止
 
@@ -38,7 +39,7 @@ alwaysApply: true
 
 1. 讀 `governance/change-manifest.yaml` 的 `revision_level`（R0–R4）。[REVISION-LEVEL]
 2. R2 以上先備份，正文快照放 `99_備份/01_正文備份/`。
-3. 改正文後同步 11 的 Knowledge／State／Dependency（`governance_sync: true`）。
+3. R1 只改行文，不改 01–06／09／11；R2 以上依根規則同步 11 的 Knowledge／State／Dependency（`governance_sync: true`），若狀態確實未變，依 manifest 記錄 `state_change: none` 與非空理由。
 4. 全書統一第三人稱限知多視角，一場一名焦點角色，只寫該角色能取得的資訊，並保持西幻書寫、飲食與器具一致。[POV-LIMITED]
 5. 跑 `py -3 evals/ci_suite.py`；PR 需通過 `gate-proven`。
 

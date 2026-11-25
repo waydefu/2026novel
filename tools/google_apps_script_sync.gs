@@ -216,13 +216,13 @@ function getTabText_(tab) {
       throw new Error('tab_index_mismatch_' + tab.tabProperties.tabId);
     }
     if (!item.paragraph || !Array.isArray(item.paragraph.elements)) {
-      throw new Error('unsupported_tab_content');
+      throw new Error('unsupported_tab_content_' + tab.tabProperties.tabId);
     }
     for (var j = 0; j < item.paragraph.elements.length; j++) {
       var element = item.paragraph.elements[j];
       var run = element.textRun;
       if (!run || typeof run.content !== 'string') {
-        throw new Error('unsupported_tab_element');
+        throw new Error('unsupported_tab_element_' + tab.tabProperties.tabId + '_keys_' + Object.keys(element).join(','));
       }
       if (element.startIndex !== 1 + text.length || element.endIndex !== 1 + text.length + run.content.length) {
         throw new Error('tab_element_index_mismatch_' + tab.tabProperties.tabId);

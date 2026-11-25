@@ -55,11 +55,12 @@ class ContractHit:
     detail: str
     line: int = 0
     text: str = ""
+    chapter: str = ""
 
     def format(self) -> str:
         loc = f"{self.line}" if self.line else "-"
         snippet = self.text.strip().replace("\n", " ")[:70]
-        return f"CONTRACT\t{self.contract_id}\t{self.kind}\tline={loc}\t{self.title}\t{snippet}"
+        return f"CONTRACT\t{self.contract_id}\t{self.kind}\tline={loc}\t{self.chapter or '-'}\t{self.title}\t{self.detail}\t{snippet}"
 
 
 def split_chapters(text: str) -> list[tuple[str, str]]:
@@ -110,8 +111,19 @@ def validate_schema(contracts: dict) -> list[ContractHit]:
             hits.append(ContractHit(cid, title, "schema", "缺少 scope"))
         if not contract.get("require") and not contract.get("forbid"):
             hits.append(ContractHit(cid, title, "schema", "require 與 forbid 皆為空，契約無作用"))
-        if not isinstance(contract.get("require", []), list) or not isinstance(contract.get("forbid", []), list):
-            hits.append(ContractHit(cid, title, "schema", "require／forbid 必須是陣列"))
+        for field in ("require", "forbid"):
+            patterns = contract.get(field, [])
+            if not isinstance(patterns, list):
+                hits.append(ContractHit(cid, title, "schema", f"{field} 必須是陣列"))
+                continue
+            for pattern in patterns:
+                if not isinstance(pattern, str) or not pattern:
+                    hits.append(ContractHit(cid, title, "schema", f"{field} 包含非字串或空模式"))
+                    continue
+                try:
+                    re.compile(pattern)
+                except re.error as exc:
+                    hits.append(ContractHit(cid, title, "schema", f"{field} 正則無效 /{pattern}/: {exc}"))
     by_id = {c.get("id"): c for c in contracts.get("contracts", [])}
     for contract in contracts.get("contracts", []):
         if contract.get("status", "active") != "superseded":
@@ -133,7 +145,12 @@ def validate_schema(contracts: dict) -> list[ContractHit]:
 
 def run_contracts(text: str, contracts: dict) -> list[ContractHit]:
     hits: list[ContractHit] = validate_schema(contracts)
+    # Fail closed on malformed patterns; never raise a regex traceback instead
+    # of structured evidence.
+    if hits:
+        return hits
     chapters = split_chapters(text)
+    offsets = {m.group(1): text.count("\n", 0, m.end()) + 1 for m in CHAPTER_HEAD.finditer(text)}
     for contract in contracts.get("contracts", []):
         if contract.get("status", "active") != "active":
             continue
@@ -155,11 +172,7 @@ def run_contracts(text: str, contracts: dict) -> list[ContractHit]:
             for name, chunk in resolved:
                 for i, line in enumerate(chunk.splitlines(), 1):
                     if re.search(pat, line):
-                        hits.append(ContractHit(cid, title, "forbidden", f"出現禁止內容 /{pat}/", i, line))
-                        break
-                else:
-                    continue
-                break
+                        hits.append(ContractHit(cid, title, "forbidden", f"出現禁止內容 /{pat}/", offsets[name] + i - 1, line, name))
     return hits
 
 
@@ -243,7 +256,10 @@ def main() -> int:
         return 2
     scope = classify_path(path)
     if scope != "prose":
-        print(f"EXEMPT\tscope={scope}\t{path}")
+        if args.json:
+            print(json.dumps({"scope": scope, "exempt": True, "violations": [], "count": 0}, ensure_ascii=False))
+        else:
+            print(f"EXEMPT\tscope={scope}\t{path}")
         return 0
 
     hits = run_contracts(read_text(path), contracts)
