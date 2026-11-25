@@ -30,8 +30,8 @@ from canon_contract import check_immutability, load_contracts, run_contracts, va
 from check_rule_budget import check as rule_budget_check  # noqa: E402
 from compile_context import compile_target, extract_style_anchors, scene_fields, extract_voice_for, knowledge_blocks, knowledge_ids_for  # noqa: E402
 from prose_lexicon import lexicon_hash, scan_lexicon  # noqa: E402
-from prose_rhythm import analyze  # noqa: E402
-from style_profile import NOT_EVIDENCE  # noqa: E402
+from prose_rhythm import analyze, analyze_by_chapter, sentence_records, DEFAULT_THRESHOLDS  # noqa: E402
+from style_profile import NOT_EVIDENCE, profile  # noqa: E402
 from sync_google_doc import ChapterPayload, parse_chapters, push_webhook, push_gdocs_cli  # noqa: E402
 from sync_agent_rules import SOURCE as RULES_SOURCE  # noqa: E402
 from sync_agent_rules import TARGETS as RULE_TARGETS  # noqa: E402
@@ -696,6 +696,20 @@ def main() -> int:
         failures,
         passed,
     )
+
+    # Measurement regressions: exact source lines and quote continuation,
+    # not an AI-authorship judgement.
+    rr = sentence_records("甲\n乙……丙。\n「丁。戊？」\n他說：「己。」")
+    expect("rhythm_boundaries", [x[:3] for x in rr] == [
+        ("甲", 1, False), ("乙……", 2, False), ("丙。", 2, False),
+        ("「丁。", 3, True), ("戊？」", 3, True), ("他說：「己。」", 4, False),
+    ], str(rr), failures, passed)
+    rm, _ = analyze("# 第一章｜測試\n\n甲。乙。丙。\n──\n丁。戊。", DEFAULT_THRESHOLDS)
+    expect("rhythm_run_line_and_scene_reset", rm.longest_short_run == 3 and rm.longest_short_run_line == 3, str(rm), failures, passed)
+    rc = analyze_by_chapter("# 第一章｜測試\n\n甲。\n# 第二章｜測試\n\n乙。丙。", DEFAULT_THRESHOLDS)
+    expect("rhythm_chapter_absolute_line", len(rc) == 2 and rc[1]["metrics"]["longest_short_run_line"] == 6, str(rc), failures, passed)
+    proxy = profile("雕像。想像。肖像。你吃飯了嗎？")
+    expect("style_proxy_not_semantic", proxy["metaphor"] == 0 and proxy["rhetorical_question"] > 0, str(proxy), failures, passed)
 
     expect(
         "not_evidence_present",

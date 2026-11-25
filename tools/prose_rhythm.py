@@ -11,17 +11,11 @@ but no gate can see it.
 
 Calibration
 -----------
-Thresholds are deliberately wide bands, not verdicts. They were set from two
-anchors measured with this same script:
-
-* positive anchor — live draft (第三版 Ch1–7): avg sentence 12.2, ≤10字 49.5%,
-  paragraph ≤30字 81.1%, longest short run 14.
-* negative anchor — retired 第二版 (爽文): avg sentence 26.0, ≤10字 19.8%,
-  paragraph ≤30字 37.1%.
-
-The live draft already sits at the *short* edge. The bands therefore flag the
-"too flat / too clipped" side only, and every hit must be judged by a human
-against AGENTS.md §5 / §11 STYLE-02 / §13 cold read.
+Thresholds are advisory only. The previous baseline used a different
+sentence splitter (including cross-line joins and quote false positives);
+its numbers are not comparable with this parser. Keep existing candidate
+thresholds unchanged pending a deliberate fresh calibration. A human cold
+read, not a metric or a detector, determines prose quality.
 """
 
 from __future__ import annotations
@@ -77,19 +71,63 @@ class Metrics:
     narration_avg_len: float = 0.0
 
 
+def sentence_records(text: str, start_line: int = 1) -> list[tuple[str, int, bool, int]]:
+    """Return (surface text, source line, dialogue-only, scene block).
+
+    Newlines bound measurement units even without terminal punctuation.
+    A punctuation run (including …… and adjacent closing quotes) stays whole.
+    Quoted speech can contain multiple sentences; mixed narrative/quotes are
+    classified conservatively as narration. This is lexical, not semantic.
+    """
+    records = []
+    block = 0
+    ending = re.compile(r"[。！？…]+[」』”’）】]*")
+    for line_no, raw in enumerate(text.splitlines(), start=start_line):
+        line = raw.strip()
+        if line.startswith("#") or re.fullmatch(r"[─—-]{2,}", line):
+            block += 1
+            continue
+        if not line:
+            continue
+        cursor = 0
+        depth = 0
+        spans = [(m.end()) for m in ending.finditer(line)]
+        if not spans or spans[-1] != len(line):
+            spans.append(len(line))
+        for stop in spans:
+            surface = line[cursor:stop].strip()
+            cursor = stop
+            inside = outside = 0
+            for char in surface:
+                if char in "「『":
+                    depth += 1
+                elif char in "」』":
+                    depth = max(0, depth - 1)
+                elif cjk(char):
+                    if depth:
+                        inside += 1
+                    else:
+                        outside += 1
+            if inside or outside:
+                records.append((surface, line_no, bool(inside and not outside), block))
+    return records
+
+
 def split_sentences(text: str) -> list[str]:
-    return [s.strip() for s in re.split(r"(?<=[。！？…])」?", text) if cjk(s) > 0]
+    return [surface for surface, _, _, _ in sentence_records(text)]
 
 
 def is_dialogue_sent(s: str) -> bool:
-    return s.startswith("「") or "「" in s or s.endswith("」")
+    records = sentence_records(s)
+    return bool(records) and all(dialogue for _, _, dialogue, _ in records)
 
 
-def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
-    body_lines = [l.strip() for l in text.splitlines() if l.strip() and not l.strip().startswith("#")]
-    body = "\n".join(body_lines)
-    paragraphs = [l for l in body_lines if not l.startswith("「")]
-    sents = split_sentences(body)
+def analyze(text: str, thresholds: dict, *, start_line: int = 1) -> tuple[Metrics, list[dict]]:
+    records = sentence_records(text, start_line)
+    body_lines = {n: line.strip() for n, line in enumerate(text.splitlines(), start=start_line)}
+    narration_lines = {line_no for _, line_no, dialogue, _ in records if not dialogue}
+    paragraphs = [body_lines[n] for n in sorted(narration_lines)]
+    sents = [s for s, _, _, _ in records]
     lens = [cjk(s) for s in sents]
     m = Metrics()
     m.chars = sum(lens)
@@ -106,40 +144,40 @@ def analyze(text: str, thresholds: dict) -> tuple[Metrics, list[dict]]:
     m.short_sentence_rate = round(sum(1 for l in lens if l <= short_max) / len(lens), 4)
     m.long_sentence_rate = round(sum(1 for l in lens if l > 30) / len(lens), 4)
 
-    run = 0
     run_sents: list[str] = []
-    runs: list[tuple[int, str]] = []
-    # 只算敘述句：台詞天生短，混進來會讓指標對對話密集的章節失真。
-    for s, l in zip(sents, lens):
-        if is_dialogue_sent(s):
-            if run:
-                runs.append((run, " ".join(run_sents[:3])))
-            run = 0
-            run_sents = []
+    run_line = 0
+    previous_block = None
+    runs: list[tuple[int, int, str]] = []
+
+    def flush() -> None:
+        if run_sents:
+            runs.append((len(run_sents), run_line, " ".join(run_sents[:3])))
+            run_sents.clear()
+
+    # 台詞和場景切換都中斷敘述短句串；行號指向來源 Markdown。
+    for (s, line_no, dialogue, block), length in zip(records, lens):
+        if previous_block is not None and block != previous_block:
+            flush()
+        previous_block = block
+        if dialogue or length > thresholds["short_sentence_max_chars"] + 2:
+            flush()
             continue
-        if l <= thresholds["short_sentence_max_chars"] + 2:
-            run += 1
-            run_sents.append(s)
-        else:
-            if run:
-                runs.append((run, " ".join(run_sents[:3])))
-            run = 0
-            run_sents = []
-    if run:
-        runs.append((run, " ".join(run_sents[:3])))
+        if not run_sents:
+            run_line = line_no
+        run_sents.append(s)
+    flush()
     if runs:
-        best_run, best_snip = max(runs, key=lambda x: x[0])
+        best_run, best_line, best_snip = max(runs, key=lambda x: x[0])
         m.longest_short_run = best_run
+        m.longest_short_run_line = best_line
         m.longest_short_run_snippet = best_snip[:50]
-    else:
-        m.longest_short_run = 0
-    m.short_run_clusters = sum(1 for r, _ in runs if r >= 3)
+    m.short_run_clusters = sum(1 for count, _, _ in runs if count >= 3)
 
     if paragraphs:
         m.short_paragraph_rate = round(sum(1 for p in paragraphs if cjk(p) <= 30) / len(paragraphs), 4)
 
-    dlg = [cjk(s) for s in sents if is_dialogue_sent(s)]
-    nar = [cjk(s) for s in sents if not is_dialogue_sent(s)]
+    dlg = [length for (_, _, dialogue, _), length in zip(records, lens) if dialogue]
+    nar = [length for (_, _, dialogue, _), length in zip(records, lens) if not dialogue]
     m.dialogue_sentence_ratio = round(len(dlg) / len(lens), 4)
     m.dialogue_avg_len = round(statistics.mean(dlg), 2) if dlg else 0.0
     m.narration_avg_len = round(statistics.mean(nar), 2) if nar else 0.0
@@ -160,7 +198,7 @@ def candidates_for(m: Metrics, thresholds: dict) -> list[dict]:
         flag("RHYTHM-03", f"句長標準差 {m.sentence_stdev} < {thresholds['sentence_stdev_low']}：讀感平坦", m.sentence_stdev)
     if m.longest_short_run >= thresholds["longest_short_run_high"]:
         snip = f"（例：{m.longest_short_run_snippet}）" if m.longest_short_run_snippet else ""
-        flag("RHYTHM-04", f"最長連續短句串 {m.longest_short_run} 句：疑似碎句製造張力{snip}", m.longest_short_run)
+        flag("RHYTHM-04", f"最長連續短句串 {m.longest_short_run} 句（起始行 {m.longest_short_run_line}）：疑似碎句製造張力{snip}", m.longest_short_run)
     if m.short_paragraph_rate > thresholds["short_paragraph_rate_high"]:
         flag("RHYTHM-05", f"短段占比 {m.short_paragraph_rate:.0%} > {thresholds['short_paragraph_rate_high']:.0%}：一句一段風險", m.short_paragraph_rate)
     if m.dialogue_avg_len and m.narration_avg_len and (m.dialogue_avg_len / m.narration_avg_len) < thresholds["dialogue_to_narration_ratio_low"]:
@@ -172,9 +210,12 @@ def candidates_for(m: Metrics, thresholds: dict) -> list[dict]:
 
 def analyze_by_chapter(text: str, thresholds: dict) -> list[dict]:
     rows: list[dict] = []
-    parts = re.split(r"^# (第[一二三四五六七八九十百千0-9]+章.*)$", text, flags=re.MULTILINE)
-    for name, chunk in zip(parts[1::2], parts[2::2]):
-        m, cands = analyze(chunk, thresholds)
+    heads = list(CHAPTER_HEAD.finditer(text))
+    for i, head in enumerate(heads):
+        name = head.group(1)
+        stop = heads[i + 1].start() if i + 1 < len(heads) else len(text)
+        chunk = text[head.end():stop]
+        m, cands = analyze(chunk, thresholds, start_line=text.count("\n", 0, head.end()) + 1)
         if not m.sentences:
             continue
         rows.append({"chapter": name, "metrics": asdict(m), "candidates": cands})
@@ -205,7 +246,10 @@ def main() -> int:
         return 2
     scope = classify_path(path)
     if scope != "prose":
-        print(f"EXEMPT\tscope={scope}\t{path}")
+        if args.json:
+            print(json.dumps({"scope": scope, "exempt": True, "overall": asdict(Metrics()), "candidates": [], "chapters": []}, ensure_ascii=False))
+        else:
+            print(f"EXEMPT\tscope={scope}\t{path}")
         return 0
 
     thresholds = load_thresholds(Path(args.thresholds))
