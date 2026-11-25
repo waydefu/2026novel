@@ -1,6 +1,6 @@
 # 治理狀態快照
 
-Snapshot：2026-11-25｜基準：`origin/main` @ `f6f9269`（PR #54 已合併，含 #52 正文修補及 #53 工程修正）。快照基準指施工前 main；本輪後續 PR 須另行驗收。
+Snapshot：2026-11-25｜基準：`origin/main` @ `ca13da9`（PR #55 已合併）。快照基準指施工前 main；本輪後續 PR 須另行驗收。
 
 本頁是**快照**，只記錄現在的進度、作者授權與未決缺口，供交接用。施工細節以 `10_現行創作資料/11_小說工程治理總表｜Knowledge・State・QA・TBD.md` 的 CURRENT HANDOFF 與 Knowledge／State 為準；規則以 `AGENTS.md` 為準。快照過時時，以 git 歷史與 11 為準，不以本頁為準。
 
@@ -66,3 +66,7 @@ PR #51 已合併；主分支 [治理 CI](https://github.com/waydefu/2026novel/ac
 - [#52](https://github.com/waydefu/2026novel/pull/52) 已入 main；[#53](https://github.com/waydefu/2026novel/pull/53) 原合入舊分支，已由 [#54](https://github.com/waydefu/2026novel/pull/54) 完整移植。合併後 [main CI](https://github.com/waydefu/2026novel/actions/runs/45557114114) 通過。新量測樣本未重新校準。
 - 正式 Docs 七章逐段文字（去空行／首尾空白）與 #52 後 main 一致；四個原生分頁標題未同步。隔離副本改名呼叫回傳內部錯誤，讀回標題與文字均未改；原因尚未確認，不視為 GAS E2E。見 `google-doc-sync.md`。
 - 本輪 R0 補足 Canon 診斷、規則副本及統一測試入口；未改 Canon、章綱、正文、TBD 或分享權限。
+
+## 七章正文／大綱一致性與閱讀修訂
+
+本輪作者「開始」對應七章冷讀與既存事實對齊。R3 是因觸及 09 的技術層級；實際未重寫整章，保留全部事件、角色、章名、揭露順序和 Canon。已修正文的場內邏輯、童年焦點語感與 Ch7 解說；09、11 依原文對齊。01-08 的暫定七歲、第六章通知與第一人稱殘留列 R4 待追認，不修改既存設定。獨立新上下文冷讀及長度目標尚未驗收。
